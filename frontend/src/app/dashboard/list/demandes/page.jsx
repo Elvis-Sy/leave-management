@@ -1,7 +1,9 @@
+"use client"
+
 import TableSearch from "../../../components/TableSearch"
 import Pagination from "../../../components/Pagination"
 import Table from "../../../components/Table"
-import Link from "next/link"
+import { Tabs, Tab, Card, CardBody, Badge, Tooltip } from '@nextui-org/react';
 
 const actuel = "admin"
 const role =["admin", "manager"]
@@ -87,36 +89,7 @@ const data = [
   }
 ]
 
-const col =[
-  // {
-  //   header: "",
-  //   accessor: "1"
-  // },
-  // {
-  //   header: "",
-  //   accessor: "2", 
-  //   className:"hidden md:table-cell"
-  // },
-  // {
-  //   header: "",
-  //   accessor: "3", 
-  //   className:"hidden md:table-cell"
-  // },
-  // {
-  //   header: "",
-  //   accessor: "4", 
-  //   className:"hidden md:table-cell"
-  // },
-  // {
-  //   header: "",
-  //   accessor: "5", 
-  //   className:"hidden lg:table-cell"
-  // },
-  // {
-  //   header: "",
-  //   accessor: "6"
-  // },
-]
+const col =[]
 
 const DemandePage = ()=> {
 
@@ -160,12 +133,16 @@ const DemandePage = ()=> {
               <img src="/view.png" alt="" width={20} height={20}/>
             </button>
           </Link> */}
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-green-400/20">
-            <img src="/accept.png" alt="" width={30} height={30}/>
-          </button>
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-[#e66165]/20">
-            <img src="/reject.png" alt="" width={25} height={25}/>
-          </button>
+          <Tooltip content="Approuver" color="success" showArrow={true}>
+            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-green-400/20">
+              <img src="/accept.png" alt="" width={30} height={30}/>
+            </button>
+          </Tooltip>
+          <Tooltip content="Refuser" color="danger" showArrow={true}>
+            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-[#e66165]/20">
+              <img src="/reject.png" alt="" width={25} height={25}/>
+            </button>
+          </Tooltip>
           {/* {role.includes(actuel) && (
             <div className="flex gap-4">
               <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
@@ -184,19 +161,29 @@ const DemandePage = ()=> {
   return (
     <div className="bg-white shadow-lg p-4 rounded-md flex-1 m-4 mt-0">
       {/* TOP */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-10">
-          <h1 className="hidden md:block text-lg font-semibold">Tout</h1>
-          <h1 className="hidden md:block text-lg font-semibold text-gray-500">En attente</h1>
-        </div>
-        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch/>
-        </div>
-      </div>
-      {/* TABLE */}
-      <div className="">
-        <Table col={col} render={renderRow} data={data}/>
-      </div>
+      <Tabs aria-label="Options" className="m-0">
+        
+        <Tab title="Tout" className="text-lg font-medium mt-2">
+          <Card style={{boxShadow: "none"}}>
+            <CardBody>
+              <Table col={col} render={renderRow} data={data} margin={0}/>
+            </CardBody>
+          </Card>
+        </Tab>
+        <Tab title={
+          <Badge content={0} color="danger">
+            En attente
+          </Badge>
+        } className="text-lg font-medium mt-2">
+          <Card style={{boxShadow: "none"}}>
+            <CardBody>
+              <Table col={col} render={renderRow} data={data} margin={0}/>
+            </CardBody>
+          </Card>
+          
+        </Tab>
+        
+      </Tabs>
       {/* PAGINATION */}
       <Pagination/>
     </div>

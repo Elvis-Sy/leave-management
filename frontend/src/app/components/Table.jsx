@@ -1,10 +1,10 @@
  import React from 'react'
  
- const Table = ({col, render, data}) => {
+ const Table = ({col, render, data, margin = 4}) => {
 
     
    return (
-     <table className='w-full mt-4'>
+     <table className={`w-full mt-${margin}`}>
         <thead>
             <tr className='text-left text-gray-500 text-sm'>
                 {col.map(column =>(

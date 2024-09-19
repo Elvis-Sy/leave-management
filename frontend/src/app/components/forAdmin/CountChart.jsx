@@ -1,6 +1,8 @@
 "use client"
 
-import { RadialBarChart, RadialBar, Legend, ResponsiveContainer } from "recharts"
+import { useEffect, useState } from "react"
+import { RadialBarChart, RadialBar, ResponsiveContainer } from "recharts"
+import { Spinner } from "@nextui-org/react";
 
 const data = [
     {
@@ -22,6 +24,18 @@ const data = [
 ]
 
 const CountChart = () => {
+
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simuler un temps de chargement des données
+        setTimeout(() => {
+        setIsLoading(false);
+        }, 1000);
+    }, []);
+
+
+
   return (
     <div className="bg-white shadow-lg rounded-xl w-full h-full p-4">
         {/* Titre */}
@@ -30,14 +44,29 @@ const CountChart = () => {
         </div>
         {/* Chart */}
         <div className="relative w-full h-[70%]">
-            <ResponsiveContainer>
-                <RadialBarChart cx="50%" cy="50%" innerRadius="30%" outerRadius="100%" barSize={32} data={data}>
-                    <RadialBar background dataKey="count"/>
-                </RadialBarChart>
-            </ResponsiveContainer> 
+             
 
-            {/* Image au milieu */}
-            <img src="/noyes.png" alt="" width={50} height={50} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
+        {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+                <Spinner label='Chargement' size='lg' color='primary' />
+            </div>
+        ) : (
+            <>
+                <ResponsiveContainer>
+                    <RadialBarChart cx="50%" cy="50%" innerRadius="30%" outerRadius="100%" barSize={32} data={data}>
+                        <RadialBar background dataKey="count"/>
+                    </RadialBarChart>
+                </ResponsiveContainer>
+
+                {/* Image au milieu */}
+                <img src="/noyes.png" alt="" width={50} height={50} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
+            </>
+        )}
+
+
+
+
+            
         </div>
         {/* Legend */}
         <div className="flex justify-center gap-16">

@@ -1,6 +1,8 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { Spinner } from "@nextui-org/react";
 
 const data = [
     {
@@ -49,6 +51,16 @@ const data = [
 
 const TendanceChart = () => {
 
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simuler un temps de chargement des données
+        setTimeout(() => {
+        setIsLoading(false);
+        }, 1000);
+    }, []);
+
+
   return (
     <div className="bg-white shadow-lg rounded-lg h-full p-4 flex flex-col justify-between">
         {/* Titre */}
@@ -56,23 +68,30 @@ const TendanceChart = () => {
             <h1 className="text-lg font-semibold">Tendances des établissements</h1>
             <img src="/moreDark.png" alt="" width={20} height={20}/>
         </div>
+        
+        
         {/* Chart */}
-        <ResponsiveContainer width={"100%"} height={"80%"} className="flex-1">
-            <BarChart width={500} height={300} data={data} barSize={10} className="tendance">
-                <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                <YAxis axisLine={false} tick={{fill: "gray"}} tickLine={false}/>
-                <XAxis dataKey="name" axisLine={false} tick={{fill: "gray"}} tickLine={false}/>
-                <Tooltip contentStyle={{borderRadius: "10px"}}/>
-                <Legend align="left" verticalAlign="top" wrapperStyle={{paddingTop: "5px", paddingBottom: "25px"}} className="text-xs"/>
+        {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+                <Spinner label='Chargement' size='lg' color='primary' />
+            </div>
+        ) : (
+            <ResponsiveContainer width={"100%"} height={"80%"} className="flex-1">
+                <BarChart width={500} height={300} data={data} barSize={10} className="tendance">
+                    <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+                    <YAxis axisLine={false} tick={{fill: "gray"}} tickLine={false}/>
+                    <XAxis dataKey="name" axisLine={false} tick={{fill: "gray"}} tickLine={false}/>
+                    <Tooltip contentStyle={{borderRadius: "10px"}}/>
+                    <Legend align="left" verticalAlign="top" wrapperStyle={{paddingTop: "5px", paddingBottom: "25px"}} className="text-xs"/>
+                    <Bar dataKey="Direction" fill="#b269ffa0" legendType="circle" radius={[5,5,0,0]}/>
+                    <Bar dataKey="Dep_Info" fill="#829af8a0" legendType="circle" radius={[5,5,0,0]}/>
+                    <Bar dataKey="Dep_Commercial" fill="#fe930ea0" legendType="circle" radius={[5,5,0,0]}/>
+                    <Bar dataKey="Dep_RH" fill="#e661afa0" legendType="circle" radius={[5,5,0,0]}/>
+                </BarChart>
+            </ResponsiveContainer>
+        )}
 
-                <Bar dataKey="Direction" fill="#b269ffa0" legendType="circle" radius={[5,5,0,0]}/>
-                <Bar dataKey="Dep_Info" fill="#829af8a0" legendType="circle" radius={[5,5,0,0]}/>
-                <Bar dataKey="Dep_Commercial" fill="#fe930ea0" legendType="circle" radius={[5,5,0,0]}/>
-                <Bar dataKey="Dep_RH" fill="#e661afa0" legendType="circle" radius={[5,5,0,0]}/>
 
-
-            </BarChart>
-        </ResponsiveContainer>
     </div>
   )
 }

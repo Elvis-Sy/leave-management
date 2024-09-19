@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Badge } from "@nextui-org/react";
 
 const actuel = "admin";
 
@@ -28,6 +29,12 @@ const menuItems = [
           visible: ["admin", "manager"],
         },
         {
+          icon: "/demandes.png", //demandes.png
+          label: "Demandes",
+          href: "/dashboard/list/demandes",
+          visible: ["admin", "manager"],
+        },
+        {
           icon: "/mydemande.png", //mydemande.png
           label: "Demandes",
           href: "/list/mydemandes",
@@ -36,7 +43,7 @@ const menuItems = [
         {
           icon: "/historiques.png", //historiques.png
           label: "Historiques",
-          href: "/list/historiques",
+          href: "/dashboard/list/historiques",
           visible: ["admin", "manager"],
         },
         {
@@ -44,12 +51,6 @@ const menuItems = [
           label: "Calendrier",
           href: "/dashboard/list/calendrier",
           visible: ["admin", "manager", "employe"],
-        },
-        {
-          icon: "/demandes.png", //demandes.png
-          label: "Demandes",
-          href: "/dashboard/list/demandes",
-          visible: ["admin", "manager"],
         },
       ],
     },
@@ -89,8 +90,10 @@ const Menu =()=> {
                   const isActive = pathname === i.href;
                   return(
                     <Link href={i.href} key={i.label} className={`flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 transition-all ${isActive ? "active" : "link group"}`}>
+                      <Badge content="5" color="danger" isInvisible={i.label == "Demandes" ? false : true}>
                         <img src={i.icon} alt="" width={25} height={25} className="z-20 max-w-[25px]"/>
-                        <span className="absolute font-medium text-transparent -z-20 lg:z-30 lg:text-gray-500 lg:left-12 transition-all">{i.label}</span>
+                      </Badge>
+                      <span className="absolute font-medium text-transparent -z-20 lg:z-30 lg:text-gray-500 lg:left-12 transition-all">{i.label}</span>
                     </Link>
                   )
                 })}

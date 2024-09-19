@@ -1,11 +1,12 @@
 "use client"
 
+import { useRef } from "react";
 import UserCard from '../../components/forAdmin/UserCard'
 import CountChart from '../../components/forAdmin/CountChart'
 import TendanceChart from '../../components/forAdmin/TendanceChart'
 import TypeChart from '../../components/forAdmin/TypeChart'
-import CongeCalendar from '../../components/forAdmin/MiniCalendar'
-import SomeManager from '../../components/forAdmin/SomeManager'
+import MiniCalendar from '../../components/forAdmin/MiniCalendar'
+import Recents from '../../components/Recents'
 
 const AdminPage = ()=> {
 
@@ -39,9 +40,9 @@ const AdminPage = ()=> {
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="w-full lg:w-1/3 flex flex-col gap-4">
-        <CongeCalendar/>
-        <SomeManager/>
+      <div className="w-full lg:w-1/3 flex flex-col gap-4 h-[960px]">
+        <MiniCalendar/>
+        <Recents/>
       </div>
     </div>
   )

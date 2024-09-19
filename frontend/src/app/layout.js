@@ -10,9 +10,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="antialiased bg-[#f1f2f3]">
-        <NextUIProvider>
+        {/* <NextUIProvider> */}
           {children}
-        </NextUIProvider>
+        {/* </NextUIProvider> */}
       </body>
     </html>
   );

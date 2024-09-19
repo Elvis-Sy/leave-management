@@ -1,6 +1,8 @@
 "use client"
 
+import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Spinner } from "@nextui-org/react";
 
 const data = [
   {
@@ -90,39 +92,50 @@ const data = [
 ];
 
 const TypeChart = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simuler un temps de chargement des données
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  }, []);
+
   return (
-    <div className="bg-white shadow-lg rounded-xl w-full h-full p-4"> {/* bg jusqu'a shadow */}
-        {/* Titre */}
+    <div className="bg-white shadow-lg rounded-xl w-full h-full p-4">
         <div>
             <h1 className="text-lg font-semibold">Frequences</h1>
         </div>
 
-        {/* Chart */}
-        <ResponsiveContainer width="100%" height="90%">
-        <LineChart
-          width={500}
-          height={300}
-          data={data}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke='#eee'/>
-          <XAxis dataKey="name" tick={{fill: "gray"}} tickLine={false} tickMargin={10}/>
-          <YAxis tick={{fill: "gray"}} tickLine={false} tickMargin={10}/>
-          <Tooltip contentStyle={{borderRadius: "10px"}}/>
-          <Legend verticalAlign="top" wrapperStyle={{paddingTop: "5px", paddingBottom: "25px"}}/>
-          <Line type="monotone" dataKey="paye" stroke="#e66165a0" strokeWidth={3}/>
-          <Line type="monotone" dataKey="maladie" stroke="#829af8a0" strokeWidth={3}/>
-          <Line type="monotone" dataKey="maternite" stroke="#fe930ea0" strokeWidth={3}/>
-          <Line type="monotone" dataKey="paternite" stroke="#b97cffa0" strokeWidth={3}/>
-        </LineChart>
-      </ResponsiveContainer>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <Spinner label='Chargement' size='lg' color='primary' />
+          </div>
+      ) : (
+          <ResponsiveContainer width="100%" height="90%">
+            <LineChart
+              data={data}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke='#eee'/>
+              <XAxis dataKey="name" tick={{fill: "gray"}} tickLine={false} tickMargin={10}/>
+              <YAxis tick={{fill: "gray"}} tickLine={false} tickMargin={10}/>
+              <Tooltip contentStyle={{borderRadius: "10px"}}/>
+              <Legend verticalAlign="top" wrapperStyle={{paddingTop: "5px", paddingBottom: "25px"}}/>
+              <Line type="monotone" dataKey="paye" stroke="#e66165a0" strokeWidth={3}/>
+              <Line type="monotone" dataKey="maladie" stroke="#829af8a0" strokeWidth={3}/>
+              <Line type="monotone" dataKey="maternite" stroke="#fe930ea0" strokeWidth={3}/>
+              <Line type="monotone" dataKey="paternite" stroke="#b97cffa0" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
     </div>
-  )
+  );
 }
 
-export default TypeChart
+export default TypeChart;

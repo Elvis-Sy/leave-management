@@ -69,35 +69,106 @@
     color: rgb(85, 89, 99);
 }
 
-.rbc-event, .rbc-day-slot .rbc-background-event {
-    background-color: #ad8531;
-color: white;
-padding: 2px;
-border-radius: 4px;
-border: none;
-font-size: 10px;
-}
 
-.rbc-event-label {
-display: none; /* Masquer l'étiquette de temps pour les événements sur plusieurs jours */
-}
-
-.rbc-event-content {
-font-weight: bold;
-size: 10px;
-}
-
-.calendar-day {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 5px;
-  }
   
 /*Big calendar*/
-
-.rbc-btn-group{
-    display: none; 
+.Bigcalendar .rbc-btn-group:first-child{
+    display: none !important; 
 }
+
+.Bigcalendar .rbc-toolbar-label{
+    text-align: right !important;
+    padding: 0px 20px !important;
+    color: gray;
+}
+
+.Bigcalendar .rbc-btn-group:last-child{
+    font-size: 13px !important;
+}
+
+.Bigcalendar .rbc-btn-group:last-child button{
+    border: none !important;
+    background-color: #f1f0ff !important;
+    margin-left: 2px !important;
+}
+
+.Bigcalendar .rbc-toolbar button.rbc-active{
+    background-color: #dbdafe !important;
+    box-shadow: none !important;
+}
+
+.Bigcalendar .rbc-time-view{
+    border-color: #eee !important;
+}
+
+.Bigcalendar .rbc-time-header{
+    display: none !important;
+}
+
+.Bigcalendar .rbc-time-content{
+    border: none !important;
+}
+
+.Bigcalendar .rbc-time-gutter.rbc-time-column{
+    font-size: 12px !important;
+}
+
+.Bigcalendar .rbc-time-gutter.rbc-time-column .rbc-timeslot-group{
+    padding:  0px 20px !important;
+}
+
+.Bigcalendar .rbc-timeslot-group{
+    background-color: #f7fdff !important;
+}
+
+.Bigcalendar .rbc-day-slot{
+    font-size: 14px !important;
+}
+
+
+.Bigcalendar .rbc-event{
+    border: none !important;
+    color: black !important;
+    /* padding: 10px !important;
+    margin-bot: 5px !important; */
+    width: 100% !important;
+    font-size: 12px;
+}
+
+.Bigcalendar .rbc-event:nth-child(1){
+    background-color: #06b5eb;
+}
+.Bigcalendar .rbc-event-continues:nth-child(2){
+    background-color: #ccbd18;
+}
+.Bigcalendar .rbc-event:nth-child(3){
+    background-color: #2f2792;
+}
+.Bigcalendar .rbc-event:nth-child(4){
+    background-color: #a7278f;
+}
+.Bigcalendar .rbc-event:nth-child(5){
+    background-color: #a02b2f;
+}
+.Bigcalendar .rbc-event:nth-child(6){
+    background-color: #26af6f;
+}
+.Bigcalendar .rbc-event:nth-child(7){
+    background-color: #5d2c96;
+}
+.Bigcalendar .rbc-event:nth-child(8){
+    background-color: #af742c;
+}
+.Bigcalendar .rbc-event:nth-child(9){
+    background-color: #f5c7f569;
+}
+.Bigcalendar .rbc-event:nth-child(10){
+    background-color: #02253069;
+}
+
+.Bigcalendar .rbc-event-label{
+    color: white !important;
+}
+
+
 

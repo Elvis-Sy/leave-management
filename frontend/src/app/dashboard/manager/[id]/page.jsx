@@ -3,6 +3,8 @@
 import React from 'react'
 import BigCalendar from '../../../components/BigCalendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
+import Approbation from '../../../components/Approbation'
+import Recents from '../../../components/Recents'
 
 const SingleManager = () => {
   return (
@@ -12,7 +14,7 @@ const SingleManager = () => {
             {/* TOP */}
             <div className="flex flex-col lg:flex-row gap-4">
                 {/* USER INFO CARD */}
-                <div className="bg-slate-300 py-6 px-4 rounded-md flex-1 flex gap-4">
+                <div className="bg-white/80 backdrop-blur-lg shadow-lg py-6 px-4 rounded-md flex-1 flex gap-4">
                     <div className="w-1/3">
                         <img src="/illustration1.gif" alt="" width={144} height={144} className='w-36 h-36 rounded-full object-cover'/>
                     </div>
@@ -44,7 +46,7 @@ const SingleManager = () => {
                 {/* SMALL CARD */}
                 <div className="flex-1 flex gap-4 justify-between flex-wrap">
                     {/* CARD */}
-                    <div className="w-full bg-white p-4 rounded-md flex gap-4 md:w-[48%] xl:w-[45%] 2xl:w-[48%] items-center">
+                    <div className="w-full bg-white shadow-lg p-4 rounded-md flex gap-4 md:w-[48%] xl:w-[45%] 2xl:w-[48%] items-center">
                         <img src="/singleAttendance.png" alt="" width={24} height={24} className='w-6 h-6'/>
                         <div className="">
                             <h1 className='text-xl font-semibold'>7</h1>
@@ -52,7 +54,7 @@ const SingleManager = () => {
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="w-full bg-white p-4 rounded-md flex gap-4 md:w-[48%] xl:w-[45%] 2xl:w-[48%] items-center">
+                    <div className="w-full bg-white shadow-lg p-4 rounded-md flex gap-4 md:w-[48%] xl:w-[45%] 2xl:w-[48%] items-center">
                         <img src="/singleBranch.png" alt="" width={24} height={24} className='w-6 h-6'/>
                         <div className="">
                             <h1 className='text-xl font-semibold'>9</h1>
@@ -60,32 +62,30 @@ const SingleManager = () => {
                         </div>
                     </div>
                     {/* CARD */}
-                    <div className="w-full bg-white p-4 rounded-md flex gap-4 md:w-[48%] xl:w-[45%] 2xl:w-[48%] items-center">
+                    {/* <div className="w-full bg-white p-4 rounded-md flex gap-4 md:w-[48%] xl:w-[45%] 2xl:w-[48%] items-center">
                         <img src="/singleLesson.png" alt="" width={24} height={24} className='w-6 h-6'/>
                         <div className="">
                             <h1 className='text-xl font-semibold'>85</h1>
                             <span className='text-sm text-gray-500'>Lessons</span>
                         </div>
-                    </div>
+                    </div> */}
                     {/* CARD */}
-                    <div className="w-full bg-white p-4 rounded-md flex gap-4 md:w-[48%] xl:w-[45%] 2xl:w-[48%] items-center">
-                        <img src="/singleClass.png" alt="" width={24} height={24} className='w-6 h-6'/>
-                        <div className="">
-                            <h1 className='text-xl font-semibold'>36%</h1>
-                            <span className='text-sm text-gray-500'>Attendance</span>
-                        </div>
+                    <div className="w-full bg-white shadow-lg p-2 rounded-md md:w-[48%] xl:w-[45%] 2xl:w-[48%] flex-1">
+                        <Approbation/>
                     </div>
                 </div>
             </div>
 
             {/* BOTTOM */}
-            <div className="mt-4 bg-white rounded-md p-4 h-[450px]">
-                <h1>Calendrier des subordonnee</h1>
+            <div className="mt-4 bg-white shadow-lg rounded-md p-4 h-[550px]">
+                <h1 className='font-semibold text-xl'>Calendrier des subordonnee</h1>
                 <BigCalendar/>
             </div>
         </div>
         {/* RIGHT */}
-        <div className="w-full xl:w-1/3"></div>
+        <div className="w-full xl:w-1/3 flex flex-col gap-4">
+            <Recents/>
+        </div>
     </div>
   )
 }

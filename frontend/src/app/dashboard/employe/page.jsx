@@ -2,6 +2,7 @@ import TableSearch from "../../components/TableSearch"
 import Pagination from "../../components/Pagination"
 import Table from "../../components/Table"
 import Link from "next/link"
+import {Tooltip} from '@nextui-org/react'
 
 const actuel = "admin"
 const role =["admin", "manager"]
@@ -130,19 +131,25 @@ const EmployePage = ()=> {
       <td className="hidden lg:table-cell font-mono">{item.manager}</td>
       <td>
         <div className="flex items-center gap-4">
-          <Link href={`/list/employes/${item.id}`}>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-green-400">
-              <img src="/view.png" alt="" width={20} height={20} className="bg-transparent"/>
-            </button>
-          </Link>
+          <Tooltip content="Inspecter" color="success" showArrow={true}>
+            <Link href={`/list/employes/${item.id}`}>
+              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-green-400">
+                <img src="/view.png" alt="" width={20} height={20} className="bg-transparent"/>
+              </button>
+            </Link>
+          </Tooltip>
           {role.includes(actuel) && (
             <div className="flex gap-4">
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
-                <img src="/edit.png" alt="" width={20} height={20}/>
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
-                <img src="/delete.png" alt="" width={20} height={20}/>
-              </button>
+              <Tooltip content="Modifier" color="primary" showArrow={true}>
+                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
+                  <img src="/edit.png" alt="" width={20} height={20}/>
+                </button>
+              </Tooltip>
+              <Tooltip content="Supprimer" color="danger" showArrow={true}>
+                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
+                  <img src="/delete.png" alt="" width={20} height={20}/>
+                </button>
+              </Tooltip>
             </div>)}
         </div>
       </td>
