@@ -45,7 +45,7 @@ const CongeCalendar = () => {
   };
 
   return (
-    <div className="bg-white shadow-lg p-4 rounded-md">
+    <div className="bg-white w-full shadow-lg p-4 rounded-md">
       {isClient ? (
         <Calendar
           tileContent={tileContent}

@@ -1,9 +1,8 @@
 "use client"
 
-import TableSearch from "../../../components/TableSearch"
-import Pagination from "../../../components/Pagination"
+// import Pagination from "../../../components/Pagination"
 import Table from "../../../components/Table"
-import { Tabs, Tab, Card, CardBody, Badge, Tooltip } from '@nextui-org/react';
+import { Tabs, Tab, Card, CardBody, Badge, Tooltip, Pagination} from '@nextui-org/react';
 
 const actuel = "admin"
 const role =["admin", "manager"]
@@ -89,14 +88,33 @@ const data = [
   }
 ]
 
-const col =[]
+const col =[
+  {
+    header: "Info demandeur",
+    accessor: "infoD"
+  },
+  {
+    header: "Info demande",
+    accessor: "infoDemande", 
+    className: "hidden md:table-cell"
+  },
+  {
+    header: "Date debut - fin",
+    accessor: "Duree", 
+    className:"hidden lg:table-cell"
+  },
+  {
+    header: "Actions",
+    accessor: "actions"
+  },
+]
 
 const DemandePage = ()=> {
 
   // Personnalisation des cellules
   const renderRow = (item)=>(
     <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-green-400/10">
-      <td className="flex items-center gap-4 p-4 w-fit">
+      <td className="flex items-center gap-4 p-3 w-fit">
         <img src={item.photo} alt="" width={40} height={40} className="md:hidden xl:block w-10 h-10 rounded-full object-cover"/>
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.name}</h3>
@@ -105,7 +123,7 @@ const DemandePage = ()=> {
       </td>
 
       <td className="font-mono hidden md:table-cell">
-        <div className="flex items-center gap-4 p-4">
+        <div className="flex items-center gap-4">
           <img src={item.photo} alt="" width={40} height={40} className="md:hidden xl:block w-10 h-10 rounded-full object-cover"/>
           <div className="flex flex-col">
             <h3 className="font-semibold text-md">{item.type}</h3>
@@ -115,7 +133,7 @@ const DemandePage = ()=> {
       </td>
 
       <td className="hidden lg:table-cell font-mono">
-        <div className="flex items-center gap-4 p-4">
+        <div className="flex items-center gap-4">
           <div className="p-2 text-md font-bold text-gray-700 border rounded-lg">
             {item.dateDebut}
           </div>
@@ -134,13 +152,13 @@ const DemandePage = ()=> {
             </button>
           </Link> */}
           <Tooltip content="Approuver" color="success" showArrow={true}>
-            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-green-400/20">
-              <img src="/accept.png" alt="" width={30} height={30}/>
+            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-green-400/20">
+              <img src="/accept.png" alt="" width={25} height={25}/>
             </button>
           </Tooltip>
           <Tooltip content="Refuser" color="danger" showArrow={true}>
-            <button className="w-10 h-10 flex items-center justify-center rounded-full bg-[#e66165]/20">
-              <img src="/reject.png" alt="" width={25} height={25}/>
+            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]/20">
+              <img src="/reject.png" alt="" width={20} height={20}/>
             </button>
           </Tooltip>
           {/* {role.includes(actuel) && (
@@ -159,25 +177,31 @@ const DemandePage = ()=> {
   )
 
   return (
-    <div className="bg-white shadow-lg p-4 rounded-md flex-1 m-4 mt-0">
+    <div className="bg-white shadow-lg p-4 rounded-md flex-1 m-3 mt-0">
       {/* TOP */}
       <Tabs aria-label="Options" className="m-0">
         
-        <Tab title="Tout" className="text-lg font-medium mt-2">
+        <Tab title="Tout" className="text-md font-medium">
           <Card style={{boxShadow: "none"}}>
             <CardBody>
               <Table col={col} render={renderRow} data={data} margin={0}/>
+              <div className="mt-4 flex justify-center">
+                <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#dddedf]"/>
+              </div>
             </CardBody>
           </Card>
         </Tab>
         <Tab title={
-          <Badge content={0} color="danger">
+          <Badge content={10} color="danger">
             En attente
           </Badge>
-        } className="text-lg font-medium mt-2">
+        } className="text-md font-medium">
           <Card style={{boxShadow: "none"}}>
             <CardBody>
               <Table col={col} render={renderRow} data={data} margin={0}/>
+              <div className="mt-4 flex justify-center">
+                <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#dddedf]"/>
+              </div>
             </CardBody>
           </Card>
           
@@ -185,7 +209,7 @@ const DemandePage = ()=> {
         
       </Tabs>
       {/* PAGINATION */}
-      <Pagination/>
+      
     </div>
   )
 }

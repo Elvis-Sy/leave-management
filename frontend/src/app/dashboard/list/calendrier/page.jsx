@@ -23,19 +23,38 @@ const events = [
     end: new Date(2024, 8, 6),
     allDay: false,
   },
+  {
+    title: 'Test',
+    start: new Date(2024, 8, 1),
+    end: new Date(2024, 8, 5),
+    allDay: false,
+  },
+  {
+    title: 'Test2',
+    start: new Date(2024, 8, 3),
+    end: new Date(2024, 8, 5),
+    allDay: false,
+  },
 ];
 
 const MyBigCalendar = () => {
-
   const [currentView, setCurrentView] = useState('month'); // Gestion de la vue actuelle
   const [currentDate, setCurrentDate] = useState(new Date()); // Gestion de la date actuelle
+  const [selectedDate, setSelectedDate] = useState(null); // Date sélectionnée
 
   const handleViewChange = (view) => {
     setCurrentView(view);
   };
+
   const handleNavigate = (date) => {
     setCurrentDate(date);
   };
+
+  const handleSelectDate = (date) => {
+    setSelectedDate(date);
+    alert(`Date sélectionnée: ${moment(date).format('DD MMMM YYYY')}`);
+  };
+
 
   const CustomToolbar = (props) => {
     const { onNavigate, onView, label } = props;
@@ -43,14 +62,14 @@ const MyBigCalendar = () => {
     return (
       <div className="rbc-toolbar">
         <span className="rbc-btn-group">
-          <button type="button" onClick={() => onNavigate('PREV')}>Précédent</button>
-          <button type="button" onClick={() => onNavigate('TODAY')}>Aujourd'hui</button>
-          <button type="button" onClick={() => onNavigate('NEXT')}>Suivant</button>
+          <button type="button" onClick={() =>{ onNavigate('PREV') }}>Précédent</button>
+          <button type="button" onClick={() =>{ onNavigate('TODAY') }}>Aujourd'hui</button>
+          <button type="button" onClick={() =>{ onNavigate('NEXT') }}>Suivant</button>
         </span>
         <span className="rbc-toolbar-label">{label}</span>
         <span className="rbc-btn-group">
-          <button type="button" onClick={() => onView('month')}>Mois</button>
-          <button type="button" onClick={() => onView('week')}>Semaine</button>
+          <button type="button" onClick={() =>{ onView('month') }}>Mois</button>
+          <button type="button" onClick={() =>{ onView('week') }}>Semaine</button>
         </span>
       </div>
     );
@@ -58,7 +77,7 @@ const MyBigCalendar = () => {
 
   return (
     <div className="bg-white shadow-lg p-4 rounded-md m-4 flex-1">
-      <Calendar
+      <Calendar className="calendrier"
         localizer={localizer}
         events={events}
         startAccessor="start"
@@ -70,7 +89,9 @@ const MyBigCalendar = () => {
         date={currentDate}
         onNavigate={handleNavigate}
         popup={true}
-        components={{ toolbar:(props)=> CustomToolbar(props) }}
+        components={{ toolbar: (props) => CustomToolbar(props) }}
+        onSelectSlot={({ start }) => handleSelectDate(start)}
+        selectable
       />
     </div>
   );

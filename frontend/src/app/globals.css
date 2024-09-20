@@ -31,6 +31,7 @@
 /*Mini calendrier dashboard*/
 .react-calendar {
     border: none !important;
+    width: 100% !important;
 }
 
 .react-calendar__navigation button {
@@ -59,7 +60,7 @@
     color: black !important;
 }
 
-/*Calendrier ferrier ---------------------------------*/
+/*Calendrier ferrier*/
 .rbc-toolbar-label{
     font-weight: 600;
     font-size: large;
@@ -125,12 +126,9 @@
     font-size: 14px !important;
 }
 
-
 .Bigcalendar .rbc-event{
     border: none !important;
     color: black !important;
-    /* padding: 10px !important;
-    margin-bot: 5px !important; */
     width: 100% !important;
     font-size: 12px;
 }
@@ -138,37 +136,66 @@
 .Bigcalendar .rbc-event:nth-child(1){
     background-color: #06b5eb;
 }
-.Bigcalendar .rbc-event-continues:nth-child(2){
-    background-color: #ccbd18;
-}
-.Bigcalendar .rbc-event:nth-child(3){
+.Bigcalendar .rbc-event:nth-child(2){
     background-color: #2f2792;
 }
-.Bigcalendar .rbc-event:nth-child(4){
-    background-color: #a7278f;
-}
-.Bigcalendar .rbc-event:nth-child(5){
-    background-color: #a02b2f;
-}
-.Bigcalendar .rbc-event:nth-child(6){
-    background-color: #26af6f;
-}
-.Bigcalendar .rbc-event:nth-child(7){
+
+.Bigcalendar .rbc-event:nth-child(3){
     background-color: #5d2c96;
 }
-.Bigcalendar .rbc-event:nth-child(8){
-    background-color: #af742c;
-}
-.Bigcalendar .rbc-event:nth-child(9){
+.Bigcalendar .rbc-event:nth-child(4){
     background-color: #f5c7f569;
 }
-.Bigcalendar .rbc-event:nth-child(10){
+.Bigcalendar .rbc-event:nth-child(5){
     background-color: #02253069;
 }
-
 .Bigcalendar .rbc-event-label{
     color: white !important;
 }
 
 
 
+/*Calendrier des jours ferriers*/
+.calendrier .rbc-row-bg .rbc-day-bg {
+  transition: background-color 0.1s !important;
+}
+
+.calendrier .rbc-today{
+  background-color: #829af8 !important;
+}
+
+.calendrier .rbc-row-bg .rbc-day-bg:hover {
+  background-color: #dbeafe !important;
+  cursor: pointer !important;
+}
+
+.calendrier .rbc-toolbar-label{
+    padding: 0px 20px !important;
+    color: rgb(14, 13, 53);
+    text-align: right !important;
+    size: 25px !important;
+}
+
+.calendrier .rbc-btn-group:last-child button{
+    display: none;
+}
+
+.calendrier .rbc-btn-group:first-child button{
+    border: none !important;
+    background-color: #e1dfff !important;
+    margin-left: 2px !important;
+}
+
+.calendrier .rbc-row:nth-child(1) .rbc-event{
+    background-color: #228be6;
+}
+
+.calendrier .rbc-row:nth-child(2) .rbc-event{
+    background-color: #829af8;
+}
+
+.calendrier .rbc-event-content{
+    font-size: 10px;
+}
+
+/*Pagination*/

@@ -1,8 +1,7 @@
 import TableSearch from "../../components/TableSearch"
-import Pagination from "../../components/Pagination"
 import Table from "../../components/Table"
 import Link from "next/link"
-import {Tooltip} from '@nextui-org/react'
+import {Tooltip, User, Chip, Avatar, Pagination} from '@nextui-org/react'
 
 const actuel = "admin"
 const role =["admin", "manager"]
@@ -118,17 +117,32 @@ const EmployePage = ()=> {
   const renderRow = (item)=>(
     <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-green-400/10">
       <td className="flex items-center gap-4 p-4">
-        <img src={item.photo} alt="" width={40} height={40} className="md:hidden xl:block w-10 h-10 rounded-full object-cover"/>
-        <div className="flex flex-col">
-          <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-500">{item?.email}</p>
-        </div>
+        <User   
+          name={item.name}
+          description={item.email}
+          avatarProps={{
+            src: "/illustration1.png"
+          }}
+        />
       </td>
       <td className="hidden md:table-cell font-mono">{item.employeId}</td>
       <td className="hidden md:table-cell font-mono">{item.DateEmb}</td>
       <td className="hidden md:table-cell font-mono">{item.Etablissement}</td>
       <td className="hidden lg:table-cell font-mono">{item.poste}</td>
-      <td className="hidden lg:table-cell font-mono">{item.manager}</td>
+      <td className="hidden lg:table-cell font-mono">
+        <Chip
+          variant="flat"
+          size="lg"
+          avatar={
+            <Avatar
+              name={item.manager}
+              src="/illustration1.png"
+            />
+          }
+        >
+          {item.manager}
+        </Chip>
+      </td>
       <td>
         <div className="flex items-center gap-4">
           <Tooltip content="Inspecter" color="success" showArrow={true}>
@@ -181,7 +195,9 @@ const EmployePage = ()=> {
         <Table col={col} render={renderRow} data={data}/>
       </div>
       {/* PAGINATION */}
-      <Pagination/>
+      <div className="mt-4 flex justify-center">
+        <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#dddedf]"/>
+      </div>
     </div>
   )
 }
