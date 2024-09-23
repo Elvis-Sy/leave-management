@@ -104,7 +104,7 @@ const TypeChart = () => {
   return (
     <div className="bg-white shadow-lg rounded-xl w-full h-full p-4">
         <div>
-            <h1 className="text-lg font-semibold">Frequences</h1>
+            <h1 className="text-lg font-semibold">Tendance des prises de conges</h1>
         </div>
 
         {isLoading ? (
@@ -126,11 +126,11 @@ const TypeChart = () => {
               <XAxis dataKey="name" tick={{fill: "gray"}} tickLine={false} tickMargin={10}/>
               <YAxis tick={{fill: "gray"}} tickLine={false} tickMargin={10}/>
               <Tooltip contentStyle={{borderRadius: "10px"}}/>
-              <Legend verticalAlign="top" wrapperStyle={{paddingTop: "5px", paddingBottom: "25px"}}/>
-              <Line type="monotone" dataKey="paye" stroke="#e66165a0" strokeWidth={3}/>
-              <Line type="monotone" dataKey="maladie" stroke="#829af8a0" strokeWidth={3}/>
-              <Line type="monotone" dataKey="maternite" stroke="#fe930ea0" strokeWidth={3}/>
-              <Line type="monotone" dataKey="paternite" stroke="#b97cffa0" strokeWidth={3} />
+              <Legend verticalAlign="top" align='right' wrapperStyle={{paddingTop: "5px", paddingBottom: "25px"}}/>
+              <Line type="monotone" dataKey="maternite" stroke="gray" strokeWidth={3}/>
+              <Line type="monotone" dataKey="paye" stroke="#1d71b8" strokeWidth={3}/>
+              <Line type="monotone" dataKey="maladie" stroke="#e30613a0" strokeWidth={3}/>
+              <Line type="monotone" dataKey="paternite" stroke="#ffac0ea0" strokeWidth={3} />
             </LineChart>
           </ResponsiveContainer>
         )}

@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 .active{
-    @apply bg-green-400/10 shadow-md text-white backdrop-blur-lg rounded-full lg:px-4 px-6
+    @apply bg-bleuspat shadow-md backdrop-blur-lg rounded-full lg:px-4 px-6
 }
 
 .link:hover{
-    @apply bg-[#f0f1f3] backdrop-blur-lg rounded-full lg:px-4 px-6 
+    @apply bg-bleuspat/10 backdrop-blur-lg rounded-full lg:px-4 px-6 
 }
 
 /*Tendance charts*/
@@ -18,15 +18,6 @@
 .tandance .recharts-legend-item .recharts-surface{
     @apply w-3 h-3 !important
 }
-
-/* span.rdrMonthAndYearPickers {
-    pointer-events: none;
-}
-
-.rdrMonthName{
-    display: none;
-} */
-
 
 /*Mini calendrier dashboard*/
 .react-calendar {
@@ -50,31 +41,33 @@
 }
 
 .react-calendar__tile--now {
-    background-color: #829af8 !important;
-    color: white;
+    border: 2px solid #1d71b8 !important;
+    background-color: transparent !important;
     font-weight: 600 !important;
 }
 
 .react-calendar__tile--active {
-    background-color: #b2b7c050 !important;
+    background-color: transparent !important;
     color: black !important;
 }
 
 /*Calendrier ferrier*/
-.rbc-toolbar-label{
+/* .rbc-toolbar-label{
     font-weight: 600;
     font-size: large;
 }
 
 .rbc-header span{
     color: rgb(85, 89, 99);
+} */
+
+/*Big calendar*/
+.Bigcalendar .rbc-btn-group:last-child{
+    display: none !important; 
 }
 
-
-  
-/*Big calendar*/
-.Bigcalendar .rbc-btn-group:first-child{
-    display: none !important; 
+.rbc-calendar{
+    margin-top: 15px !important;
 }
 
 .Bigcalendar .rbc-toolbar-label{
@@ -83,11 +76,11 @@
     color: gray;
 }
 
-.Bigcalendar .rbc-btn-group:last-child{
+.Bigcalendar .rbc-btn-group:first-child{
     font-size: 13px !important;
 }
 
-.Bigcalendar .rbc-btn-group:last-child button{
+.Bigcalendar .rbc-btn-group:first-child button{
     border: none !important;
     background-color: #f1f0ff !important;
     margin-left: 2px !important;
@@ -102,12 +95,13 @@
     border-color: #eee !important;
 }
 
-.Bigcalendar .rbc-time-header{
+.Bigcalendar .rbc-time-content{
     display: none !important;
+    border: none !important;
 }
 
-.Bigcalendar .rbc-time-content{
-    border: none !important;
+.Bigcalendar .rbc-time-header{
+    flex: 1;
 }
 
 .Bigcalendar .rbc-time-gutter.rbc-time-column{
@@ -130,7 +124,8 @@
     border: none !important;
     color: black !important;
     width: 100% !important;
-    font-size: 12px;
+    font-size: 18px;
+    margin: 10px 0;
 }
 
 .Bigcalendar .rbc-event:nth-child(1){
@@ -152,19 +147,21 @@
 .Bigcalendar .rbc-event-label{
     color: white !important;
 }
-
+.Bigcalendar .rbc-time-header-content .rbc-allday-cell .rbc-day-bg{
+    background-color: #f1f1f1 !important;
+}
 
 
 /*Calendrier des jours ferriers*/
-.calendrier .rbc-row-bg .rbc-day-bg {
+.calendrier .rbc-month-row .rbc-row-bg .rbc-day-bg {
   transition: background-color 0.1s !important;
 }
 
-.calendrier .rbc-today{
-  background-color: #829af8 !important;
+.calendrier .rbc-month-row .rbc-row-bg .rbc-today{
+  background-color: #829af8a0 !important;
 }
 
-.calendrier .rbc-row-bg .rbc-day-bg:hover {
+.calendrier .rbc-month-row .rbc-row-bg .rbc-day-bg:hover {
   background-color: #dbeafe !important;
   cursor: pointer !important;
 }
@@ -174,16 +171,25 @@
     color: rgb(14, 13, 53);
     text-align: right !important;
     size: 25px !important;
-}
-
-.calendrier .rbc-btn-group:last-child button{
-    display: none;
+    font-weight: 600;
 }
 
 .calendrier .rbc-btn-group:first-child button{
     border: none !important;
     background-color: #e1dfff !important;
     margin-left: 2px !important;
+}
+
+.calendrier .rbc-btn-group:last-child button{
+    border: none !important;
+    background-color: #e1dfff !important;
+    margin-left: 2px !important;
+    font-weight: 500;
+    color: white !important;
+}
+
+.calendrier .rbc-btn-group button.btn-actif{
+    background-color: #1d71b8 !important;
 }
 
 .calendrier .rbc-row:nth-child(1) .rbc-event{
@@ -194,8 +200,27 @@
     background-color: #829af8;
 }
 
-.calendrier .rbc-event-content{
+.calendrier .rbc-month-row .rbc-event-content{
     font-size: 10px;
 }
 
-/*Pagination*/
+.calendrier .rbc-time-content{
+    display: none;
+}
+
+.calendrier .rbc-time-header{
+    flex: 1;
+}
+
+.calendrier .rbc-time-header-content .rbc-allday-cell .rbc-day-bg{
+    background-color: #f1f1f1 !important;
+}
+
+.calendrier .rbc-time-header-content .rbc-allday-cell .rbc-row-content{
+    margin: 10px;
+}
+
+.calendrier .rbc-time-header-content .rbc-allday-cell .rbc-row-content .rbc-event{
+    margin: 5px 0;
+}
+

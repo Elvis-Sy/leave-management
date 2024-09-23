@@ -78,7 +78,7 @@ const SingleManager = () => {
 
             {/* BOTTOM */}
             <div className="mt-4 bg-white shadow-lg rounded-md p-4 h-[550px]">
-                <h1 className='font-semibold text-xl'>Calendrier des subordonnee</h1>
+                <h1 className='font-semibold text-xl'>Calendrier des conges</h1>
                 <BigCalendar/>
             </div>
         </div>

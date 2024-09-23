@@ -11,14 +11,14 @@ const data = [
         fill: 'white'
     },
     {
-        name: 'Boys',
+        name: 'refus',
         count: 47,
-        fill: '#e66165'
+        fill: '#fa5252'
     },
     {
-        name: 'Girls',
+        name: 'accord',
         count: 28,
-        fill: '#4ada80'
+        fill: '#40c057'
     }
     
 ]
@@ -71,12 +71,12 @@ const CountChart = () => {
         {/* Legend */}
         <div className="flex justify-center gap-16">
             <div className="flex flex-col gap-1">
-                <div className="w-5 h-5 bg-[#e66165] rounded-full"/>
+                <div className="w-5 h-5 bg-[#fa5252] rounded-full"/>
                 <h1 className="font-bold">1,256</h1>
                 <h2 className="text-xs text-gray-400">Refus (55%)</h2>
             </div>
             <div className="flex flex-col gap-1">
-                <div className="w-5 h-5 bg-green-400 rounded-full"/>
+                <div className="w-5 h-5 bg-[#40c057] rounded-full"/>
                 <h1 className="font-bold">756</h1>
                 <h2 className="text-xs text-gray-400">accord (45%)</h2>
             </div>

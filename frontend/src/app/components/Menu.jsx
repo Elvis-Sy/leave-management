@@ -58,12 +58,6 @@ const menuItems = [
       title: "OTHER",
       items: [
         {
-          icon: "/account.png", //account.png
-          label: "Profile",
-          href: "/profile",
-          visible: ["admin", "manager", "employe"],
-        },
-        {
           icon: "/deconnex.png", //deconnex.png
           label: "Logout",
           href: "/logout",
@@ -78,10 +72,10 @@ const Menu =()=> {
   const pathname = usePathname();
 
   return (
-    <div className="mt-4 text-xm flex flex-col h-[90%] justify-between">
+    <div className="text-xm px-4 pb-20 flex flex-col h-[90%] justify-between">
         {menuItems.map(items =>(
             <div key={items.title} className="flex flex-col gap-4">
-                <span className="w-full border border-gray-400 my-2"></span>
+                <span className="w-full border border-gray-200"></span>
 
                 {/* Verifie le nav approprie pour l'utilisateur actuel */}
 
@@ -89,11 +83,11 @@ const Menu =()=> {
 
                   const isActive = pathname === i.href;
                   return(
-                    <Link href={i.href} key={i.label} className={`flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 transition-all ${isActive ? "active" : "link group"}`}>
+                    <Link href={i.href} key={i.label} className={`flex items-center justify-center lg:justify-start gap-4 py-2 transition-all ${isActive ? "active" : "link group"}`}>
                       <Badge content="5" color="danger" isInvisible={i.label == "Demandes" ? false : true}>
                         <img src={i.icon} alt="" width={25} height={25} className="z-20 max-w-[25px]"/>
                       </Badge>
-                      <span className="absolute font-medium text-transparent -z-20 lg:z-30 lg:text-gray-500 lg:left-12 transition-all">{i.label}</span>
+                      <span className={`absolute font-medium text-transparent -z-20 lg:z-30 ${isActive ? "lg:text-white" : "lg:text-gray-700"} lg:left-12 transition-all`}>{i.label}</span>
                     </Link>
                   )
                 })}

@@ -34,7 +34,7 @@ const CongeCalendar = () => {
               </div>
             ) : null
           }
-        className="max-w-40 bg-gray-100">
+        className="max-w-40 shadow-xl border">
           <div className="flex justify-center relative">
             {holidayInfo && <div className="w-2 h-2 rounded-full bg-[#e66165a0]"></div>}
           </div> 

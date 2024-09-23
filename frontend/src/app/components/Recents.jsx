@@ -6,49 +6,49 @@ const manager = [
         id: 1,
         nom: "Elvis Sylvano",
         poste: "Approuvee",
-        description: "andro ts fiasana fa repooos",
+        description: "andro ts fiasana",
     },
     {
         id: 2,
         nom: "Elvis Sylvano",
         poste: "Approuvee",
-        description: "andro ts fiasana fa repooos",
+        description: "andro ts fiasana",
     },
     {
         id: 3,
         nom: "Elvis Sylvano",
         poste: "Refusee",
-        description: "andro ts fiasana fa repooos",
+        description: "andro ts fiasana",
     },
     {
         id: 4,
         nom: "Elvis Sylvano",
         poste: "Approuvee",
-        description: "andro ts fiasana fa repooos",
+        description: "andro ts fiasana",
     },
     {
         id: 5,
         nom: "Elvis Sylvano",
         poste: "Approuvee",
-        description: "andro ts fiasana fa repooos",
+        description: "andro ts fiasana",
     },
     {
         id: 6,
         nom: "Elvis Sylvano",
         poste: "Refusee",
-        description: "andro ts fiasana fa repooos",
+        description: "andro ts fiasana",
     },
     {
         id: 7,
         nom: "Elvis Sylvano",
         poste: "Approuvee",
-        description: "andro ts fiasana fa repooos",
+        description: "andro ts fiasana",
     },
     {
         id: 8,
         nom: "Elvis Sylvano",
         poste: "Refusee",
-        description: "andro ts fiasana fa repooos",
+        description: "andro ts fiasana",
     },
 
 ]
@@ -58,7 +58,7 @@ const Recents = () => {
     <div className="bg-white shadow-lg p-4 rounded-md flex-1">
         <div className="w-full">
             <div className="flex items-center justify-start mb-4">
-                <h1 className="text-xl font-semibold">Activites recentes</h1>
+                <h1 className="text-xl font-semibold">Activites recentes des managers</h1>
             </div>
             <div className="flex flex-col gap-2">
                 {manager.map(m=>(
@@ -71,8 +71,8 @@ const Recents = () => {
                             }}
                         />
                         <div className="flex flex-col text-right mr-1">
-                            <p className="mt-2 text-gray-500 text-xs">Actions</p>
-                            <p className={`text-sm font-semibold ${m.poste == "Approuvee" ? "text-[#4ade80]" : "text-[#e66165]"}`}>{m.poste}</p>
+                            <p className="mt-2 text-gray-500 text-xs font-medium">Actions</p>
+                            <p className={`text-sm font-semibold ${m.poste == "Approuvee" ? "text-[#40c057]" : "text-[#fa5252]"}`}>{m.poste}</p>
                         </div>
                         
                     </div>

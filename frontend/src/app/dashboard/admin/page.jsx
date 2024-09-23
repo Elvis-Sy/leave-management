@@ -17,10 +17,10 @@ const AdminPage = ()=> {
       <div className="w-full lg:w-2/3 flex flex-col gap-8">
         {/* Card utilisateur */}
         <div className='flex gap-4 justify-between flex-wrap'>
-          <UserCard type={"Approuvees"} color={"bg-green-400"}/>
-          <UserCard type={"Refusees"} color={"bg-[#e66165]"}/>
+          <UserCard type={"Approuvees"} color={"bg-[#40c057]"}/>
+          <UserCard type={"Refusees"} color={"bg-[#fa5252]"}/>
           <UserCard type={"En cours..."} color={"bg-gray-400"}/>
-          <UserCard type={"Total demandes"} color={"bg-[#829af8]"}/>
+          <UserCard type={"Total demandes"} color={"bg-bleuspat"}/>
         </div>
 
         {/* Middle Chart */}
@@ -40,7 +40,7 @@ const AdminPage = ()=> {
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="w-full lg:w-1/3 flex flex-col gap-4 h-[960px]">
+      <div className="w-full lg:w-1/3 flex flex-col gap-4">
         <MiniCalendar/>
         <Recents/>
       </div>

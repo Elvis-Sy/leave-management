@@ -196,7 +196,7 @@ const EmployePage = ()=> {
       </div>
       {/* PAGINATION */}
       <div className="mt-4 flex justify-center">
-        <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#dddedf]"/>
+        <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#f1f1f1]"/>
       </div>
     </div>
   )

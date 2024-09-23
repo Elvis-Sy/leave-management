@@ -10,7 +10,11 @@ module.exports = {
     extend: {
       colors: {
         background: "var(--background)",
-        foreground: "var(--foreground)"
+        foreground: "var(--foreground)",
+        bleuspat: "#1d71b8",
+        redspat: "#e30613",
+        greenspat: "#006633",
+        blackspat: " #1d1d1b"
       },
     },
   },

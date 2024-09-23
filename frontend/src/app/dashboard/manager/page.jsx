@@ -105,7 +105,7 @@ const ManagerPage = ()=> {
   // Personnalisation des cellules
   const renderRow = (item)=>(
     <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-green-400/10">
-      <td className="flex items-center gap-4 p-4">
+      <td className="p-3">
         <User   
         name={item.name}
         description={item.email}
@@ -130,7 +130,7 @@ const ManagerPage = ()=> {
           {role.includes(actuel) && (
             <div className="flex gap-4">
               <Tooltip content="Modifier" color="primary" showArrow={true}>
-                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
+                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#7591ff]">
                   <img src="/edit.png" alt="" width={20} height={20}/>
                 </button>
               </Tooltip>
@@ -172,7 +172,7 @@ const ManagerPage = ()=> {
       </div>
       {/* PAGINATION */}
       <div className="mt-4 flex justify-center">
-        <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#dddedf]"/>
+        <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#f1f1f1]"/>
       </div>
     </div>
   )
