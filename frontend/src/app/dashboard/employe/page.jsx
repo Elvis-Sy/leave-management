@@ -1,7 +1,9 @@
+"use client"
+
 import TableSearch from "../../components/TableSearch"
 import Table from "../../components/Table"
 import Link from "next/link"
-import {Tooltip, User, Chip, Avatar, Pagination} from '@nextui-org/react'
+import {Tooltip, User, Chip, Avatar, Pagination, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from '@nextui-org/react'
 
 const actuel = "admin"
 const role =["admin", "manager"]
@@ -113,6 +115,9 @@ const col =[
 
 const EmployePage = ()=> {
 
+  //Open Close
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+
   // Personnalisation des cellules
   const renderRow = (item)=>(
     <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-green-400/10">
@@ -179,13 +184,13 @@ const EmployePage = ()=> {
           <TableSearch/>
           <div className="flex items-center gap-4 self-end">
             <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
-              <img src="/filter.png" alt="" width={14} height={14}/>
+              <img src="/filter.png" alt="" width={20} height={20}/>
             </button>
             <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
-              <img src="/sort.png" alt="" width={14} height={14}/>
+              <img src="/sort.png" alt="" width={24} height={24}/>
             </button>
-            <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
-              <img src="/plus.png" alt="" width={14} height={14}/>
+            <button type="button" onClick={onOpen} className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
+              <img src="/plus.png" alt="" width={24} height={24}/>
             </button>
           </div>
         </div>
@@ -198,6 +203,46 @@ const EmployePage = ()=> {
       <div className="mt-4 flex justify-center">
         <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#f1f1f1]"/>
       </div>
+
+      {/* Modal */}
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
+              <ModalBody>
+                <p> 
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Nullam pulvinar risus non risus hendrerit venenatis.
+                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Nullam pulvinar risus non risus hendrerit venenatis.
+                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                </p>
+                <p>
+                  Magna exercitation reprehenderit magna aute tempor cupidatat consequat elit
+                  dolor adipisicing. Mollit dolor eiusmod sunt ex incididunt cillum quis. 
+                  Velit duis sit officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. 
+                  Et mollit incididunt nisi consectetur esse laborum eiusmod pariatur 
+                  proident Lorem eiusmod et. Culpa deserunt nostrud ad veniam.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Close
+                </Button>
+                <Button color="primary" onPress={onClose}>
+                  Action
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+
     </div>
   )
 }

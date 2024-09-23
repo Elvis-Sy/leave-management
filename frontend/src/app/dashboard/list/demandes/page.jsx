@@ -372,9 +372,9 @@ const DemandePage = ()=> {
 
       <td>
         <div className="flex items-center gap-4">
-          <Tooltip content="Approuver" color="success" showArrow={true}>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-green-400">
-              <img src="/view.png" alt="" width={25} height={25}/>
+          <Tooltip content="Infos" color="primary" showArrow={true}>
+            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-bleuspat">
+              <img src="/info.png" alt="" width={25} height={25}/>
             </button>
           </Tooltip>
         </div>

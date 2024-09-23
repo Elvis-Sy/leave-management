@@ -4,7 +4,7 @@ const Topbar = ()=> {
   return (
       <div className="flex mb-2 items-center md:justify-between justify-end p-2 bg-bleuspat">
         {/* Toogle */}
-          <img src="/more.png" alt="" width={14} height={14} className="cursor-pointer hidden md:block"/>
+          <img src="/menu.png" alt="" width={32} height={32} className="cursor-pointer hidden md:block"/>
 
         {/* UTILISATEUR (photo et nom)*/}
         <Popover placement="left">

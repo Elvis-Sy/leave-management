@@ -59,10 +59,10 @@ const Historiques = ()=> {
           <TableSearch/>
           <div className="flex items-center gap-4 self-end">
             <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
-              <img src="/filter.png" alt="" width={14} height={14}/>
+              <img src="/filter.png" alt="" width={20} height={20}/>
             </button>
             <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
-              <img src="/sort.png" alt="" width={14} height={14}/>
+              <img src="/sort.png" alt="" width={24} height={24}/>
             </button>
           </div>
         </div>
