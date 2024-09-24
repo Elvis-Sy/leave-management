@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+//Role utilisateur
+enum Role {
+  Employe
+  Manager
+}
+
+
+
+//UTILISATEUR////////////////////////////
+model Employes {
+  idEmploye    Int                 @id @default(autoincrement())
+  nom          String              @db.VarChar(100)
+  prenom       String?             @db.VarChar(100)
+  sexe         String              @db.Char(2)
+  CIN          Int
+  dateEmbauche DateTime
+  periodeEssai Boolean
+
+  idManager    Int?
+  manager      Employes?            @relation("Hierarchie", fields: [idManager], references: [idEmploye])
+  subordonne   Employes[]           @relation("Hierarchie")
+
+  compte       Compte_Utilisateur[] @relation("UserAccount")
+}
+
+//COMPTE UTILISATEUR////////////////////////////
+model Compte_Utilisateur {
+  idCompte          Int      @id @default(autoincrement())
+  email             String   @db.VarChar(255) @unique
+  password          String   @db.VarChar(255)
+  role              Role     @default(Employe)
+  derniereConnexion DateTime
+  employeId         Int
+
+  utilisateur       Employes  @relation("UserAccount", fields: [employeId], references: [idEmploye])
+}
