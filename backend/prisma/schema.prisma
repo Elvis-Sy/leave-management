@@ -19,33 +19,129 @@ enum Role {
   Manager
 }
 
-
-
 //UTILISATEUR////////////////////////////
 model Employes {
-  idEmploye    Int                 @id @default(autoincrement())
-  nom          String              @db.VarChar(100)
-  prenom       String?             @db.VarChar(100)
-  sexe         String              @db.Char(2)
+  idEmploye    Int      @id @default(autoincrement())
+  nom          String   @db.VarChar(100)
+  prenom       String?  @db.VarChar(100)
+  sexe         String   @db.Char(2)
   CIN          Int
   dateEmbauche DateTime
   periodeEssai Boolean
 
-  idManager    Int?
-  manager      Employes?            @relation("Hierarchie", fields: [idManager], references: [idEmploye])
-  subordonne   Employes[]           @relation("Hierarchie")
+  idManager  Int?
+  manager    Employes?  @relation("Hierarchie", fields: [idManager], references: [idEmploye])
+  subordonne Employes[] @relation("Hierarchie")
 
-  compte       Compte_Utilisateur[] @relation("UserAccount")
+  compte Compte_Utilisateur[] @relation("UserAccount")
+
+  posteId Int
+  poste Postes @relation("UserPoste", fields: [posteId], references: [idPoste])
+
+  demandes DemandesConges[] @relation("UserDemande")
+
+  solde SoldesConges[] @relation("Soldes")
 }
 
 //COMPTE UTILISATEUR////////////////////////////
 model Compte_Utilisateur {
-  idCompte          Int      @id @default(autoincrement())
-  email             String   @db.VarChar(255) @unique
-  password          String   @db.VarChar(255)
-  role              Role     @default(Employe)
-  derniereConnexion DateTime
+  idCompte          Int       @id @default(autoincrement())
+  email             String    @unique @db.VarChar(255)
+  password          String    @db.VarChar(255)
+  role              Role      @default(Employe)
+  derniereConnexion DateTime?
   employeId         Int
 
-  utilisateur       Employes  @relation("UserAccount", fields: [employeId], references: [idEmploye])
+  utilisateur Employes @relation("UserAccount", fields: [employeId], references: [idEmploye], onDelete: Cascade)
+}
+
+//Poste de travail/////////////////////////
+model Postes {
+  idPoste        Int               @id @default(autoincrement())
+  designPoste    String
+
+  employes       Employes[] @relation("UserPoste")
+}
+
+//Demande Conge/////////////////////////
+model DemandesConges {
+  idDemande      Int               @id @default(autoincrement())
+  dateDebut      DateTime
+  dateFin        DateTime
+  dateEnvoie     DateTime
+
+  employeId      Int @unique
+  employe        Employes          @relation("UserDemande", fields: [employeId], references: [idEmploye])
+
+  typeId         Int
+  type           TypesConges       @relation("TypeDemande", fields: [typeId], references: [idType])
+
+  statutId Int
+  statuts        StatutDemande @relation("StatutDemande", fields: [statutId], references: [idStatut])
+
+  historiques    HistoriquesConges[] @relation("HistoDemande")
+
+  @@map("demandes_conges")
+}
+
+//Type de conge//////////////////////////
+model TypesConges {
+  idType         Int               @id @default(autoincrement())
+  designType     String
+  nbJours        Int
+
+  demandes       DemandesConges[] @relation("TypeDemande")
+
+  solde SoldesConges[] @relation("Type")
+
+  @@map("types_conges")
+}
+
+//Statut pour demande et historique////////////
+model StatutDemande {
+  idStatut       Int               @id @default(autoincrement())
+  designStatut   String
+
+  demandes       DemandesConges[] @relation("StatutDemande")
+
+  @@map("statut_demande")
+}
+
+//Historiques////////////////////////////////
+model HistoriquesConges {
+  idHistorique   Int               @id @default(autoincrement())
+  action         String
+  ancienneValeur String
+  nouvelleValeur String
+  dateChange     DateTime
+
+  demandeId      Int
+  demande        DemandesConges    @relation("HistoDemande", fields: [demandeId], references: [idDemande])
+
+  @@map("historiques_conges")
+}
+
+//Jour ferrier//////////////////////////
+model JourFerries {
+  idJour         Int               @id @default(autoincrement())
+  dateFeriee     DateTime
+  description    String
+
+  @@map("jour_ferries")
+}
+
+//Solde de conge/////////////////////
+//Solde de conge/////////////////////
+model SoldesConges {
+  soldeTotal     Int
+  soldeUtilise   Int
+
+  idEmp      Int
+  employe        Employes         @relation("Soldes", fields: [idEmp], references: [idEmploye])
+
+  idType Int
+  type TypesConges @relation("Type", fields: [idType], references: [idType])
+
+  @@id([idEmp, idType])
+  @@map("soldes_conges")
 }

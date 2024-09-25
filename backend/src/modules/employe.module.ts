@@ -1,3 +1,4 @@
+import { PasswordService } from 'src/auth/authentication/password.service';
 import { EmployeController } from './../controllers/employe.controller';
 import { EmployeService } from './../services/employe.service';
 /*
@@ -11,6 +12,6 @@ import { Module } from '@nestjs/common';
     controllers: [
         EmployeController,],
     providers: [
-        EmployeService,],
+        EmployeService, PasswordService],
 })
 export class EmployeModule { }
