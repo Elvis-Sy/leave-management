@@ -131,7 +131,6 @@ model JourFerries {
 }
 
 //Solde de conge/////////////////////
-//Solde de conge/////////////////////
 model SoldesConges {
   soldeTotal     Int
   soldeUtilise   Int
