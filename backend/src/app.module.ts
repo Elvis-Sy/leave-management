@@ -1,3 +1,4 @@
+import { DemandeModule } from './modules/demande.module';
 
 import { EmployeModule } from './modules/employe.module';
 import { Module } from '@nestjs/common';
@@ -6,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
+    DemandeModule,
     EmployeModule, PrismaModule, ConfigModule.forRoot({ isGlobal: true })
   ],
 })

@@ -19,6 +19,11 @@ enum Role {
   Manager
 }
 
+enum Categorie {
+  Histo
+  DM
+}
+
 //UTILISATEUR////////////////////////////
 model Employes {
   idEmploye    Int      @id @default(autoincrement())
@@ -36,7 +41,7 @@ model Employes {
   compte Compte_Utilisateur[] @relation("UserAccount")
 
   posteId Int
-  poste Postes @relation("UserPoste", fields: [posteId], references: [idPoste])
+  poste   Postes @relation("UserPoste", fields: [posteId], references: [idPoste])
 
   demandes DemandesConges[] @relation("UserDemande")
 
@@ -57,40 +62,40 @@ model Compte_Utilisateur {
 
 //Poste de travail/////////////////////////
 model Postes {
-  idPoste        Int               @id @default(autoincrement())
-  designPoste    String
+  idPoste Int @id @default(autoincrement())
+  designPoste String
 
-  employes       Employes[] @relation("UserPoste")
+  employes Employes[] @relation("UserPoste")
 }
 
 //Demande Conge/////////////////////////
 model DemandesConges {
-  idDemande      Int               @id @default(autoincrement())
-  dateDebut      DateTime
-  dateFin        DateTime
-  dateEnvoie     DateTime
+  idDemande  Int      @id @default(autoincrement())
+  dateDebut  DateTime
+  dateFin    DateTime
+  dateEnvoie DateTime? @default(now())
 
-  employeId      Int @unique
-  employe        Employes          @relation("UserDemande", fields: [employeId], references: [idEmploye])
+  employeId Int      @unique
+  employe   Employes @relation("UserDemande", fields: [employeId], references: [idEmploye])
 
-  typeId         Int
-  type           TypesConges       @relation("TypeDemande", fields: [typeId], references: [idType])
+  typeId Int
+  type   TypesConges @relation("TypeDemande", fields: [typeId], references: [idType])
 
   statutId Int
-  statuts        StatutDemande @relation("StatutDemande", fields: [statutId], references: [idStatut])
+  statuts  StatutDemande @relation("StatutDemande", fields: [statutId], references: [idStatut])
 
-  historiques    HistoriquesConges[] @relation("HistoDemande")
+  historiques HistoriquesConges[] @relation("HistoDemande")
 
   @@map("demandes_conges")
 }
 
 //Type de conge//////////////////////////
 model TypesConges {
-  idType         Int               @id @default(autoincrement())
-  designType     String
-  nbJours        Int
+  idType     Int    @id @default(autoincrement())
+  designType String
+  nbJours    Int
 
-  demandes       DemandesConges[] @relation("TypeDemande")
+  demandes DemandesConges[] @relation("TypeDemande")
 
   solde SoldesConges[] @relation("Type")
 
@@ -99,47 +104,48 @@ model TypesConges {
 
 //Statut pour demande et historique////////////
 model StatutDemande {
-  idStatut       Int               @id @default(autoincrement())
-  designStatut   String
+  idStatut     Int       @id @default(autoincrement())
+  designStatut String
+  typeStatut   Categorie
 
-  demandes       DemandesConges[] @relation("StatutDemande")
+  demandes DemandesConges[] @relation("StatutDemande")
 
   @@map("statut_demande")
 }
 
 //Historiques////////////////////////////////
 model HistoriquesConges {
-  idHistorique   Int               @id @default(autoincrement())
+  idHistorique   Int      @id @default(autoincrement())
   action         String
   ancienneValeur String
   nouvelleValeur String
   dateChange     DateTime
 
-  demandeId      Int
-  demande        DemandesConges    @relation("HistoDemande", fields: [demandeId], references: [idDemande])
+  demandeId Int
+  demande   DemandesConges @relation("HistoDemande", fields: [demandeId], references: [idDemande])
 
   @@map("historiques_conges")
 }
 
 //Jour ferrier//////////////////////////
 model JourFerries {
-  idJour         Int               @id @default(autoincrement())
-  dateFeriee     DateTime
-  description    String
+  idJour      Int      @id @default(autoincrement())
+  dateFeriee  DateTime
+  description String
 
   @@map("jour_ferries")
 }
 
 //Solde de conge/////////////////////
 model SoldesConges {
-  soldeTotal     Int
-  soldeUtilise   Int
+  soldeTotal   Int
+  soldeUtilise Int
 
-  idEmp      Int
-  employe        Employes         @relation("Soldes", fields: [idEmp], references: [idEmploye])
+  idEmp   Int
+  employe Employes @relation("Soldes", fields: [idEmp], references: [idEmploye])
 
   idType Int
-  type TypesConges @relation("Type", fields: [idType], references: [idType])
+  type   TypesConges @relation("Type", fields: [idType], references: [idType])
 
   @@id([idEmp, idType])
   @@map("soldes_conges")
