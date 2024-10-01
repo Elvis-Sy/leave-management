@@ -5,12 +5,14 @@ https://docs.nestjs.com/modules
 */
 
 import { Module } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/authorization/auth.guard';
+import { RolesGuard } from 'src/auth/authorization/authorization.guard';
 
 @Module({
     imports: [],
     controllers: [
         DemandeController,],
     providers: [
-        DemandeService,],
+        DemandeService, JwtAuthGuard, RolesGuard],
 })
 export class DemandeModule { }

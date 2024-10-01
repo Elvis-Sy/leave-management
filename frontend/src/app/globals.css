@@ -224,3 +224,8 @@
     margin: 5px 0;
 }
 
+/*Input login*/
+.login.group[data-focus="true"] .group-data-\[focus\=true\]\:border-default-foreground {
+    --tw-border-opacity: 1;
+    border-color: #bbcafc !important;
+}

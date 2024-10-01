@@ -6,12 +6,14 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { PasswordService } from 'src/auth/authentication/password.service';
 import { AddEmployeDto, ModifEmployeDto } from 'src/dto/employeDto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { MailerService } from 'src/utils/mailer/mailer.service';
 
 @Injectable()
 export class EmployeService { 
     constructor(
         private readonly prisma: PrismaService,
-        private readonly passwordService: PasswordService
+        private readonly passwordService: PasswordService,
+        private readonly mailer: MailerService
     ){}
 
     //Ajout des employes
@@ -21,6 +23,9 @@ export class EmployeService {
       //Verifier si il possede deja un compte
       const existe = await this.prisma.compte_Utilisateur.findUnique({where: {email}});
       if(existe) throw new ConflictException('Employe possedant deja un compte');
+
+      //Send confirmation email
+      // await this.mailer.sendSignupConfirmation(email);
 
       //Hasher le mot de passe
       const hashedpwd = await this.passwordService.hashPassword(password);
@@ -61,6 +66,11 @@ export class EmployeService {
               designPoste: true,
             },
           },
+          compte: {
+            select: {
+              email: true
+            }
+          }
         },
       });
 
@@ -71,15 +81,15 @@ export class EmployeService {
     async allManager(){
       const manager = await this.prisma.employes.findMany({
         where:{
-          idManager: {
-            equals: null
+          subordonne: {
+            some: {}, 
           }
         },
         select: {
+          idEmploye: true,
           nom: true,
           prenom: true,
           CIN: true,
-          subordonne: true,
           _count: {
             select: {subordonne: true}
           },
@@ -87,6 +97,11 @@ export class EmployeService {
             select: {
               designPoste: true,
             },
+          },
+          compte: {
+            select: {
+              email: true
+            }
           }
             
         }
@@ -131,6 +146,11 @@ export class EmployeService {
               designPoste: true,
             },
           },
+          compte: {
+            select: {
+              email: true
+            }
+          }
         },
       });
 
@@ -141,8 +161,8 @@ export class EmployeService {
     async searchManager(value: string){
       const manager = await this.prisma.employes.findMany({
         where:{
-          idManager: {
-            equals: null
+          subordonne: {
+            some: {},
           },
           OR: [
             { nom: {contains: value} },
@@ -150,10 +170,10 @@ export class EmployeService {
           ]
         },
         select: {
+          idEmploye: true,
           nom: true,
           prenom: true,
           CIN: true,
-          subordonne: true,
           _count: {
             select: {subordonne: true}
           },
@@ -161,8 +181,12 @@ export class EmployeService {
             select: {
               designPoste: true,
             },
+          },
+          compte: {
+            select: {
+              email: true
+            }
           }
-            
         }
       });
 

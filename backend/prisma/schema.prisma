@@ -19,18 +19,13 @@ enum Role {
   Manager
 }
 
-enum Categorie {
-  Histo
-  DM
-}
-
 //UTILISATEUR////////////////////////////
 model Employes {
   idEmploye    Int      @id @default(autoincrement())
   nom          String   @db.VarChar(100)
   prenom       String?  @db.VarChar(100)
   sexe         String   @db.Char(2)
-  CIN          Int
+  CIN          Int 
   dateEmbauche DateTime
   periodeEssai Boolean
 
@@ -38,7 +33,7 @@ model Employes {
   manager    Employes?  @relation("Hierarchie", fields: [idManager], references: [idEmploye])
   subordonne Employes[] @relation("Hierarchie")
 
-  compte Compte_Utilisateur[] @relation("UserAccount")
+  compte Compte_Utilisateur? @relation("UserAccount") //mettre crochet
 
   posteId Int
   poste   Postes @relation("UserPoste", fields: [posteId], references: [idPoste])
@@ -46,6 +41,11 @@ model Employes {
   demandes DemandesConges[] @relation("UserDemande")
 
   solde SoldesConges[] @relation("Soldes")
+
+  histo HistoriquesActions[] @relation("HistoAction")
+
+  @@index([nom]) //si milagy
+  @@index([idManager]) //si milagy
 }
 
 //COMPTE UTILISATEUR////////////////////////////
@@ -55,9 +55,9 @@ model Compte_Utilisateur {
   password          String    @db.VarChar(255)
   role              Role      @default(Employe)
   derniereConnexion DateTime?
-  employeId         Int
 
-  utilisateur Employes @relation("UserAccount", fields: [employeId], references: [idEmploye], onDelete: Cascade)
+  employeId         Int? @unique //a supprimer les ?
+  utilisateur Employes? @relation("UserAccount", fields: [employeId], references: [idEmploye], onDelete: Cascade)
 }
 
 //Poste de travail/////////////////////////
@@ -74,8 +74,9 @@ model DemandesConges {
   dateDebut  DateTime
   dateFin    DateTime
   dateEnvoie DateTime? @default(now())
+  dateConfirmation DateTime?
 
-  employeId Int      @unique
+  employeId Int      
   employe   Employes @relation("UserDemande", fields: [employeId], references: [idEmploye])
 
   typeId Int
@@ -84,9 +85,10 @@ model DemandesConges {
   statutId Int
   statuts  StatutDemande @relation("StatutDemande", fields: [statutId], references: [idStatut])
 
-  historiques HistoriquesConges[] @relation("HistoDemande")
+  ferries JourFerries[] @relation("DemandeJourFerie")
 
   @@map("demandes_conges")
+  @@index([dateDebut, dateFin]) //si milagy
 }
 
 //Type de conge//////////////////////////
@@ -106,7 +108,6 @@ model TypesConges {
 model StatutDemande {
   idStatut     Int       @id @default(autoincrement())
   designStatut String
-  typeStatut   Categorie
 
   demandes DemandesConges[] @relation("StatutDemande")
 
@@ -114,17 +115,20 @@ model StatutDemande {
 }
 
 //Historiques////////////////////////////////
-model HistoriquesConges {
+model HistoriquesActions {
   idHistorique   Int      @id @default(autoincrement())
-  action         String
-  ancienneValeur String
-  nouvelleValeur String
-  dateChange     DateTime
+  ancienneValeur String?
+  nouvelleValeur String?
+  dateAction     DateTime
+  niveau String
 
-  demandeId Int
-  demande   DemandesConges @relation("HistoDemande", fields: [demandeId], references: [idDemande])
+  actionId Int
+  action TypeAction @relation("TypeActionAction", fields: [actionId], references: [idTypeAction])
 
-  @@map("historiques_conges")
+  userId Int
+  user   Employes @relation("HistoAction", fields: [userId], references: [idEmploye])
+
+  @@map("historiques_Actions")
 }
 
 //Jour ferrier//////////////////////////
@@ -132,6 +136,8 @@ model JourFerries {
   idJour      Int      @id @default(autoincrement())
   dateFeriee  DateTime
   description String
+
+  conges DemandesConges[] @relation("DemandeJourFerie")
 
   @@map("jour_ferries")
 }
@@ -148,5 +154,14 @@ model SoldesConges {
   type   TypesConges @relation("Type", fields: [idType], references: [idType])
 
   @@id([idEmp, idType])
+  @@unique([idEmp, idType]) //A supprimer si milagy
   @@map("soldes_conges")
+}
+
+//Type d'ation////////////////////
+model TypeAction {
+    idTypeAction Int @id @default(autoincrement())
+    libelle String 
+    
+    actions HistoriquesActions[] @relation("TypeActionAction")
 }

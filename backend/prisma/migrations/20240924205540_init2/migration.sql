@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `employes` MODIFY `CIN` VARCHAR(191) NOT NULL;

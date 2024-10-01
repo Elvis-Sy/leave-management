@@ -1,73 +1,14 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import TableSearch from "../../components/TableSearch"
 import Table from "../../components/Table"
 import Link from "next/link"
 import {Tooltip, User, Pagination} from '@nextui-org/react'
+import axios from "axios"
 
-const actuel = "admin"
-const role =["admin", "manager"]
-
-const data = [
-  {
-    id: 1,
-    managerId: "123123",
-    name: "Jenna ortega",
-    email: "jenna@gmail.com",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    nbrSub: "3054",
-    poste: "Directeur",
-  },
-  {
-    id: 2,
-    managerId: "123123",
-    name: "Jenna ortega",
-    email: "jenna@gmail.com",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    nbrSub: "3054",
-    poste: "Directeur",
-  },
-  {
-    id: 3,
-    managerId: "123123",
-    name: "Jenna ortega",
-    email: "jenna@gmail.com",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    nbrSub: "3054",
-    poste: "Directeur",
-  },
-  {
-    id: 6,
-    managerId: "123123",
-    name: "Jenna ortega",
-    email: "jenna@gmail.com",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    nbrSub: "3054",
-    poste: "Directeur",
-  },
-  {
-    id: 4,
-    managerId: "123123",
-    name: "Jenna ortega",
-    email: "jenna@gmail.com",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    nbrSub: "3054",
-    poste: "Directeur",
-  },
-  {
-    id: 5,
-    managerId: "123123",
-    name: "Jenna ortega",
-    email: "jenna@gmail.com",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    nbrSub: "3054",
-    poste: "Directeur",
-  }
-]
+//Authorization
+const role ="Employe"
 
 const col =[
   {
@@ -102,6 +43,45 @@ const col =[
 
 const ManagerPage = ()=> {
 
+  const [roles, setRole] = useState(null);
+  const [row, setRow] = useState([])
+
+    useEffect(() => {
+        const storedRole = localStorage.getItem('role');
+        setRole(storedRole);
+        test()
+    }, []);
+
+    const test = async () => {
+      try {
+          const response = await axios.get('http://localhost:5000/api/employes/manager', {
+              headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`
+              }
+          });
+
+          //Formatter le data
+          const rows = response.data.employe.map((data)=>{
+            return {
+              id: data.idEmploye,
+              managerId: data.CIN,
+              name: `${data.nom} ${data.prenom}`,
+              email: data.compte.email,
+              photo: "/illustration1.png",
+              etablissement: "Direction informatique",
+              nbrSub: data._count.subordonne,
+              poste: data.poste.designPoste,
+            }
+          })
+
+          setRow(rows)
+
+          console.log(rows)
+      } catch (error) {
+          console.error('Erreur lors de la requête:', error.response?.data || error.message);
+      }
+  };
+
   // Personnalisation des cellules
   const renderRow = (item)=>(
     <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-green-400/10">
@@ -127,10 +107,10 @@ const ManagerPage = ()=> {
               </button>
             </Link>
           </Tooltip>
-          {role.includes(actuel) && (
+          {role == roles && (
             <div className="flex gap-4">
               <Tooltip content="Modifier" color="primary" showArrow={true}>
-                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#7591ff]">
+                <button onClick={()=>console.log(roles)} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#7591ff]">
                   <img src="/edit.png" alt="" width={20} height={20}/>
                 </button>
               </Tooltip>
@@ -165,7 +145,7 @@ const ManagerPage = ()=> {
       </div>
       {/* TABLE */}
       <div className="">
-        <Table col={col} render={renderRow} data={data}/>
+        <Table col={col} render={renderRow} data={row}/>
       </div>
       {/* PAGINATION */}
       <div className="mt-4 flex justify-center">
