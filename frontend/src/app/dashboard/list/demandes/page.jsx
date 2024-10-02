@@ -390,8 +390,10 @@ const DemandePage = ()=> {
         <Tab title="Tout" className="text-md font-medium">
           <Card style={{boxShadow: "none"}}>
             <CardBody>
-              <Table col={col2} render={renderRow2} data={data2} margin={0}/>
-              <div className="mt-4 flex justify-center">
+              <div className="h-[440px]">
+                <Table col={col2} render={renderRow2} data={data2} margin={0}/>
+              </div>
+              <div className="mt-2 flex justify-center">
                 <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#f1f1f1]"/>
               </div>
             </CardBody>
@@ -400,8 +402,10 @@ const DemandePage = ()=> {
         <Tab title={`En attente (${nbr})`} className="text-md font-medium">
           <Card style={{boxShadow: "none"}}>
             <CardBody>
-              <Table col={col} render={renderRow} data={data} margin={0}/>
-              <div className="mt-4 flex justify-center">
+              <div className="h-[440px]">
+                <Table col={col} render={renderRow} data={data} margin={0}/>
+              </div>
+              <div className="mt-2 flex justify-center">
                 <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#f1f1f1]"/>
               </div>
             </CardBody>

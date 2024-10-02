@@ -45,14 +45,16 @@ const ManagerPage = ()=> {
 
   const [roles, setRole] = useState(null);
   const [row, setRow] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const rowsPerPage = 6 // Nombre de lignes par page
 
     useEffect(() => {
         const storedRole = localStorage.getItem('role');
         setRole(storedRole);
-        test()
+        allManager()
     }, []);
 
-    const test = async () => {
+    const allManager = async () => {
       try {
           const response = await axios.get('http://localhost:5000/api/employes/manager', {
               headers: {
@@ -76,11 +78,24 @@ const ManagerPage = ()=> {
 
           setRow(rows)
 
-          console.log(rows)
       } catch (error) {
           console.error('Erreur lors de la requête:', error.response?.data || error.message);
       }
-  };
+    };  
+
+  //Gestion de la pagination et des pages
+    //Calcul des nombres de pages
+    const totalPages = Math.ceil(row.length / rowsPerPage)
+
+    //Diviser les donnes selon le nombre de page
+    const paginatedData = row.slice(
+      (currentPage - 1) * rowsPerPage, 
+      currentPage * rowsPerPage
+    ) 
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+  }
 
   // Personnalisation des cellules
   const renderRow = (item)=>(
@@ -127,7 +142,7 @@ const ManagerPage = ()=> {
   )
 
   return (
-    <div className="bg-white shadow-lg p-4 rounded-md flex-1 m-4 mt-0">
+    <div className=" bg-white shadow-lg p-4 rounded-md flex-1 m-4 mt-0">
       {/* TOP */}
       <div className="flex justify-between items-center">
         <h1 className="hidden md:block text-lg font-semibold">Managers</h1>
@@ -144,12 +159,19 @@ const ManagerPage = ()=> {
         </div>
       </div>
       {/* TABLE */}
-      <div className="">
-        <Table col={col} render={renderRow} data={row}/>
+      <div className="h-[460px]">
+        <Table col={col} render={renderRow} data={paginatedData}/>
       </div>
       {/* PAGINATION */}
       <div className="mt-4 flex justify-center">
-        <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#f1f1f1]"/>
+        <Pagination 
+        loop showControls 
+        total={totalPages} 
+        initialPage={1} 
+        page={currentPage} 
+        onChange={handlePageChange} 
+        variant="faded" 
+        className="rounded-md bg-[#f1f1f1]"/>
       </div>
     </div>
   )

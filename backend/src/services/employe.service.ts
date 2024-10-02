@@ -30,6 +30,16 @@ export class EmployeService {
       //Hasher le mot de passe
       const hashedpwd = await this.passwordService.hashPassword(password);
 
+      //Formater date de connexion
+      // function formatDate(date: Date) {
+      //   const options: Intl.DateTimeFormatOptions = { 
+      //     day: 'numeric' as 'numeric', 
+      //     month: 'long' as 'long', 
+      //     year: 'numeric' as 'numeric' 
+      //   };
+      //   return new Intl.DateTimeFormat('fr-FR', options).format(date);
+      // }
+
       await this.prisma.employes.create({
         data: {
             ...employeData,
@@ -43,7 +53,7 @@ export class EmployeService {
                     email,
                     password: hashedpwd,
                     role: 'Employe',
-                    derniereConnexion: null,
+                    derniereConnexion: new Date(),
                 },
             },
         },
@@ -208,6 +218,32 @@ export class EmployeService {
           poste: { connect: { idPoste: idposte } },
         },
       });
+    }
+
+    //Information personnelle
+    async personalInfo(id: number){
+      const info = await this.prisma.employes.findFirst({
+        where: {
+          idEmploye: id
+        },
+        select: {
+          nom: true,
+          prenom: true,
+          compte: {
+            select: {
+              email: true,
+              derniereConnexion: true
+            }
+          },
+          poste: {
+            select: {
+              designPoste: true
+            }
+          },
+        }
+      })
+
+      return info;
     }
 
  }

@@ -1,6 +1,20 @@
-import {Popover, PopoverTrigger, PopoverContent, User} from "@nextui-org/react";
+"use client"
 
-const Topbar = ()=> {
+import {Popover, PopoverTrigger, PopoverContent, User} from "@nextui-org/react";
+import { format } from "date-fns";
+import {fr} from 'date-fns/locale'
+
+const Topbar = ({infoUser})=> {
+
+  const date = infoUser.dernier;
+
+  //Formater la date
+  const formatDate = (date)=>{
+    const temp = date ? new Date(date) : new Date(null);
+    return format(temp, "d MMMM yyyy", {locale: fr})
+  }
+  
+
   return (
       <div className="flex mb-2 items-center md:justify-between justify-end p-2 bg-bleuspat">
         {/* Toogle */}
@@ -11,9 +25,9 @@ const Topbar = ()=> {
           <PopoverTrigger className="flex items-center gap-2 bg-[#f1f1f1] py-1 px-2 rounded-xl">
             <div className="cursor-pointer">
               <div className="flex flex-col gap-1">
-                <span className="text-[12px] leading-3 font-medium text-gray-900">Elvis Sylvano</span>
+                <span className="text-[12px] leading-3 font-medium text-gray-900">{infoUser.name}</span>
                 <div className="flex justify-end">
-                  <span className="text-xs text-white px-2 rounded-full bg-gray-500">Admin</span>
+                  <span className="text-xs text-white px-2 rounded-full bg-gray-500">{localStorage.getItem('role')}</span>
                 </div>
               </div>
               <img src="/avatar.png" alt="" width={30} height={30} className="rounded-full"/>
@@ -23,17 +37,17 @@ const Topbar = ()=> {
             <div className="flex flex-col gap-4 p-2">
               <div className="flex items-center justify-between w-[250px]">
                 <User   
-                  name="Elvis Sylvano"
-                  description="elvissy@gmail.com"
+                  name={infoUser.name}
+                  description={infoUser.email}
                   avatarProps={{
                     src: "/avatar.png"
                   }}
                 />
-                <span className="text-[12px] text-white px-2 rounded-full bg-gray-500">Admin</span>
+                <span className="text-[12px] text-white px-2 rounded-full bg-gray-500">{localStorage.getItem('role')}</span>
               </div>
               <div>
-                <p className="text-sm text-gray-700">Responsable de l'hygiene</p>
-                <p className="text-sm text-gray-700">Dernière connexion : <span className="font-semibold">15 septembre 2024</span></p>
+                <p className="text-sm text-gray-700 font-medium font-mono">-{infoUser.poste}</p>
+                <p className="text-sm text-gray-700">Dernière connexion : <span className="font-semibold">{formatDate(date)}</span></p>
               </div>
               <div className="border-t text-sm border-gray-300 pt-2 flex items-center justify-end">
                 <button className="hover:text-redspat text-redspat/50">Se deconnecter</button>

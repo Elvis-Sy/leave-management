@@ -6,6 +6,8 @@ import axios from 'axios';
 import { Input } from '@nextui-org/react'
 import {getAttributesToken} from '../../components/attributeToken'
 import { useForm } from 'react-hook-form';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function LoginPage() {
 
@@ -27,17 +29,33 @@ function LoginPage() {
 
         const attributes = getAttributesToken(response.data.result.token);
         const role = attributes.role;
+        const idEmploye = attributes.employeId
+
+        toast.success("Connexion reussie !", {
+          position: "top-center",
+          autoClose: 1000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          style: {backgroundColor: "#4ade80", fontWeight: 500, color: "white"}
+        });
 
         // Stocker le token et le rôle
         localStorage.setItem('token', response.data.result.token);
         localStorage.setItem('role', role);
+        localStorage.setItem('id', idEmploye)
 
-        // Redirection selon le rôle
-        if (role === 'Manager') {
-          router.push('/dashboard/admin'); // Redirection vers la page admin
-        } else if (role === 'Employe') {
-          router.push('/dashboard/manager'); // Redirection vers la page utilisateur
-        }
+        setTimeout(()=>{
+          // Redirection selon le rôle
+          if (role === 'Manager') {
+            router.push('/dashboard/admin'); // Redirection vers la page admin
+          } else if (role === 'Employe') {
+            router.push('/dashboard/manager'); // Redirection vers la page utilisateur
+          }
+        }, 1000)
+        
 
       } else {
 
@@ -70,6 +88,7 @@ function LoginPage() {
 
   return (
     <div className='flex flex-col items-center justify-center text-center w-full h-screen flex-1 px-20'>
+      <ToastContainer/>
       <div className="bg-white rounded-2xl shadow-2xl flex w-2/3 max-w-5xl">
         {/* LEFT SIDE */}
         <div className="w-full md:w-3/5 p-5">

@@ -196,7 +196,7 @@ const EmployePage = ()=> {
         </div>
       </div>
       {/* TABLE */}
-      <div className="">
+      <div className="h-[460px]">
         <Table col={col} render={renderRow} data={data}/>
       </div>
       {/* PAGINATION */}

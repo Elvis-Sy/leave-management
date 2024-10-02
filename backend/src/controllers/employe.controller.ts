@@ -134,5 +134,22 @@ export class EmployeController {
             }
         }
     }
+
+    @Get(':id')
+    @Roles(Role.EMPLOYE) //Admin
+    async infoPerso(@Param('id') id: string){
+        try {
+            const info = await this.employeService.personalInfo(parseInt(id));
+            return{
+                message: 'Votre information',
+                info: info
+            }
+        } catch (error) {
+            console.error('Erreur d\'information:', error);
+            return{
+                message: "erreur lors du listage de vos infos de l'employe"
+            }
+        }
+    }
     
  }

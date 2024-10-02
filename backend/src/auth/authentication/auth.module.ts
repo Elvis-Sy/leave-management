@@ -19,7 +19,7 @@ import { PasswordService } from './password.service';
             imports: [ConfigModule], // Ajoutez ConfigModule ici
             useFactory: async (configService: ConfigService) => ({
                 secret: configService.get<string>('JWT_SECRET') || 'congeSPAT',
-                signOptions: { expiresIn: configService.get<string>('JWT_EXPIRE_IN') },
+                signOptions: { expiresIn: configService.get<string>('JWT_EXPIRE_IN') || '1h' },
             }),
             inject: [ConfigService],
         }),
