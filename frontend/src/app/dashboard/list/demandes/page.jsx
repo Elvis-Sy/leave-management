@@ -247,11 +247,11 @@ const DemandePage = ()=> {
 
   // Personnalisation des cellules
   const renderRow = (item)=>(
-    <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-green-400/10">
+    <tr key={item.id} className="border-b border-gray-200 text-sm hover:bg-bleuspat/10">
       
-      <td className="font-mono p-3">
+      <td className=" p-3">
         <div className="flex items-center gap-4">
-          <img src={item.photo} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/>
+          <img src="/paternite.png" alt="" width={40} height={40} className="w-10 h-10 object-cover"/>
           <div className="flex flex-col">
             <h3 className="font-semibold text-md">{item.type}</h3>
             <p className="text-xs text-gray-500"><span className="text-sm text-gray-500 font-medium">{item.nbrJrs}</span> jours</p>
@@ -259,7 +259,7 @@ const DemandePage = ()=> {
         </div>
       </td>
 
-      <td className="font-mono hidden lg:table-cell">
+      <td className=" hidden lg:table-cell">
         <p>{item.dateEnvoi}</p>
       </td>
 
@@ -268,12 +268,12 @@ const DemandePage = ()=> {
         name={item.name}
         description={`${item.etablissement} / ${item.poste}`}
         avatarProps={{
-          src: "/illustration1.png"
+          src: "http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
         }}
         />
       </td>
 
-      <td className="hidden md:table-cell font-mono">
+      <td className="hidden md:table-cell ">
         <div className="flex items-center gap-4">
           <div className="p-2 text-md font-bold text-gray-700 border rounded-lg">
             {item.dateDebut}
@@ -318,11 +318,11 @@ const DemandePage = ()=> {
   )
 
   const renderRow2 = (item)=>(
-    <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-green-400/10">
+    <tr key={item.id} className="border-b border-gray-200 text-sm hover:bg-bleuspat/10">
       
-      <td className="font-mono p-3">
+      <td className=" p-3">
         <div className="flex items-center gap-4">
-          <img src={item.photo} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/>
+          <img src="/maternite.png" alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/>
           <div className="flex flex-col">
             <h3 className="font-semibold text-md">{item.type}</h3>
             <p className="text-xs text-gray-500"><span className="text-sm text-gray-500 font-medium">{item.nbrJrs}</span> jours</p>
@@ -335,27 +335,27 @@ const DemandePage = ()=> {
         name={item.name}
         description={`${item.etablissement} / ${item.poste}`}
         avatarProps={{
-          src: "/illustration1.png"
+          src: "http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
         }}
         />
       </td>
 
-      <td className="font-mono hidden md:table-cell">
+      <td className=" hidden md:table-cell">
         <p>{item.dateEnvoi}</p>
       </td>
 
-      <td className="font-mono hidden md:table-cell">
+      <td className=" hidden md:table-cell">
         <p>{item.dateConf}</p>
       </td>
 
-      <td className="hidden lg:table-cell font-mono">
+      <td className="hidden lg:table-cell ">
         <Chip
           variant="flat"
           size="lg"
           avatar={
             <Avatar
               name={item.manager}
-              src="/illustration1.png"
+              src="http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
             />
           }
         >
@@ -371,10 +371,10 @@ const DemandePage = ()=> {
       </td>
 
       <td>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-center gap-4">
           <Tooltip content="Infos" color="primary" showArrow={true}>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-bleuspat">
-              <img src="/info.png" alt="" width={25} height={25}/>
+            <button className="w-6 h-6 flex items-center justify-center rounded-full bg-bleuspat">
+              <img src="/info.png" alt="" width={17} height={17}/>
             </button>
           </Tooltip>
         </div>
@@ -414,7 +414,6 @@ const DemandePage = ()=> {
         </Tab>
         
       </Tabs>
-      {/* PAGINATION */}
       
     </div>
   )

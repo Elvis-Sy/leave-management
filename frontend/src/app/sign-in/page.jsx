@@ -31,7 +31,7 @@ function LoginPage() {
         const role = attributes.role;
         const idEmploye = attributes.employeId
 
-        toast.success("Connexion reussie !", {
+        toast.loading("Connexion...", {
           position: "top-center",
           autoClose: 1000,
           hideProgressBar: true,
@@ -39,7 +39,7 @@ function LoginPage() {
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
-          style: {backgroundColor: "#4ade80", fontWeight: 500, color: "white"}
+          style: {backgroundColor: "#4ade80", fontWeight: 500, color: "white", width: "60%"}
         });
 
         // Stocker le token et le rôle
@@ -49,7 +49,7 @@ function LoginPage() {
 
         setTimeout(()=>{
           // Redirection selon le rôle
-          if (role === 'Manager') {
+          if (role === 'Admin') {
             router.push('/dashboard/admin'); // Redirection vers la page admin
           } else if (role === 'Employe') {
             router.push('/dashboard/manager'); // Redirection vers la page utilisateur

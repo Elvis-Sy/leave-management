@@ -67,7 +67,7 @@ const Recents = () => {
                             name={m.nom}
                             description={m.description}
                             avatarProps={{
-                                src: "/illustration1.png"
+                                src: "http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
                             }}
                         />
                         <div className="flex flex-col text-right mr-1">

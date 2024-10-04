@@ -81,7 +81,7 @@ export default function DashboardLayout({ children }) {
         const infos =  {
             name: `${response.data.info.nom} ${response.data.info.prenom}`,
             email: response.data.info.compte.email,
-            photo: "/illustration1.png",
+            photo: "jenna-ortega-7680x4320-16936.jpg",
             dernier: response.data.info.compte.derniereConnexion ? response.data.info.compte.derniereConnexion : "",
             poste: response.data.info.poste.designPoste,
           }

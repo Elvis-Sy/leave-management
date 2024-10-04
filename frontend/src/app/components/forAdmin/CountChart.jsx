@@ -3,38 +3,59 @@
 import { useEffect, useState } from "react"
 import { RadialBarChart, RadialBar, ResponsiveContainer } from "recharts"
 import { Spinner } from "@nextui-org/react";
+import axios from "axios";
 
-const data = [
-    {
-        name: 'Total',
-        count: 75,
-        fill: 'white'
-    },
-    {
-        name: 'refus',
-        count: 47,
-        fill: '#fa5252'
-    },
-    {
-        name: 'accord',
-        count: 28,
-        fill: '#40c057'
-    }
-    
-]
 
 const CountChart = () => {
 
     const [isLoading, setIsLoading] = useState(true);
+    const [taux, setTaux] = useState({})
 
     useEffect(() => {
-        // Simuler un temps de chargement des données
+        
         setTimeout(() => {
         setIsLoading(false);
         }, 1000);
+
+        infoApprobation();
+
     }, []);
 
+    const data = [
+        {
+            name: 'Total',
+            count: taux.refus + taux.accord,
+            fill: 'white'
+        },
+        {
+            name: 'refus',
+            count: taux.refus,
+            fill: '#fa5252'
+        },
+        {
+            name: 'accord',
+            count: taux.accord,
+            fill: '#40c057'
+        }
+        
+    ]
 
+    //Prendre les donnee necessaire
+    const infoApprobation = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/demandes/approbation', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+    
+            setTaux(response.data.demande)
+            
+    
+        } catch (error) {
+            console.error('Erreur lors de la requête:', error.response?.data || error.message);
+        }
+      };
 
   return (
     <div className="bg-white shadow-lg rounded-xl w-full h-full p-4">
@@ -72,13 +93,11 @@ const CountChart = () => {
         <div className="flex justify-center gap-16">
             <div className="flex flex-col gap-1">
                 <div className="w-5 h-5 bg-[#fa5252] rounded-full"/>
-                <h1 className="font-bold">1,256</h1>
-                <h2 className="text-xs text-gray-400">Refus (55%)</h2>
+                <h1 className="font-bold">({taux.tauxRefus}%) <span className="text-sm text-gray-400">Refus</span></h1>
             </div>
             <div className="flex flex-col gap-1">
                 <div className="w-5 h-5 bg-[#40c057] rounded-full"/>
-                <h1 className="font-bold">756</h1>
-                <h2 className="text-xs text-gray-400">accord (45%)</h2>
+                <h1 className="font-bold">({taux.tauxAccord}%) <span className="text-sm text-gray-400">Accord</span></h1>
             </div>
         </div>
     </div>

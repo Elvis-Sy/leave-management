@@ -17,7 +17,7 @@ export class DemandeController {
 
     @Post('ajout')
     @Roles(Role.EMPLOYE)
-    async ajoutEmploye(@Body() demandeDto: AddDemandeDto){
+    async ajoutDemande(@Body() demandeDto: AddDemandeDto){
         try {
             await this.demandeService.addDemande(demandeDto);
             return {
@@ -32,7 +32,7 @@ export class DemandeController {
     }
 
     @Get('attente')
-    @Roles(Role.EMPLOYE) //Admin
+    @Roles(Role.ADMIN) //Admin
     async attenteDemande(){
         try {
             const demandes = await this.demandeService.listDemandeAttente();
@@ -49,7 +49,7 @@ export class DemandeController {
     }
 
     @Get('valid')
-    @Roles(Role.EMPLOYE) //Admin
+    @Roles(Role.ADMIN) //Admin
     async validDemande(){
         try {
             const demandes = await this.demandeService.validDemande();
@@ -66,7 +66,7 @@ export class DemandeController {
     }
 
     @Get('stats')
-    @Roles(Role.EMPLOYE) //Admin
+    @Roles(Role.ADMIN) //Admin
     async statistiqueDemande(){
         try {
             const demandes = await this.demandeService.statutDemande();
@@ -83,7 +83,7 @@ export class DemandeController {
     }
 
     @Get('approbation')
-    @Roles(Role.EMPLOYE) //Admin
+    @Roles(Role.ADMIN) //Admin
     async tauxDemande(){
         try {
             const demandes = await this.demandeService.tauxDemande();
@@ -100,7 +100,7 @@ export class DemandeController {
     }
 
     @Get('tendance')
-    @Roles(Role.EMPLOYE) //Admin
+    @Roles(Role.ADMIN) //Admin
     async TypeDemandeCount(){
         try {
             const demandes = await this.demandeService.tendanceDemande();

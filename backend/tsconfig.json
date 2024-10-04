@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "types": ["node"], // ajoute ici les types requis
+    "typeRoots": ["node_modules/@types"],
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,

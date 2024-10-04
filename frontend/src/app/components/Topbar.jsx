@@ -3,10 +3,16 @@
 import {Popover, PopoverTrigger, PopoverContent, User} from "@nextui-org/react";
 import { format } from "date-fns";
 import {fr} from 'date-fns/locale'
+import { useEffect, useState } from "react";
 
 const Topbar = ({infoUser})=> {
 
+  const [role, setRole] = useState('')
   const date = infoUser.dernier;
+
+  useEffect(()=>{
+    setRole(localStorage.getItem('role'))
+  }, [])
 
   //Formater la date
   const formatDate = (date)=>{
@@ -22,15 +28,15 @@ const Topbar = ({infoUser})=> {
 
         {/* UTILISATEUR (photo et nom)*/}
         <Popover placement="left">
-          <PopoverTrigger className="flex items-center gap-2 bg-[#f1f1f1] py-1 px-2 rounded-xl">
+          <PopoverTrigger className="flex items-center gap-2 bg-[#f1f1f1] py-2 px-2 rounded-xl">
             <div className="cursor-pointer">
               <div className="flex flex-col gap-1">
                 <span className="text-[12px] leading-3 font-medium text-gray-900">{infoUser.name}</span>
                 <div className="flex justify-end">
-                  <span className="text-xs text-white px-2 rounded-full bg-gray-500">{localStorage.getItem('role')}</span>
+                  <span className="text-xs text-white px-2 rounded-full bg-gray-500">{role}</span>
                 </div>
               </div>
-              <img src="/avatar.png" alt="" width={30} height={30} className="rounded-full"/>
+              <img src="http://localhost:5000/jenna-ortega-7680x4320-16936.jpg" alt="" width={30} height={30} className=" w-8 h-8 rounded-full object-cover"/>
             </div>
           </PopoverTrigger>
           <PopoverContent className="p-1">
@@ -40,10 +46,10 @@ const Topbar = ({infoUser})=> {
                   name={infoUser.name}
                   description={infoUser.email}
                   avatarProps={{
-                    src: "/avatar.png"
+                    src: "http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
                   }}
                 />
-                <span className="text-[12px] text-white px-2 rounded-full bg-gray-500">{localStorage.getItem('role')}</span>
+                <span className="text-[12px] text-white px-2 rounded-full bg-gray-500">{role}</span>
               </div>
               <div>
                 <p className="text-sm text-gray-700 font-medium font-mono">-{infoUser.poste}</p>

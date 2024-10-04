@@ -41,6 +41,7 @@ export class AddEmployeDto {
     @IsNotEmpty()
     @IsInt()
     readonly idposte: number
+
 }
 
 //Pour la modification

@@ -29,6 +29,7 @@ model Employes {
   CIN          Int 
   dateEmbauche DateTime
   periodeEssai Boolean
+  photoProfile String?
 
   idManager  Int?
   manager    Employes?  @relation("Hierarchie", fields: [idManager], references: [idEmploye])

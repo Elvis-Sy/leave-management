@@ -5,13 +5,18 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config'
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/authentication/auth.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     MailerModule,
     DemandeModule,
     EmployeModule, PrismaModule, ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
-    AuthModule
+    AuthModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'profil')
+    })
   ],
 })
 export class AppModule { }

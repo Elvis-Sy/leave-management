@@ -7,9 +7,6 @@ import Link from "next/link"
 import {Tooltip, User, Pagination} from '@nextui-org/react'
 import axios from "axios"
 
-//Authorization
-const role ="Employe"
-
 const col =[
   {
     header: "Info",
@@ -43,17 +40,15 @@ const col =[
 
 const ManagerPage = ()=> {
 
-  const [roles, setRole] = useState(null);
   const [row, setRow] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 6 // Nombre de lignes par page
 
     useEffect(() => {
-        const storedRole = localStorage.getItem('role');
-        setRole(storedRole);
         allManager()
     }, []);
 
+    //Prendre les donnees
     const allManager = async () => {
       try {
           const response = await axios.get('http://localhost:5000/api/employes/manager', {
@@ -62,21 +57,7 @@ const ManagerPage = ()=> {
               }
           });
 
-          //Formatter le data
-          const rows = response.data.employe.map((data)=>{
-            return {
-              id: data.idEmploye,
-              managerId: data.CIN,
-              name: `${data.nom} ${data.prenom}`,
-              email: data.compte.email,
-              photo: "/illustration1.png",
-              etablissement: "Direction informatique",
-              nbrSub: data._count.subordonne,
-              poste: data.poste.designPoste,
-            }
-          })
-
-          setRow(rows)
+          setRow(response.data.employe)
 
       } catch (error) {
           console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -99,20 +80,20 @@ const ManagerPage = ()=> {
 
   // Personnalisation des cellules
   const renderRow = (item)=>(
-    <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-green-400/10">
+    <tr key={item.id} className="border-b border-gray-200 text-sm hover:bg-bleuspat/10">
       <td className="p-3">
         <User   
         name={item.name}
         description={item.email}
         avatarProps={{
-          src: "/illustration1.png"
+          src: "http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
         }}
         />
       </td>
-      <td className="hidden md:table-cell font-mono">{item.managerId}</td>
-      <td className="hidden md:table-cell font-mono"><span className="text-2xl font-semibold">{item.nbrSub}</span> employes</td>
-      <td className="hidden md:table-cell font-mono">{item.poste}</td>
-      <td className="hidden lg:table-cell font-mono">{item.etablissement}</td>
+      <td className="hidden md:table-cell">{item.managerId}</td>
+      <td className="hidden md:table-cell"><span className="text-2xl font-semibold">{item.nbrSub}</span> employes</td>
+      <td className="hidden md:table-cell">{item.poste}</td>
+      <td className="hidden lg:table-cell">{item.etablissement}</td>
       <td>
         <div className="flex items-center gap-4">
           <Tooltip content="Inspecter" color="success" showArrow={true}>
@@ -122,20 +103,18 @@ const ManagerPage = ()=> {
               </button>
             </Link>
           </Tooltip>
-          {role == roles && (
-            <div className="flex gap-4">
-              <Tooltip content="Modifier" color="primary" showArrow={true}>
-                <button onClick={()=>console.log(roles)} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#7591ff]">
-                  <img src="/edit.png" alt="" width={20} height={20}/>
-                </button>
-              </Tooltip>
-              <Tooltip content="Supprimer" color="danger" showArrow={true}>
-                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
-                  <img src="/delete.png" alt="" width={20} height={20}/>
-                </button>
-              </Tooltip>
-            </div>
-          )}
+          <div className="flex gap-4">
+            <Tooltip content="Modifier" color="primary" showArrow={true}>
+              <button onClick={()=>console.log(roles)} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#7591ff]">
+                <img src="/edit.png" alt="" width={20} height={20}/>
+              </button>
+            </Tooltip>
+            <Tooltip content="Supprimer" color="danger" showArrow={true}>
+              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
+                <img src="/delete.png" alt="" width={20} height={20}/>
+              </button>
+            </Tooltip>
+          </div>
         </div>
       </td>
     </tr>

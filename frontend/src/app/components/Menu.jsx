@@ -8,28 +8,33 @@ const actuel = "admin";
 
 const menuItems = [
     {
-      title: "MENU",
+      title: "ACCUEIL",
       items: [
         {
-          icon: "/dashboard2.png", //accueil.png 
+          icon: "/dashboard3.png", //accueil.png 
           label: "Dashboard",
           href: "/dashboard/admin",
           visible: ["admin", "manager", "employe"],
         },
+      ],
+    },
+    {
+      title: "PAGES",
+      items: [
         {
-          icon: "/manager2.png", //manager.png
+          icon: "/manager4.png", //manager.png
           label: "Managers",
           href: "/dashboard/manager",
           visible: ["admin"],
         },
         {
-          icon: "/employes2.png", //employes.png
+          icon: "/employe3.png", //employes.png
           label: "Employes",
           href: "/dashboard/employe",
           visible: ["admin", "manager"],
         },
         {
-          icon: "/demandes2.png", //demandes.png
+          icon: "/demande4.png", //demandes.png
           label: "Demandes",
           href: "/dashboard/list/demandes",
           visible: ["admin", "manager"],
@@ -41,26 +46,15 @@ const menuItems = [
           visible: ["employe"],
         },
         {
-          icon: "/historiques2.png", //historiques.png
+          icon: "/historique3.png", //historiques.png
           label: "Historiques",
           href: "/dashboard/list/historiques",
           visible: ["admin", "manager"],
         },
         {
-          icon: "/calendrier2.png", //calendrier.png
+          icon: "/calendrier4.png", //calendrier.png
           label: "Calendrier",
           href: "/dashboard/list/calendrier",
-          visible: ["admin", "manager", "employe"],
-        },
-      ],
-    },
-    {
-      title: "OTHER",
-      items: [
-        {
-          icon: "/deconnex2.png", //deconnex.png
-          label: "Logout",
-          href: "/logout",
           visible: ["admin", "manager", "employe"],
         },
       ],
@@ -72,10 +66,10 @@ const Menu =()=> {
   const pathname = usePathname();
 
   return (
-    <div className="text-xm px-4 pb-20 flex flex-col h-[90%] justify-between">
+    <div className="pt-4 px-4 h-[90%] border-t-2 border-gray-200">
         {menuItems.map(items =>(
-            <div key={items.title} className="flex flex-col gap-4">
-                <span className="w-full border border-gray-200"></span>
+            <div key={items.title} className="flex flex-col gap-4 py-2">
+                <span className="hidden lg:block text-gray-500 font-normal">{items.title}</span>
 
                 {/* Verifie le nav approprie pour l'utilisateur actuel */}
 
