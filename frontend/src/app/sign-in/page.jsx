@@ -125,6 +125,7 @@ function LoginPage() {
               <div>
                 <Input
                   isRequired
+                  type='password'
                   label="Mot de passe"
                   variant="bordered"
                   className="max-w-xs font-semibold login group"

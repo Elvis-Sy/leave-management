@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react"
 import UserCard from '../../components/forAdmin/UserCard'
 import CountChart from '../../components/forAdmin/CountChart'
-import TendanceChart from '../../components/forAdmin/TendanceChart'
 import TypeChart from '../../components/forAdmin/TypeChart'
 import MiniCalendar from '../../components/forAdmin/MiniCalendar'
-import Recents from '../../components/Recents'
 import axios from "axios"
 
 const AdminPage = ()=> {
@@ -44,7 +42,7 @@ const AdminPage = ()=> {
         <div className='flex gap-4 justify-between flex-wrap'>
           <UserCard type={"Approuvees"} color={"bg-[#40c057]"} count={stat.count2}/>
           <UserCard type={"Refusees"} color={"bg-[#fa5252]"} count={stat.count3}/>
-          <UserCard type={"En cours..."} color={"bg-gray-400"} count={stat.count1}/>
+          <UserCard type={"En attente..."} color={"bg-gray-400"} count={stat.count1}/>
           <UserCard type={"Total demandes"} color={"bg-bleuspat"} count={etat ? stat.count1 + stat.count2 + stat.count3 : 0}/>
         </div>
 

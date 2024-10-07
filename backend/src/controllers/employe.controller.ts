@@ -12,7 +12,6 @@ import { Role } from 'src/auth/authorization/roleEmploye.enum';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer'
-import { NoAuthGuard } from 'src/auth/authorization/noauth.guard';
 
 //Storage setting
 const storage = {
@@ -30,19 +29,19 @@ const storage = {
 }
 
 @Controller('employes')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class EmployeController { 
     constructor(private readonly employeService: EmployeService, private readonly configService: ConfigService){}
 
     @Post('ajout')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @UseInterceptors(FileInterceptor('file', storage))
     @Roles(Role.ADMIN) //Admin
     async ajoutEmploye(@Body() employeDto: AddEmployeDto, @UploadedFile() file: Express.Multer.File){
         try {
-            const filename = file ? file.filename : ""
+            const filename = file ? file.filename : null
             await this.employeService.addEmploye(employeDto, {profile: filename});
             return {
-                message: 'Employé créé avec succès.',
+                message: "La demande de confirmation a bien été envoyée à l'employe. ",
             };
         } catch (error) {
             console.error("Erreur lors de l'ajout':", error);
@@ -53,6 +52,7 @@ export class EmployeController {
     }
 
     @Get('all')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN) //Admin
     async listEmploye(){
         try {
@@ -70,6 +70,7 @@ export class EmployeController {
     }
 
     @Delete(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN) //Admin
     async suppEmploye(@Param('id') id: string){
         try {
@@ -87,6 +88,7 @@ export class EmployeController {
     }
 
     @Get('manager')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN) //Admin
     async listManager(){
         try {
@@ -104,6 +106,7 @@ export class EmployeController {
     }
 
     @Get('search/:value')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN) //Admin
     async searchEmploye(@Param('value') val: string){
         try {
@@ -121,6 +124,7 @@ export class EmployeController {
     }
 
     @Get('manager/search/:value')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN) //Admin
     async searchManager(@Param('value') val: string){
         try {
@@ -138,10 +142,13 @@ export class EmployeController {
     }
 
     @Patch(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseInterceptors(FileInterceptor('file', storage))
     @Roles(Role.ADMIN) //Admin
-    async updateEmploye(@Param('id') id: string, @Body() modifEmploye: ModifEmployeDto){
+    async updateEmploye(@Param('id') id: string, @Body() modifEmploye: ModifEmployeDto, @UploadedFile() file: Express.Multer.File){
         try {
-            await this.employeService.updateEmploye(parseInt(id), modifEmploye);
+            const filename = file ? file.filename : ""
+            await this.employeService.updateEmploye(parseInt(id), modifEmploye, {profile: filename});
             return{
                 message: 'Employé modifié avec succès',
             }
@@ -154,9 +161,24 @@ export class EmployeController {
     }
 
     @Get(':id')
-    @Roles(Role.ADMIN, Role.MANAGER, Role.EMPLOYE) //Admin
+    @UseGuards(JwtAuthGuard)
     async infoPerso(@Param('id') id: string){
         try {
+
+            if (!id || isNaN(parseInt(id))) {
+                // Si l'ID est null ou invalide, retourner un objet par défaut
+                return {
+                  message: 'Aucune information disponible',
+                  info: {
+                    name: "Utilisateur",
+                    email: null,
+                    photo: "avatar.png",
+                    dernier: null,
+                    poste: null
+                  }
+                };
+              }
+
             const info = await this.employeService.personalInfo(parseInt(id));
             return{
                 message: 'Votre information',
@@ -165,15 +187,23 @@ export class EmployeController {
         } catch (error) {
             console.error('Erreur d\'information:', error);
             return{
-                message: "erreur lors du listage de vos infos"
+                message: error.message
             }
         }
     }
 
     @Post('set-password/:token')
-    @UseGuards(NoAuthGuard)
-    async setPassword(@Param('token') token: string, @Body('newPassword') newPassword: string) {
-        return await this.employeService.setPassword(token, newPassword);
+    async setPassword(@Param('token') token: string, @Body('password') newPassword: string) {
+        try {
+            await this.employeService.setPassword(token, newPassword);
+            return "Confirmation réalisée avec succès"
+        } catch (error) {
+            return {
+                statut: "Lien expiré ou déjà utilisé"
+            }
+            
+        }
+        
     }
     
  }

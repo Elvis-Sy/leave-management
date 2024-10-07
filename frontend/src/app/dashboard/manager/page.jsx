@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import TableSearch from "../../components/TableSearch"
 import Table from "../../components/Table"
 import Link from "next/link"
-import {Tooltip, User, Pagination} from '@nextui-org/react'
+import {Tooltip, User, Pagination, Button, Autocomplete, AutocompleteItem, Popover, PopoverContent, PopoverTrigger,} from '@nextui-org/react'
 import axios from "axios"
 
 const col =[
@@ -38,11 +38,31 @@ const col =[
   },
 ]
 
+const etab = [
+  {
+      label: "Directeur",
+      value: "directeur"
+  },
+  {
+      label: "Secretaire",
+      value: "secretaire"
+  },
+  {
+      label: "Gardien",
+      value: "gardien"
+  },
+  {
+      label: "Chat",
+      value: "chat"
+  },
+]
+
 const ManagerPage = ()=> {
 
   const [row, setRow] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 6 // Nombre de lignes par page
+  const [selectedSort, setSelectedSort] = useState('ASC');
 
     useEffect(() => {
         allManager()
@@ -120,6 +140,10 @@ const ManagerPage = ()=> {
     </tr>
   )
 
+  const handleSortClick = (sortType) => {
+    setSelectedSort(sortType);
+  };
+
   return (
     <div className=" bg-white shadow-lg p-4 rounded-md flex-1 m-4 mt-0">
       {/* TOP */}
@@ -128,12 +152,69 @@ const ManagerPage = ()=> {
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch/>
           <div className="flex items-center gap-4 self-end">
-            <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
-              <img src="/filter.png" alt="" width={20} height={20}/>
-            </button>
-            <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
-              <img src="/sort.png" alt="" width={24} height={24}/>
-            </button>
+            
+            {/* FILTER */}
+            <Popover placement="left" showArrow={true} className="filter">
+              <PopoverTrigger>
+                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
+                  <img src="/filter.png" alt="" width={20} height={20}/>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="p-4 flex flex-col gap-3">
+
+                {/* Filtrage par date */}
+                <div className="flex flex-col gap-1">
+                  <h5 className="text-bleuspat font-medium">Filtrage par date</h5>
+                  <div className="flex items-center gap-1">
+                    <span>Entre</span> 
+                    <div className='relative border-2 p-2 rounded-xl focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-200'>
+                      <input 
+                        type="date" 
+                        className="block w-full text-gray-700 bg-transparent placeholder-gray-400 focus:outline-none" 
+                        placeholder="jj-mm-aaaa" 
+                      />
+                    </div>
+                    <span>et</span>
+                    <div className='relative border-2 p-2 rounded-xl focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-200'>
+                      <input 
+                        type="date" 
+                        className="block w-full text-gray-700 bg-transparent placeholder-gray-400 focus:outline-none" 
+                        placeholder="jj-mm-aaaa" 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filtrage par établissement */}
+                <div className="flex flex-col gap-1 w-full">
+                  <h5 className="text-bleuspat font-medium">Filtrer par établissement</h5>
+                  <Autocomplete
+                    variant="bordered"
+                    label="Etablissement"
+                    placeholder="Recherche de poste"
+                    className="w-full font-semibold auto"
+                    defaultItems={etab}
+                  >
+                    {(item) => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
+                  </Autocomplete>
+                </div>
+
+              </PopoverContent>
+            </Popover>
+
+            {/* SORT */}
+            <Popover placement="bottom" showArrow={true} className="sort">
+              <PopoverTrigger>
+                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
+                  <img src="/sort.png" alt="" width={24} height={24}/>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="p-2 flex flex-col gap-2 w-[150px]">
+                <Button variant="flat" onClick={() => handleSortClick('ASC')} className="w-full" color={selectedSort === 'ASC' ? 'primary' : 'default'}>ASC</Button>
+                <Button variant="flat" onClick={() => handleSortClick('DESC')} className="w-full" color={selectedSort === 'DESC' ? 'primary' : 'default'}>DESC</Button>
+              </PopoverContent>
+            </Popover>
+
           </div>
         </div>
       </div>

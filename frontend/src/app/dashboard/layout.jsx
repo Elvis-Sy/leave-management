@@ -59,11 +59,18 @@ export default function DashboardLayout({ children }) {
 
     };
 
-    const id = localStorage.getItem('id')
-    getInfo(id)
+    const id = localStorage.getItem('id');
+    getInfo(id);
 
-    const interval = setInterval(checkToken, 10000); // Vérifie toutes les secondes
-    return () => clearInterval(interval);
+    checkToken();
+
+    const intervalId = setInterval(() => {
+      checkToken();
+    }, 60000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
 
   }, [router]);
 
@@ -71,25 +78,16 @@ export default function DashboardLayout({ children }) {
   //Info utilisateur
   const getInfo = async (id) => {
     try {
-        const response = await axios.get(`http://localhost:5000/api/employes/${id}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
-        //Formatter le data
-        const infos =  {
-            name: `${response.data.info.nom} ${response.data.info.prenom}`,
-            email: response.data.info.compte.email,
-            photo: "jenna-ortega-7680x4320-16936.jpg",
-            dernier: response.data.info.compte.derniereConnexion ? response.data.info.compte.derniereConnexion : "",
-            poste: response.data.info.poste.designPoste,
+      const response = await axios.get(`http://localhost:5000/api/employes/${id}`, {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
           }
-
-        setInfoUser(infos)
+      });
+      
+      setInfoUser(response.data.info)
 
     } catch (error) {
-        console.error('Erreur lors de la requête:', error.response?.data || error.message);
+      console.log(error.message)
     }
   };
 

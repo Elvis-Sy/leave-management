@@ -5,9 +5,10 @@ import TableSearch from "../../components/TableSearch"
 import Table from "../../components/Table"
 import Link from "next/link"
 import axios from "axios"
-import {Tooltip, User, Chip, Avatar, Pagination, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from '@nextui-org/react'
+import {Button, Autocomplete, AutocompleteItem, Popover, PopoverContent, PopoverTrigger, Tooltip, User, Chip, Avatar, Pagination, useDisclosure, Modal,} from '@nextui-org/react'
+import NewEmploye from '../../modals/newEmploye'
 
-const role =["Admin"]
+const role = localStorage.getItem('role');
 
 const col =[
   {
@@ -45,12 +46,32 @@ const col =[
   },
 ]
 
+const etab = [
+  {
+      label: "Directeur",
+      value: "directeur"
+  },
+  {
+      label: "Secretaire",
+      value: "secretaire"
+  },
+  {
+      label: "Gardien",
+      value: "gardien"
+  },
+  {
+      label: "Chat",
+      value: "chat"
+  },
+]
+
 const EmployePage = ()=> {
 
   const [roles, setRole] = useState(null);
   const [row, setRow] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 6 // Nombre de lignes par page
+  const [selectedSort, setSelectedSort] = useState('ASC');
 
   useEffect(() => {
     const storedRole = localStorage.getItem('role');
@@ -68,12 +89,12 @@ const EmployePage = ()=> {
         });
 
         setRow(response.data.employe)
-        console.log(row)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
     }
   }; 
+
 
   //Gestion de la pagination et des pages
     //Calcul des nombres de pages
@@ -100,7 +121,7 @@ const EmployePage = ()=> {
           name={item.name}
           description={item.email}
           avatarProps={{
-            src: "http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
+            src: `http://localhost:5000/${item.photo}`
           }}
         />
       </td>
@@ -108,7 +129,7 @@ const EmployePage = ()=> {
       <td className="hidden md:table-cell">{item.DateEmb}</td>
       <td className="hidden md:table-cell">{item.Etablissement}</td>
       <td className="hidden lg:table-cell">{item.poste}</td>
-      <td className="hidden lg:flex items-center justify-center">
+      <td className="hidden lg:table-cell">
         {item.manager ? (
           <Chip
             variant="flat"
@@ -116,7 +137,7 @@ const EmployePage = ()=> {
             avatar={
               <Avatar
                 name={item.manager}
-                src="http://localhost:5000/file_20241002T213137819Z.png"
+                src={`http://localhost:5000/${item.photoManager}`}
               />
             }
           >
@@ -152,6 +173,10 @@ const EmployePage = ()=> {
     </tr>
   )
 
+  const handleSortClick = (sortType) => {
+    setSelectedSort(sortType);
+  };
+
   return (
     <div className="bg-white shadow-lg p-4 rounded-md flex-1 m-4 mt-0">
       {/* TOP */}
@@ -160,12 +185,69 @@ const EmployePage = ()=> {
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch/>
           <div className="flex items-center justify-center gap-4 self-end">
-            <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
-              <img src="/filter.png" alt="" width={20} height={20}/>
-            </button>
-            <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
-              <img src="/sort.png" alt="" width={24} height={24}/>
-            </button>
+            
+            {/* FILTER */}
+            <Popover placement="left" showArrow={true} className="filter">
+              <PopoverTrigger>
+                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
+                  <img src="/filter.png" alt="" width={20} height={20}/>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="p-4 flex flex-col gap-3">
+
+                {/* Filtrage par date */}
+                <div className="flex flex-col gap-1">
+                  <h5 className="text-bleuspat font-medium">Filtrage par date</h5>
+                  <div className="flex items-center gap-1">
+                    <span>Entre</span> 
+                    <div className='relative border-2 p-2 rounded-xl focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-200'>
+                      <input 
+                        type="date" 
+                        className="block w-full text-gray-700 bg-transparent placeholder-gray-400 focus:outline-none" 
+                        placeholder="jj-mm-aaaa" 
+                      />
+                    </div>
+                    <span>et</span>
+                    <div className='relative border-2 p-2 rounded-xl focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-200'>
+                      <input 
+                        type="date" 
+                        className="block w-full text-gray-700 bg-transparent placeholder-gray-400 focus:outline-none" 
+                        placeholder="jj-mm-aaaa" 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filtrage par établissement */}
+                <div className="flex flex-col gap-1 w-full">
+                  <h5 className="text-bleuspat font-medium">Filtrer par établissement</h5>
+                  <Autocomplete
+                    variant="bordered"
+                    label="Etablissement"
+                    placeholder="Recherche de poste"
+                    className="w-full font-semibold auto"
+                    defaultItems={etab}
+                  >
+                    {(item) => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
+                  </Autocomplete>
+                </div>
+
+              </PopoverContent>
+            </Popover>
+
+            {/* SORT */}
+            <Popover placement="bottom" showArrow={true} className="sort">
+              <PopoverTrigger>
+                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
+                  <img src="/sort.png" alt="" width={24} height={24}/>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="p-2 flex flex-col gap-2 w-[150px]">
+                <Button variant="flat" onClick={() => handleSortClick('ASC')} className="w-full" color={selectedSort === 'ASC' ? 'primary' : 'default'}>ASC</Button>
+                <Button variant="flat" onClick={() => handleSortClick('DESC')} className="w-full" color={selectedSort === 'DESC' ? 'primary' : 'default'}>DESC</Button>
+              </PopoverContent>
+            </Popover>
+
             {role.includes(roles) && (
               <button type="button" onClick={onOpen} className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
                 <img src="/plus.png" alt="" width={24} height={24}/>
@@ -191,42 +273,10 @@ const EmployePage = ()=> {
       </div>
 
       {/* Modal */}
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
-              <ModalBody>
-                <p> 
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat consequat elit
-                  dolor adipisicing. Mollit dolor eiusmod sunt ex incididunt cillum quis. 
-                  Velit duis sit officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. 
-                  Et mollit incididunt nisi consectetur esse laborum eiusmod pariatur 
-                  proident Lorem eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={onClose}>
-                  Action
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl" scrollBehavior="inside">
+        <NewEmploye />
       </Modal>
+      
 
 
     </div>

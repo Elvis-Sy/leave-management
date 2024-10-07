@@ -20,6 +20,18 @@ enum Role {
   Admin
 }
 
+//Role utilisateur
+enum Action {
+  Approbation
+  Refus
+}
+
+enum Section {
+  Direction
+  Departement
+}
+
+
 //UTILISATEUR////////////////////////////
 model Employes {
   idEmploye    Int      @id @default(autoincrement())
@@ -27,7 +39,7 @@ model Employes {
   prenom       String?  @db.VarChar(100)
   sexe         String   @db.Char(2)
   CIN          Int 
-  dateEmbauche DateTime
+  dateEmbauche DateTime?
   periodeEssai Boolean
   photoProfile String?
 
@@ -46,6 +58,9 @@ model Employes {
 
   histo HistoriquesActions[] @relation("HistoAction")
 
+  etablId Int
+  etablissement Etablissement @relation("SectionTravail", fields: [etablId], references: [idEtablissement])
+
   @@index([nom]) //si milagy
   @@index([idManager]) //si milagy
 }
@@ -54,7 +69,7 @@ model Employes {
 model Compte_Utilisateur {
   idCompte          Int       @id @default(autoincrement())
   email             String    @unique @db.VarChar(255)
-  password          String    @db.VarChar(255)
+  password          String?    @db.VarChar(255)
   role              Role      @default(Employe)
   derniereConnexion DateTime?
 
@@ -124,8 +139,7 @@ model HistoriquesActions {
   dateAction     DateTime
   niveau String
 
-  actionId Int
-  action TypeAction @relation("TypeActionAction", fields: [actionId], references: [idTypeAction])
+  typeAction Action 
 
   userId Int
   user   Employes @relation("HistoAction", fields: [userId], references: [idEmploye])
@@ -160,10 +174,10 @@ model SoldesConges {
   @@map("soldes_conges")
 }
 
-//Type d'ation////////////////////
-model TypeAction {
-    idTypeAction Int @id @default(autoincrement())
-    libelle String 
-    
-    actions HistoriquesActions[] @relation("TypeActionAction")
+model Etablissement {
+  idEtablissement Int @id @default(autoincrement())
+  designEtablissement String
+  section Section
+
+  employe Employes[] @relation("SectionTravail")
 }

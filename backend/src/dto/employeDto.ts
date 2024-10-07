@@ -20,7 +20,7 @@ export class AddEmployeDto {
     readonly CIN: number;
 
     @IsNotEmpty()
-    readonly dateEmbauche: Date;
+    readonly dateEmbauche?: Date;
 
     @IsNotEmpty()
     @IsBoolean()
@@ -30,10 +30,6 @@ export class AddEmployeDto {
     @IsEmail()
     readonly email: string;
 
-    @IsNotEmpty()
-    @IsString()
-    readonly password: string;
-
     @IsOptional()
     @IsInt()
     readonly idManager?: number;
@@ -41,6 +37,10 @@ export class AddEmployeDto {
     @IsNotEmpty()
     @IsInt()
     readonly idposte: number
+
+    @IsNotEmpty()
+    @IsInt()
+    readonly idEtablissement: number
 
 }
 
@@ -73,4 +73,8 @@ export class ModifEmployeDto {
     @IsNotEmpty()
     @IsInt()
     readonly idposte: number
+
+    @IsNotEmpty()
+    @IsInt()
+    readonly idEtablissement: number
 }

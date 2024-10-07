@@ -9,7 +9,11 @@ import { AuthGuard } from '@nestjs/passport';
 export class JwtAuthGuard extends AuthGuard('jwt') {
 
   canActivate(context: ExecutionContext) {
-    return super.canActivate(context);
+    try {
+      return super.canActivate(context);
+    } catch (error) {
+      return false; // Si une erreur se produit, renvoie false
+    }
   }
 
   handleRequest(err, user, info) {

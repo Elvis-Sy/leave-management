@@ -2,12 +2,13 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PasswordService } from 'src/auth/authentication/password.service';
 import { AddEmployeDto, ModifEmployeDto } from 'src/dto/employeDto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerService } from 'src/utils/mailer/mailer.service';
 import { JwtService } from '@nestjs/jwt';
+import { userInfo } from 'os';
 
 @Injectable()
 export class EmployeService { 
@@ -18,51 +19,57 @@ export class EmployeService {
         private readonly jwtService: JwtService
     ){}
 
-    //Ajout des employes
-    // async addEmploye(employeDto: AddEmployeDto, p0?: { profile: string; }){
-    //   const { email, password, idManager, idposte, ...employeData } = employeDto;
+    //Ajout d'un employe
+    async addEmploye(employeDto: AddEmployeDto, p0?: { profile: string; }) {
+      const { email, idManager, idposte, idEtablissement, ...employeData } = employeDto;
 
-    //   //Verifier si il possede deja un compte
-    //   const existe = await this.prisma.compte_Utilisateur.findUnique({where: {email}});
-    //   if(existe) throw new ConflictException('Employe possedant deja un compte');
-
-    //   //Send confirmation email
-    //   await this.mailer.sendSignupConfirmation(email);
-
-    //   //Hasher le mot de passe
-    //   const hashedpwd = await this.passwordService.hashPassword(password);
-
-    //   await this.prisma.employes.create({
-    //     data: {
-    //         ...employeData,
-
-    //         photoProfile: p0.profile,
-
-    //         manager: idManager ? { connect: { idEmploye: idManager } } : undefined,
-
-    //         poste: { connect: { idPoste: idposte } },
-
-    //         compte: {
-    //             create: {
-    //                 email,
-    //                 password: hashedpwd,
-    //                 role: 'Employe',
-    //                 derniereConnexion: new Date(),
-    //             },
-    //         },
-    //     },
-    //   });
-       
-    // }
+      const nom = `${employeData.nom} ${employeData.prenom}`
+  
+      // Verifier si l'employe a un compte
+      const existe = await this.prisma.compte_Utilisateur.findUnique({ where: { email } });
+      if (existe) throw new ConflictException('Employe possedant deja un compte');
+  
+      // Generer le token
+      const token = this.jwtService.sign({ email }, { secret: "congeSPAT", expiresIn: '48h' });
+  
+      // Envoyer le mail
+      // await this.mailer.sendSignupConfirmation(email, nom, token); DE-COMMENTER LORS DU REEL
+  
+      await this.prisma.employes.create({
+        data: {
+          ...employeData,
+          photoProfile: p0.profile,
+          manager: idManager ? { connect: { idEmploye: idManager } } : undefined,
+          poste: { connect: { idPoste: idposte } },
+          etablissement: { connect: { idEtablissement: idEtablissement}},
+          compte: {
+            create: {
+              email,
+              role: 'Employe',
+              derniereConnexion: null,
+            },
+          },
+        },
+      });
+  
+      // Supprimer les infos liees a l'employe si pas encore confirmer
+      this.scheduleEmployeeDeletion(email, '48h');
+    }
 
     //Affichage tout les employes
     async allEmploye(){
       const employes = await this.prisma.employes.findMany({
+        where: {
+          NOT: {
+            compte: null, // Filtrer seulement les employés qui ont un compte utilisateur
+          },
+        },
         include: {
           manager: {
             select: {
               nom: true,
               prenom: true,
+              photoProfile: true
             },
           },
           poste: {
@@ -74,6 +81,11 @@ export class EmployeService {
             select: {
               email: true
             }
+          },
+          etablissement: {
+            select: {
+              designEtablissement: true
+            }
           }
         },
       });
@@ -82,12 +94,13 @@ export class EmployeService {
         return {
           id: data.idEmploye,
           employeId: data.CIN,
-          name: `${data.nom} ${data.prenom}`,
+          name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
           email: data.compte.email,
-          manager: data.manager ? `${data.manager.nom} ${data.manager.prenom}` : null,
-          photo: '/illustration2.png',
+          manager: data.manager ? data.manager.prenom ? `${data.manager.nom} ${data.manager.prenom}` : `${data.manager.nom}` : null,
+          photo: data.photoProfile ? data.photoProfile : "avatar.png",
+          photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
           DateEmb: data.dateEmbauche,
-          Etablissement: "Direction informatique",
+          Etablissement: data.etablissement.designEtablissement,
           poste: data.poste.designPoste,
         }
       })
@@ -121,8 +134,12 @@ export class EmployeService {
             select: {
               email: true
             }
+          },
+          etablissement: {
+            select: {
+              designEtablissement: true
+            }
           }
-            
         }
       });
 
@@ -130,10 +147,10 @@ export class EmployeService {
         return {
           id: data.idEmploye,
           managerId: data.CIN,
-          name: `${data.nom} ${data.prenom}`,
+          name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
           email: data.compte.email,
-          photo: data.photoProfile,
-          etablissement: "Direction informatique",
+          photo: data.photoProfile ? data.photoProfile : "avatar.png",
+          etablissement: data.etablissement.designEtablissement,
           nbrSub: data._count.subordonne,
           poste: data.poste.designPoste,
         }
@@ -171,6 +188,7 @@ export class EmployeService {
             select: {
               nom: true,
               prenom: true,
+              photoProfile: true
             },
           },
           poste: {
@@ -182,11 +200,31 @@ export class EmployeService {
             select: {
               email: true
             }
+          },
+          etablissement: {
+            select: {
+              designEtablissement: true
+            }
           }
         },
       });
 
-      return employes;
+      const rows = employes.map((data)=>{
+        return {
+          id: data.idEmploye,
+          employeId: data.CIN,
+          name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
+          email: data.compte.email,
+          manager: data.manager ? data.manager.prenom ? `${data.manager.nom} ${data.manager.prenom}` : `${data.manager.nom}` : null,
+          photo: data.photoProfile ? data.photoProfile : "avatar.png",
+          photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
+          DateEmb: data.dateEmbauche,
+          Etablissement: data.etablissement.designEtablissement,
+          poste: data.poste.designPoste,
+        }
+      })
+
+      return rows;
     }
 
     //Recherche de Manager
@@ -206,6 +244,7 @@ export class EmployeService {
           nom: true,
           prenom: true,
           CIN: true,
+          photoProfile: true,
           _count: {
             select: {subordonne: true}
           },
@@ -218,16 +257,34 @@ export class EmployeService {
             select: {
               email: true
             }
+          },
+          etablissement: {
+            select: {
+              designEtablissement: true
+            }
           }
         }
       });
 
-      return manager;
+      const rows = manager.map((data)=>{
+        return {
+          id: data.idEmploye,
+          managerId: data.CIN,
+          name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
+          email: data.compte.email,
+          photo: data.photoProfile ? data.photoProfile : "avatar.png",
+          etablissement: data.etablissement.designEtablissement,
+          nbrSub: data._count.subordonne,
+          poste: data.poste.designPoste,
+        }
+      })
+
+      return rows;
     }
 
     //Modification information employe
-    async updateEmploye(idEmploye: number, modifEmployeDto: ModifEmployeDto){
-      const { idManager, idposte, ...employeData } = modifEmployeDto;
+    async updateEmploye(idEmploye: number, modifEmployeDto: ModifEmployeDto, p0?: { profile: string; }){
+      const { idManager, idposte, idEtablissement, ...employeData } = modifEmployeDto;
 
       await this.prisma.employes.update({
         where:{
@@ -235,22 +292,24 @@ export class EmployeService {
         },
         data: {
           ...employeData,
-
+          photoProfile: p0.profile,
           manager: idManager ? { connect: { idEmploye: idManager } } : undefined,
           poste: { connect: { idPoste: idposte } },
+          etablissement: { connect: { idEtablissement: idEtablissement}}
         },
       });
     }
 
     //Information personnelle
-    async personalInfo(id: number){
+    async personalInfo(idEmploye: number){
       const info = await this.prisma.employes.findFirst({
         where: {
-          idEmploye: id
+          idEmploye
         },
         select: {
           nom: true,
           prenom: true,
+          photoProfile: true,
           compte: {
             select: {
               email: true,
@@ -265,48 +324,19 @@ export class EmployeService {
         }
       })
 
-      return info;
+      if (!info) {
+        throw new Error("Employé non trouvé"); // Ajoutez cette ligne
     }
 
+      const personnalInfos =  {
+        name: info.prenom ? `${info.nom} ${info.prenom}` : `${info.nom}`,
+        email: info.compte.email,
+        photo: info.photoProfile ? info.photoProfile : "avatar.png",
+        dernier: info.compte.derniereConnexion ? info.compte.derniereConnexion : null,
+        poste: info.poste.designPoste,
+      }
 
-
-
-
-
-
-    async addEmploye(employeDto: AddEmployeDto, p0?: { profile: string; }) {
-      const { email, idManager, idposte, password, ...employeData } = employeDto;
-  
-      // Check if the employee already has an account
-      const existe = await this.prisma.compte_Utilisateur.findUnique({ where: { email } });
-      if (existe) throw new ConflictException('Employe possedant deja un compte');
-  
-      // Generate a JWT token that expires in 24 hours
-      const token = this.jwtService.sign({ email }, { secret: "congeSPAT", expiresIn: '24h' });
-  
-      // Send the email with the token
-      await this.mailer.sendSignupConfirmation(email, token);
-  
-      // Create the employee record
-      await this.prisma.employes.create({
-        data: {
-          ...employeData,
-          photoProfile: p0.profile,
-          manager: idManager ? { connect: { idEmploye: idManager } } : undefined,
-          poste: { connect: { idPoste: idposte } },
-          compte: {
-            create: {
-              email,
-              password: "",
-              role: 'Employe',
-              derniereConnexion: null,
-            },
-          },
-        },
-      });
-  
-      // Schedule deletion if the employee doesn't set their password within 24 hours
-      this.scheduleEmployeeDeletion(email, '1m');
+      return personnalInfos;
     }
   
     //Confirmation du mot de passe
@@ -318,7 +348,8 @@ export class EmployeService {
   
         // verifier l'employe
         const employeeAccount = await this.prisma.compte_Utilisateur.findUnique({ where: { email } });
-        if (!employeeAccount) throw new BadRequestException('Invalid token or employee does not exist');
+        if (!employeeAccount) throw new NotFoundException('Token invalid ou employe non existant');
+        if(employeeAccount.password) throw new BadRequestException('Lien déjà utilisé !');
   
         // crypter le mot de passe
         const hashedpwd = await this.passwordService.hashPassword(newPassword);
@@ -334,17 +365,23 @@ export class EmployeService {
     //Supprimer l'employe si pas encore confirmer
     async scheduleEmployeeDeletion(email: string, expirationTime: string) {
       const timeToWait = this.parseExpirationTime(expirationTime);
-      console.log(timeToWait)
       setTimeout(async () => {
         const employeeAccount = await this.prisma.compte_Utilisateur.findUnique({ where: { email } });
         if (!employeeAccount || employeeAccount.password === "") {
+          //Supprimer l'employe
           await this.prisma.employes.delete({
             where: {
               idEmploye: employeeAccount.employeId
             }
           });
+
+          //Supprimer son compte
+          await this.prisma.compte_Utilisateur.delete({
+            where: {
+              idCompte: employeeAccount.idCompte
+            }
+          });
         }
-        console.log("Time out")
       }, timeToWait);
     }
   
@@ -363,3 +400,45 @@ export class EmployeService {
     
 
  }
+
+
+
+
+
+
+ //Ajout des employes
+    // async addEmploye(employeDto: AddEmployeDto, p0?: { profile: string; }){
+    //   const { email, password, idManager, idposte, ...employeData } = employeDto;
+
+    //   //Verifier si il possede deja un compte
+    //   const existe = await this.prisma.compte_Utilisateur.findUnique({where: {email}});
+    //   if(existe) throw new ConflictException('Employe possedant deja un compte');
+
+    //   //Send confirmation email
+    //   await this.mailer.sendSignupConfirmation(email);
+
+    //   //Hasher le mot de passe
+    //   const hashedpwd = await this.passwordService.hashPassword(password);
+
+    //   await this.prisma.employes.create({
+    //     data: {
+    //         ...employeData,
+
+    //         photoProfile: p0.profile,
+
+    //         manager: idManager ? { connect: { idEmploye: idManager } } : undefined,
+
+    //         poste: { connect: { idPoste: idposte } },
+
+    //         compte: {
+    //             create: {
+    //                 email,
+    //                 password: hashedpwd,
+    //                 role: 'Employe',
+    //                 derniereConnexion: new Date(),
+    //             },
+    //         },
+    //     },
+    //   });
+       
+    // }
