@@ -40,7 +40,7 @@ export class EmployeController {
     async ajoutEmploye(@UploadedFile() photoProfile: Express.Multer.File, @Request() req){
         try {
             const employeDto = req.body;
-            employeDto.CIN = Number(employeDto.CIN)
+            employeDto.CIN = employeDto.CIN
             employeDto.idposte = Number(employeDto.idposte)
             employeDto.idEtablissement = Number(employeDto.idEtablissement)
             employeDto.periodeEssai = Boolean(employeDto.periodeEssai)
@@ -170,7 +170,7 @@ export class EmployeController {
         }
     }
 
-    @Get(':id')
+    @Get('info/:id')
     @UseGuards(JwtAuthGuard)
     async infoPerso(@Param('id') id: string){
         try {

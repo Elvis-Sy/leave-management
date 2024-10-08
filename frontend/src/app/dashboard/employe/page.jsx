@@ -7,6 +7,7 @@ import Link from "next/link"
 import axios from "axios"
 import {Button, Autocomplete, AutocompleteItem, Popover, PopoverContent, PopoverTrigger, Tooltip, User, Chip, Avatar, Pagination, useDisclosure, Modal,} from '@nextui-org/react'
 import NewEmploye from '../../modals/newEmploye'
+import SuppEmploye from '../../modals/suppEmploye'
 import { format } from "date-fns";
 import {fr} from 'date-fns/locale'
 
@@ -15,8 +16,6 @@ const formatDate = (date)=>{
   const temp = date ? new Date(date) : new Date();
   return format(temp, "dd-MM-yyyy", {locale: fr})
 }
-
-const role = localStorage.getItem('role');
 
 const col =[
   {
@@ -75,16 +74,27 @@ const etab = [
 
 const EmployePage = ()=> {
 
-  // const [roles, setRole] = useState(null);
+  const [roles, setRole] = useState(null);
   const [row, setRow] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 6 // Nombre de lignes par page
-  // const [selectedSort, setSelectedSort] = useState('ASC');
-  const [selectedSort, setSelectedSort] = useState(null); // Pour suivre le tri actuel
+  const [selectedSort, setSelectedSort] = useState("ASC"); // Pour suivre le tri actuel
+  const [openModal, setOpenModal] = useState(null);
+  const [idSupp, setIdSupp] = useState(null);
+
+  //Ouvertur modal
+  const onOpen = (modalId) => {
+    setOpenModal(modalId);
+  };
+
+  //Fermeture modal
+  const onClose = () => {
+    setOpenModal(null);
+  };
 
   useEffect(() => {
-    // const storedRole = localStorage.getItem('role');
-    // setRole(storedRole);
+    const storedRole = localStorage.getItem('role');
+    setRole(storedRole);
     allEmploye();
   }, []);
 
@@ -104,6 +114,22 @@ const EmployePage = ()=> {
     }
   }; 
 
+  //Recherche par nom
+  const searchEmploye = async (val) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/employes/search/${val}`, {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
+
+      setRow(response.data.employe || []);
+
+    } catch (error) {
+        console.error('Erreur lors de la requête:', error.response?.data || error.message);
+        setRow([])
+    }
+  }; 
 
   //Gestion de la pagination et des pages
     //Calcul des nombres de pages
@@ -120,7 +146,7 @@ const EmployePage = ()=> {
   }
 
   //Open Close
-  const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
+  // const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
 
   // Personnalisation des cellules
   const renderRow = (item)=>(
@@ -170,7 +196,7 @@ const EmployePage = ()=> {
               </button>
             </Link>
           </Tooltip>
-          {role == "Admin" && (
+          {roles == "Admin" && (
             <div className="flex gap-4">
               <Tooltip content="Modifier" color="primary" showArrow={true}>
                 <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
@@ -178,7 +204,7 @@ const EmployePage = ()=> {
                 </button>
               </Tooltip>
               <Tooltip content="Supprimer" color="danger" showArrow={true}>
-                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
+                <button onClick={()=>{ onOpen("suppModal"); setIdSupp(item.id) }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
                   <img src="/delete.png" alt="" width={20} height={20}/>
                 </button>
               </Tooltip>
@@ -188,17 +214,11 @@ const EmployePage = ()=> {
     </tr>
   )
 
-  // const handleSortClick = (sortType) => {
-  //   setSelectedSort(sortType);
-  // };
-
   //Trier les donners ASC ou DESC
-  // Fonction de tri
   const handleSortClick = (order) => {
     const sortedData = [...row].sort((a, b) => {
-      // Remplacez `accessor` par la clé sur laquelle vous voulez trier
-      const aValue = a.DateEmb; // Changez ici pour trier par d'autres colonnes si nécessaire
-      const bValue = b.DateEmb; // Changez ici pour trier par d'autres colonnes si nécessaire
+      const aValue = a.DateEmb;
+      const bValue = b.DateEmb;
 
       if (order === 'ASC') {
         return aValue > bValue ? 1 : -1; // Pour l'ordre croissant
@@ -217,7 +237,7 @@ const EmployePage = ()=> {
       <div className="flex justify-between items-center">
         <h1 className="hidden md:block text-lg font-semibold">Employes</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch/>
+          <TableSearch search={searchEmploye} all={allEmploye}/>
           <div className="flex items-center justify-center gap-4 self-end">
             
             {/* FILTER */}
@@ -277,13 +297,13 @@ const EmployePage = ()=> {
                 </button>
               </PopoverTrigger>
               <PopoverContent className="p-2 flex flex-col gap-2 w-[150px]">
-                <Button variant="flat" onClick={() => handleSortClick('ASC')} className="w-full" color={selectedSort === 'ASC' ? 'primary' : 'default'}>ASC</Button>
-                <Button variant="flat" onClick={() => handleSortClick('DESC')} className="w-full" color={selectedSort === 'DESC' ? 'primary' : 'default'}>DESC</Button>
+                <Button variant="flat" onClick={() => handleSortClick('ASC')} className="w-full" color={selectedSort === 'ASC' ? 'primary' : 'default'} disabled={selectedSort === 'ASC' ? true : false}>ASC</Button>
+                <Button variant="flat" onClick={() => handleSortClick('DESC')} className="w-full" color={selectedSort === 'DESC' ? 'primary' : 'default'} disabled={selectedSort === 'DESC' ? true : false}>DESC</Button>
               </PopoverContent>
             </Popover>
 
-            {role == "Admin" && (
-              <button type="button" onClick={onOpen} className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
+            {roles == "Admin" && (
+              <button type="button" onClick={()=> onOpen("ajoutModal")} className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
                 <img src="/plus.png" alt="" width={24} height={24}/>
               </button>
             )}
@@ -307,8 +327,12 @@ const EmployePage = ()=> {
       </div>
 
       {/* Modal */}
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl" scrollBehavior="inside">
+      <Modal isOpen={openModal == "ajoutModal"} onClose={onClose} size="2xl" scrollBehavior="inside">
         <NewEmploye onClose={onClose} reload={allEmploye} />
+      </Modal>
+
+      <Modal isOpen={openModal == "suppModal"} onClose={onClose} size="sm">
+        <SuppEmploye onClose={onClose} idEmp={idSupp} all={allEmploye}/>
       </Modal>
       
     </div>

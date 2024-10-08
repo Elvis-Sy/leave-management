@@ -31,6 +31,10 @@ const NewEmploye = ({onClose, reload}) => {
     const [essai, setEssai] = useState(false);
     const fileInputRef = useRef(null);
     const formRef = useRef();
+    const [sexe, setSexe] = useState('');
+    const handleChange = (event) => {
+      setSexe(event.target.value);
+    };
 
     //Pointage input file
     const handleImageClick = () => {
@@ -84,7 +88,7 @@ const NewEmploye = ({onClose, reload}) => {
         formData.append('idposte', data.idposte)
         formData.append('nom', data.nom)
         formData.append('prenom', data.prenom)
-        formData.append('sexe', data.sexe)
+        formData.append('sexe', sexe)
         formData.append('CIN', Number(data.CIN))
         if(data.dateEmbauche){
           formData.append('dateEmbauche', data.dateEmbauche)
@@ -186,16 +190,31 @@ const NewEmploye = ({onClose, reload}) => {
                     </div>
                   </div>
                   <div className="flex flex-col gap-4">
-                    <RadioGroup
-                      isRequired
-                      label="Genre de l'employe:"
-                      orientation="horizontal"
-                      {...register('sexe')}
-                      className='ml-4 font-semibold'
-                    >
-                      <Radio value="M" className='font-normal'>Homme</Radio>
-                      <Radio value="F" className='font-normal'>Femme</Radio>
-                    </RadioGroup>
+                  <div className="ml-4 font-semibold">
+                      <label className="block mb-2 text-gray-700">Genre de l'employé <span className="text-red-500 text-sm">*</span> :</label>
+                      <div className="flex">
+                        <label className="mr-4 font-normal">
+                          <input
+                            type="radio"
+                            value="M"
+                            checked={sexe === 'M'}
+                            onChange={handleChange}
+                            className="mr-1 text-bleuspat"
+                          />
+                          Homme
+                        </label>
+                        <label className="mr-4 font-normal">
+                          <input
+                            type="radio"
+                            value="F"
+                            checked={sexe === 'F'}
+                            onChange={handleChange}
+                            className="mr-1 text-bleuspat"
+                          />
+                          Femme
+                        </label>
+                      </div>
+                    </div>
 
                     <Input
                       isRequired
@@ -313,10 +332,10 @@ const NewEmploye = ({onClose, reload}) => {
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
-                  Close
+                  Annuler
                 </Button>
                 <Button color="primary" type='submit' onPress={handleButtonClick}>
-                  Action
+                  Enregistrer
                 </Button>
               </ModalFooter>
             </>

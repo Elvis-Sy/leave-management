@@ -16,7 +16,8 @@ export class AddEmployeDto {
     readonly sexe: string;
 
     @IsNotEmpty()
-    readonly CIN: number;
+    @IsString()
+    readonly CIN: string;
 
     @IsNotEmpty()
     readonly dateEmbauche?: Date;
@@ -55,8 +56,8 @@ export class ModifEmployeDto {
     readonly sexe: string;
 
     @IsNotEmpty()
-    @IsInt()
-    readonly CIN: number;
+    @IsString()
+    readonly CIN: string;
 
     @IsNotEmpty()
     readonly dateEmbauche?: Date;

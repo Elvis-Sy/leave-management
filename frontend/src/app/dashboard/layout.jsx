@@ -78,7 +78,7 @@ export default function DashboardLayout({ children }) {
   //Info utilisateur
   const getInfo = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/employes/${id}`, {
+      const response = await axios.get(`http://localhost:5000/api/employes/info/${id}`, {
           headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
           }
