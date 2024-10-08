@@ -38,7 +38,7 @@ model Employes {
   nom          String   @db.VarChar(100)
   prenom       String?  @db.VarChar(100)
   sexe         String   @db.Char(2)
-  CIN          Int 
+  CIN          String @unique
   dateEmbauche DateTime?
   periodeEssai Boolean
   photoProfile String?

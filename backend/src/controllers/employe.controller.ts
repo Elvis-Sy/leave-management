@@ -2,7 +2,7 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseGuards, UseInterceptors, } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Request, UploadedFile, UseGuards, UseInterceptors, } from '@nestjs/common';
 import { EmployeService } from 'src/services/employe.service';
 import { AddEmployeDto, ModifEmployeDto } from 'src/dto/employeDto';
 import { JwtAuthGuard } from 'src/auth/authorization/auth.guard';
@@ -12,6 +12,7 @@ import { Role } from 'src/auth/authorization/roleEmploye.enum';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer'
+import { of } from 'rxjs';
 
 //Storage setting
 const storage = {
@@ -34,11 +35,19 @@ export class EmployeController {
 
     @Post('ajout')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @UseInterceptors(FileInterceptor('file', storage))
+    @UseInterceptors(FileInterceptor('photoProfile', storage))
     @Roles(Role.ADMIN) //Admin
-    async ajoutEmploye(@Body() employeDto: AddEmployeDto, @UploadedFile() file: Express.Multer.File){
+    async ajoutEmploye(@UploadedFile() photoProfile: Express.Multer.File, @Request() req){
         try {
-            const filename = file ? file.filename : null
+            const employeDto = req.body;
+            employeDto.CIN = Number(employeDto.CIN)
+            employeDto.idposte = Number(employeDto.idposte)
+            employeDto.idEtablissement = Number(employeDto.idEtablissement)
+            employeDto.periodeEssai = Boolean(employeDto.periodeEssai)
+            if(employeDto.dateEmbauche){
+                employeDto.dateEmbauche = new Date(employeDto.dateEmbauche)
+            }
+            const filename = photoProfile ? photoProfile.filename : null
             await this.employeService.addEmploye(employeDto, {profile: filename});
             return {
                 message: "La demande de confirmation a bien été envoyée à l'employe. ",
@@ -46,7 +55,8 @@ export class EmployeController {
         } catch (error) {
             console.error("Erreur lors de l'ajout':", error);
             return{
-                message: "Erreur lors de la creation"
+                message: "Erreur lors de la creation",
+                cause: error.message
             }
         }
     }

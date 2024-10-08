@@ -31,15 +31,15 @@ function LoginPage() {
         const role = attributes.role;
         const idEmploye = attributes.employeId
 
-        toast.loading("Connexion...", {
-          position: "top-center",
+        toast.success("Connexion...", {
+          position: "top-right",
           autoClose: 1000,
           hideProgressBar: true,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
-          style: {backgroundColor: "#4ade80", fontWeight: 500, color: "white", width: "60%"}
+          style: {fontWeight: 500, color: "green"}
         });
 
         // Stocker le token et le rôle

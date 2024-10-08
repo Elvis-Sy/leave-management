@@ -2,6 +2,7 @@
  
  const Table = ({col, render, data, margin = 4}) => {
 
+  console.log(data)
     
    return (
      <table className={`w-full mt-${margin}`}>

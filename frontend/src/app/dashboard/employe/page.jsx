@@ -7,6 +7,14 @@ import Link from "next/link"
 import axios from "axios"
 import {Button, Autocomplete, AutocompleteItem, Popover, PopoverContent, PopoverTrigger, Tooltip, User, Chip, Avatar, Pagination, useDisclosure, Modal,} from '@nextui-org/react'
 import NewEmploye from '../../modals/newEmploye'
+import { format } from "date-fns";
+import {fr} from 'date-fns/locale'
+
+//Formater la date
+const formatDate = (date)=>{
+  const temp = date ? new Date(date) : new Date();
+  return format(temp, "dd-MM-yyyy", {locale: fr})
+}
 
 const role = localStorage.getItem('role');
 
@@ -67,28 +75,29 @@ const etab = [
 
 const EmployePage = ()=> {
 
-  const [roles, setRole] = useState(null);
+  // const [roles, setRole] = useState(null);
   const [row, setRow] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 6 // Nombre de lignes par page
-  const [selectedSort, setSelectedSort] = useState('ASC');
+  // const [selectedSort, setSelectedSort] = useState('ASC');
+  const [selectedSort, setSelectedSort] = useState(null); // Pour suivre le tri actuel
 
   useEffect(() => {
-    const storedRole = localStorage.getItem('role');
-    setRole(storedRole);
+    // const storedRole = localStorage.getItem('role');
+    // setRole(storedRole);
     allEmploye();
-}, []);
+  }, []);
 
   //Prendre les donnees
   const allEmploye = async () => {
     try {
-        const response = await axios.get('http://localhost:5000/api/employes/all', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        });
+      const response = await axios.get('http://localhost:5000/api/employes/all', {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
 
-        setRow(response.data.employe)
+      setRow(response.data.employe)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -111,7 +120,7 @@ const EmployePage = ()=> {
   }
 
   //Open Close
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
 
   // Personnalisation des cellules
   const renderRow = (item)=>(
@@ -126,7 +135,13 @@ const EmployePage = ()=> {
         />
       </td>
       <td className="hidden md:table-cell">{item.employeId}</td>
-      <td className="hidden md:table-cell">{item.DateEmb}</td>
+      <td className="hidden md:table-cell">
+        {item.DateEmb ? 
+          <span>{formatDate(item.DateEmb)}</span>
+         : (
+            <Chip variant="flat" size="lg" className="text-[#e66165] font-medium text-sm">En période d'essai</Chip>
+        ) }
+      </td>
       <td className="hidden md:table-cell">{item.Etablissement}</td>
       <td className="hidden lg:table-cell">{item.poste}</td>
       <td className="hidden lg:table-cell">
@@ -155,7 +170,7 @@ const EmployePage = ()=> {
               </button>
             </Link>
           </Tooltip>
-          {role.includes(roles) && (
+          {role == "Admin" && (
             <div className="flex gap-4">
               <Tooltip content="Modifier" color="primary" showArrow={true}>
                 <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
@@ -173,8 +188,27 @@ const EmployePage = ()=> {
     </tr>
   )
 
-  const handleSortClick = (sortType) => {
-    setSelectedSort(sortType);
+  // const handleSortClick = (sortType) => {
+  //   setSelectedSort(sortType);
+  // };
+
+  //Trier les donners ASC ou DESC
+  // Fonction de tri
+  const handleSortClick = (order) => {
+    const sortedData = [...row].sort((a, b) => {
+      // Remplacez `accessor` par la clé sur laquelle vous voulez trier
+      const aValue = a.DateEmb; // Changez ici pour trier par d'autres colonnes si nécessaire
+      const bValue = b.DateEmb; // Changez ici pour trier par d'autres colonnes si nécessaire
+
+      if (order === 'ASC') {
+        return aValue > bValue ? 1 : -1; // Pour l'ordre croissant
+      } else {
+        return aValue < bValue ? 1 : -1; // Pour l'ordre décroissant
+      }
+    });
+
+    setRow(sortedData);
+    setSelectedSort(order); // Mettez à jour le tri sélectionné
   };
 
   return (
@@ -228,7 +262,7 @@ const EmployePage = ()=> {
                     className="w-full font-semibold auto"
                     defaultItems={etab}
                   >
-                    {(item) => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
+                    {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
                   </Autocomplete>
                 </div>
 
@@ -236,7 +270,7 @@ const EmployePage = ()=> {
             </Popover>
 
             {/* SORT */}
-            <Popover placement="bottom" showArrow={true} className="sort">
+            <Popover placement="bottom" showArrow={true} className="sortE">
               <PopoverTrigger>
                 <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
                   <img src="/sort.png" alt="" width={24} height={24}/>
@@ -248,7 +282,7 @@ const EmployePage = ()=> {
               </PopoverContent>
             </Popover>
 
-            {role.includes(roles) && (
+            {role == "Admin" && (
               <button type="button" onClick={onOpen} className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
                 <img src="/plus.png" alt="" width={24} height={24}/>
               </button>
@@ -274,11 +308,9 @@ const EmployePage = ()=> {
 
       {/* Modal */}
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl" scrollBehavior="inside">
-        <NewEmploye />
+        <NewEmploye onClose={onClose} reload={allEmploye} />
       </Modal>
       
-
-
     </div>
   )
 }

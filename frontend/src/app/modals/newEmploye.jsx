@@ -3,26 +3,29 @@
 import React, {useRef, useState} from 'react'
 import { useForm } from 'react-hook-form';
 import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Autocomplete, AutocompleteItem, RadioGroup, Radio, Checkbox} from '@nextui-org/react'
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const etab = [
     {
         label: "Informatique et telecom",
-        value: 1
+        value: "1"
     },
     {
         label: "Technologique",
-        value: 2
+        value: "2"
     },
 ]
 
 const postes = [
     {
         label: "Directeur",
-        value: 1
+        value: "1"
     },
 ]
 
-const NewEmploye = () => {
+const NewEmploye = ({onClose, reload}) => {
 
     const { register, handleSubmit, formState: { errors }, setValue } = useForm();
     const [essai, setEssai] = useState(false);
@@ -64,18 +67,72 @@ const NewEmploye = () => {
     // Gestion de la soumission du formulaire
     const onSubmit = async (data) => {
       try {
-          data.photoProfile = fileInputRef.current.files[0];
-          const response = await axios.post('http://localhost:5000/api/employes/ajout', data, {
-              headers: {
-                  Authorization: `Bearer ${localStorage.getItem('token')}`
-              }
+        const formData = new FormData()
+
+        etab.forEach((item)=>{
+          if(data.idEtablissement == item.label){
+            data.idEtablissement = Number(item.value)
+          }
+        })
+        postes.forEach((item)=>{
+          if(data.idposte == item.label){
+            data.idposte = Number(item.value)
+          }
+        })
+
+        formData.append('email', data.email)
+        formData.append('idposte', data.idposte)
+        formData.append('nom', data.nom)
+        formData.append('prenom', data.prenom)
+        formData.append('sexe', data.sexe)
+        formData.append('CIN', Number(data.CIN))
+        if(data.dateEmbauche){
+          formData.append('dateEmbauche', data.dateEmbauche)
+        }
+        formData.append('periodeEssai', Number(data.periodeEssai))
+        formData.append('idEtablissement', Number(data.idEtablissement))
+        formData.append('photoProfile', fileInputRef.current.files[0])
+        
+        const response = await axios.post('http://localhost:5000/api/employes/ajout', formData, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            }
+        });
+
+        if(response.data.cause){
+          toast.warn(`${response.data.cause}`, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            style: {width: "120%", fontWeight: "bolder"}
           });
-          console.log('Formulaire envoyé avec succès :', data);
-          console.log('Etat:', response.data);
+        } else {
+          toast.success(`${response.data.message}`, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            style: {fontSize: "bolder", fontWeight: "bolder"}
+          });
+
+          setTimeout(()=>{
+            reload()
+            onClose()
+          }, 2000)
+          
+        }
     
       } catch (error) {
           console.error('Erreur lors de la soumission du formulaire :', error);
       }
+      
     };
 
     const handleButtonClick = () => {
@@ -85,6 +142,8 @@ const NewEmploye = () => {
     };
 
   return (
+      <>
+        <ToastContainer/>
         <ModalContent>
           {(onClose) => (
             <>
@@ -131,11 +190,7 @@ const NewEmploye = () => {
                       isRequired
                       label="Genre de l'employe:"
                       orientation="horizontal"
-                      {...register('sexe', { 
-                        required: 'Le genre est requis', 
-                      })}
-                      isInvalid={!!errors.sexe}
-                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.sexe ? errors.sexe.message : ''}</span>}
+                      {...register('sexe')}
                       className='ml-4 font-semibold'
                     >
                       <Radio value="M" className='font-normal'>Homme</Radio>
@@ -145,6 +200,7 @@ const NewEmploye = () => {
                     <Input
                       isRequired
                       label="CIN"
+                      maxLength={12}
                       variant="bordered"
                       className="font-semibold login"
                       {...register('CIN', {
@@ -160,7 +216,8 @@ const NewEmploye = () => {
                         pattern: {
                           value: /^[0-9]+$/,
                           message: 'Le champ doit contenir uniquement des chiffres'
-                        }
+                        },
+                        setValueAs: (value) => Number(value)
                       })}
                       isInvalid={!!errors.CIN}
                       errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.CIN ? errors.CIN.message : ''}</span>}
@@ -168,7 +225,7 @@ const NewEmploye = () => {
                   </div>
                 </div>
                 
-                <h1 className='text-bleuspat font-medium mt-2'>Informations professionnelles:</h1>
+                <h1 className='text-bleuspat font-medium my-2'>Informations professionnelles:</h1>
                 <div className="">
                   <Input
                     isRequired
@@ -198,14 +255,14 @@ const NewEmploye = () => {
                       label="Poste de travail"
                       placeholder="Recherche de poste"
                       className="w-full font-semibold auto"
-                      {...register('poste', { 
+                      {...register('idposte', { 
                         required: 'Le poste est requis', 
                       })}
                       defaultItems={postes}
-                      isInvalid={!!errors.poste}
-                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.poste ? errors.poste.message : ''}</span>}
+                      isInvalid={!!errors.idposte}
+                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idposte ? errors.idposte.message : ''}</span>}
                     >
-                      {(item) => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
+                      {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
                     </Autocomplete>
 
                     <Autocomplete
@@ -214,14 +271,14 @@ const NewEmploye = () => {
                       label="Etablissement"
                       placeholder="Direction / Departement"
                       className="w-full font-semibold auto"
-                      {...register('etablissement', { 
+                      defaultItems={etab}
+                      {...register('idEtablissement', { 
                         required: "L'etablissement est requis", 
                       })}
-                      defaultItems={etab}
-                      isInvalid={!!errors.etablissement}
-                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.etablissement ? errors.etablissement.message : ''}</span>}
+                      isInvalid={!!errors.idEtablissement}
+                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idEtablissement ? errors.idEtablissement.message : ''}</span>}
                     >
-                      {(item) => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
+                      {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
                     </Autocomplete>
                   </div>
 
@@ -240,6 +297,7 @@ const NewEmploye = () => {
                             required 
                             {...register('dateEmbauche', { 
                               required: "La date d'embauche est requise", 
+                              setValueAs: (value) => new Date(value),
                               disabled: essai
                             })}
                           />
@@ -264,7 +322,7 @@ const NewEmploye = () => {
             </>
           )}
         </ModalContent>
-
+      </>
   )
 }
 

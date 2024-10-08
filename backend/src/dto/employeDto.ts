@@ -16,14 +16,12 @@ export class AddEmployeDto {
     readonly sexe: string;
 
     @IsNotEmpty()
-    @IsInt()
     readonly CIN: number;
 
     @IsNotEmpty()
     readonly dateEmbauche?: Date;
 
     @IsNotEmpty()
-    @IsBoolean()
     readonly periodeEssai: boolean;
 
     @IsNotEmpty()
@@ -31,15 +29,12 @@ export class AddEmployeDto {
     readonly email: string;
 
     @IsOptional()
-    @IsInt()
     readonly idManager?: number;
 
     @IsNotEmpty()
-    @IsInt()
     readonly idposte: number
 
     @IsNotEmpty()
-    @IsInt()
     readonly idEtablissement: number
 
 }
@@ -64,7 +59,7 @@ export class ModifEmployeDto {
     readonly CIN: number;
 
     @IsNotEmpty()
-    readonly dateEmbauche: Date;
+    readonly dateEmbauche?: Date;
 
     @IsOptional()
     @IsInt()

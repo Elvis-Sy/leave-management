@@ -195,7 +195,7 @@ const ManagerPage = ()=> {
                     className="w-full font-semibold auto"
                     defaultItems={etab}
                   >
-                    {(item) => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
+                    {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
                   </Autocomplete>
                 </div>
 

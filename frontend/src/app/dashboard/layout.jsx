@@ -20,19 +20,19 @@ export default function DashboardLayout({ children }) {
       const token = localStorage.getItem('token');
       if (!token) {
 
-        toast.error("Votre session est expirée", {
+        toast.error('Votre session est expiré!', {
           position: "top-center",
           autoClose: 3000,
-          hideProgressBar: true,
+          hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
-        });
+          });
 
         setTimeout(() => {
           router.push('/sign-in'); // Rediriger vers la page de connexion
-        }, 3000); 
+        }, 3500); 
         return;
       }
 

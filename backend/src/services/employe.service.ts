@@ -8,7 +8,6 @@ import { AddEmployeDto, ModifEmployeDto } from 'src/dto/employeDto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerService } from 'src/utils/mailer/mailer.service';
 import { JwtService } from '@nestjs/jwt';
-import { userInfo } from 'os';
 
 @Injectable()
 export class EmployeService { 
@@ -25,7 +24,10 @@ export class EmployeService {
 
       const nom = `${employeData.nom} ${employeData.prenom}`
   
-      // Verifier si l'employe a un compte
+      // Verifier si l'employe a un compte ou CIN deja utilise
+      const cin = await this.prisma.employes.findUnique({ where: { CIN: employeData.CIN }});
+      if (cin) throw new ConflictException('CIN invalide ou deja utilisé');
+
       const existe = await this.prisma.compte_Utilisateur.findUnique({ where: { email } });
       if (existe) throw new ConflictException('Employe possedant deja un compte');
   
@@ -38,7 +40,7 @@ export class EmployeService {
       await this.prisma.employes.create({
         data: {
           ...employeData,
-          photoProfile: p0.profile,
+          photoProfile: p0?.profile,
           manager: idManager ? { connect: { idEmploye: idManager } } : undefined,
           poste: { connect: { idPoste: idposte } },
           etablissement: { connect: { idEtablissement: idEtablissement}},
