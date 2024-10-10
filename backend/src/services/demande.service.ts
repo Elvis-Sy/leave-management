@@ -41,6 +41,7 @@ export class DemandeService {
     async listDemandeAttente(){
         const demande = await this.prisma.demandesConges.findMany({
             select: {
+                idDemande: true,
                 dateDebut: true,
                 dateFin: true,
                 dateEnvoie: true,
@@ -48,11 +49,13 @@ export class DemandeService {
                   select: {
                     nom: true,
                     prenom: true,
-                    poste: {
-                      select: {
-                        designPoste: true
-                      }
-                    },
+                    photoProfile: true,
+                    etablissement: {
+                        select: {
+                            designEtablissement: true,
+                            section: true
+                        }
+                    }
                   }
                 },
                 type: {
@@ -68,21 +71,36 @@ export class DemandeService {
             }
         })
 
+        let nbrJours = 0;
+
         demande.forEach(dm =>{
             const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            (dm as any).nbrJours = diffDays;
+            nbrJours = diffDays;
         })
 
+        const dm = demande.map((demande, index) => ({
+            id: demande.idDemande,
+            dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+            name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
+            photo: demande.employe.photoProfile || 'avatar.png',
+            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
+            type: demande.type.designType,
+            nbrJrs: nbrJours,  // Nombre de jours
+            dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
+            dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR')  // Formater la date de fin
+        }));
 
-        return demande;
+
+        return dm;
     }
 
     //Listage des demandes validées
     async validDemande(){
         const demande = await this.prisma.demandesConges.findMany({
             select: {
+                idDemande: true,
                 dateDebut: true,
                 dateFin: true,
                 dateConfirmation: true,
@@ -91,10 +109,12 @@ export class DemandeService {
                   select: {
                     nom: true,
                     prenom: true,
-                    poste: {
-                      select: {
-                        designPoste: true
-                      }
+                    photoProfile: true,
+                    etablissement: {
+                        select: {
+                            designEtablissement: true,
+                            section: true
+                        }
                     },
                     manager: {
                         select: {
@@ -124,16 +144,31 @@ export class DemandeService {
             }
         })
 
+        let nbrJours = 0;
+
         demande.forEach(dm =>{
             const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            (dm as any).nbrJours = diffDays;
+            nbrJours = diffDays;
 
             delete dm.dateDebut;
             delete dm.dateFin;
         })
 
-        return demande;
+        const dm = demande.map((demande) => ({
+            id: demande.idDemande,
+            dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+            dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
+            name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
+            photo: demande.employe.photoProfile ? demande.employe.photoProfile : 'avatar.png',
+            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
+            manager: demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim(),
+            type: demande.type.designType,
+            statut: demande.statuts.designStatut,
+            nbrJrs: nbrJours,
+        }));
+
+        return dm;
 
     }
 

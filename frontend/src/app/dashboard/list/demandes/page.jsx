@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Table from "../../../components/Table"
 import { Popover, PopoverTrigger, PopoverContent,Tabs, Tab, Card, CardBody, User, Tooltip, Pagination, Chip, Avatar, Button, Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import TableSearch from '../../../components/TableSearch'
+import axios from "axios";
 
 const nbr = 9;
 
@@ -113,93 +114,6 @@ const data = [
   }
 ]
 
-const data2 = [
-  {
-    id: 1,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateConf: "25-01-2024",
-    statut: "approuvee" 
-  },
-  {
-    id: 2,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateConf: "25-01-2024",
-    statut: "refusee" 
-  },
-  {
-    id: 3,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateConf: "25-01-2024",
-    statut: "refusee" 
-  },
-  {
-    id: 6,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateConf: "25-01-2024",
-    statut: "approuvee" 
-  },
-  {
-    id: 4,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateConf: "25-01-2024",
-    statut: "refusee" 
-  },
-  {
-    id: 5,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateConf: "25-01-2024",
-    statut: "approuvee" 
-  }
-]
-
 const col =[
   {
     header: "Info demande",
@@ -264,6 +178,80 @@ const col2 =[
 const DemandePage = ()=> {
 
   const [selectedSort, setSelectedSort] = useState('ASC');
+  const [valid, setValid] = useState([])
+  const [attente, setAttente] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage2, setCurrentPage2] = useState(1)
+  const rowsPerPage = 6 
+
+  useEffect(()=>{
+    allValid()
+    allAttente()
+  }, [])
+
+  //Valide demande
+    const allValid = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/demandes/valid', {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        setValid(response.data.demande)
+
+      } catch (error) {
+          console.error('Erreur lors de la requête:', error.response?.data || error.message);
+          setValid([])
+      }
+    }; 
+
+    //Gestion de la pagination et des pages
+      //Calcul des nombres de pages
+      const totalPages = Math.ceil(valid.length / rowsPerPage)
+
+      //Diviser les donnes selon le nombre de page
+      const paginatedData = valid.slice(
+        (currentPage - 1) * rowsPerPage, 
+        currentPage * rowsPerPage
+      ) 
+
+      const handlePageChange = (page) => {
+        setCurrentPage(page)
+      }
+  //
+
+  //Valide demande
+    const allAttente = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/demandes/attente', {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        setAttente(response.data.demande)
+
+      } catch (error) {
+          console.error('Erreur lors de la requête:', error.response?.data || error.message);
+          setAttente([])
+      }
+    }; 
+
+    //Gestion de la pagination et des pages
+      //Calcul des nombres de pages
+      const totalPages2 = Math.ceil(valid.length / rowsPerPage)
+
+      //Diviser les donnes selon le nombre de page
+      const paginatedData2 = valid.slice(
+        (currentPage2 - 1) * rowsPerPage, 
+        currentPage2 * rowsPerPage
+      ) 
+
+      const handlePageChange2 = (page) => {
+        setCurrentPage2(page)
+      }
+  //
 
   // Personnalisation des cellules
   const renderRow = (item)=>(
@@ -271,7 +259,12 @@ const DemandePage = ()=> {
       
       <td className=" p-3">
         <div className="flex items-center gap-4">
-          <img src="/paternite.png" alt="" width={40} height={40} className="w-10 h-10 object-cover"/>
+          <img src={
+            item.type === "Paye" ? '/paye.png' :
+            item.type === "Maternite" ? '/maternite.png' :
+            item.type === "Paternite" ? '/paternite.png' :
+            "/maladie.png"
+          } alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/>
           <div className="flex flex-col">
             <h3 className="font-semibold text-md">{item.type}</h3>
             <p className="text-xs text-gray-500"><span className="text-sm text-gray-500 font-medium">{item.nbrJrs}</span> jours</p>
@@ -286,9 +279,9 @@ const DemandePage = ()=> {
       <td className="hidden md:table-cell">
         <User   
         name={item.name}
-        description={`${item.etablissement} / ${item.poste}`}
+        description={item.etablissement}
         avatarProps={{
-          src: "http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
+          src: `http://localhost:5000/${item.photo}`
         }}
         />
       </td>
@@ -307,11 +300,6 @@ const DemandePage = ()=> {
 
       <td>
         <div className="flex items-center gap-4">
-          {/* <Link href={`/list/employes/${item.id}`}>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-green-400">
-              <img src="/view.png" alt="" width={20} height={20}/>
-            </button>
-          </Link> */}
           <Tooltip content="Approuver" color="success" showArrow={true}>
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-green-400/20">
               <img src="/accept.png" alt="" width={25} height={25}/>
@@ -322,16 +310,6 @@ const DemandePage = ()=> {
               <img src="/reject.png" alt="" width={20} height={20}/>
             </button>
           </Tooltip>
-          {/* {role.includes(actuel) && (
-            <div className="flex gap-4">
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
-                <img src="/edit.png" alt="" width={20} height={20}/>
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]/20">
-                <img src="/reject.png" alt="" width={20} height={20}/>
-              </button>
-            </div>
-          )} */}
         </div>
       </td>
     </tr>
@@ -342,7 +320,12 @@ const DemandePage = ()=> {
       
       <td className=" p-3">
         <div className="flex items-center gap-4">
-          <img src="/maternite.png" alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/>
+          <img src={
+            item.type === "Paye" ? '/paye.png' :
+            item.type === "Maternite" ? '/maternite.png' :
+            item.type === "Paternite" ? '/paternite.png' :
+            "/maladie.png"
+          } alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/>
           <div className="flex flex-col">
             <h3 className="font-semibold text-md">{item.type}</h3>
             <p className="text-xs text-gray-500"><span className="text-sm text-gray-500 font-medium">{item.nbrJrs}</span> jours</p>
@@ -353,9 +336,9 @@ const DemandePage = ()=> {
       <td className="hidden lg:table-cell">
         <User   
         name={item.name}
-        description={`${item.etablissement} / ${item.poste}`}
+        description={item.etablissement}
         avatarProps={{
-          src: "http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
+          src: `http://localhost:5000/${item.photo}`
         }}
         />
       </td>
@@ -384,9 +367,9 @@ const DemandePage = ()=> {
       </td>
 
       <td className="">
-        <div className={`flex items-center gap-1 ${item.statut == "refusee" ? "text-[#fa5252]" : "text-[#40c057]"}`}>
-          <span>{item.statut == "refusee" ? "Refusee" : "Approuvee"}</span>
-          <img src={`${item.statut == "refusee" ? "/invalid.png" : "/valid.png"}`} alt="" width={20} height={20}/>
+        <div className={`flex items-center gap-1 ${item.statut == "Refusee" ? "text-[#fa5252]" : "text-[#40c057]"}`}>
+          <span>{item.statut == "Refusee" ? "Refusee" : "Approuvee"}</span>
+          <img src={`${item.statut == "Refusee" ? "/invalid.png" : "/valid.png"}`} alt="" width={20} height={20}/>
         </div>
       </td>
 
@@ -415,10 +398,17 @@ const DemandePage = ()=> {
           <Card style={{boxShadow: "none"}}>
             <CardBody>
               <div className="h-[440px]">
-                <Table col={col2} render={renderRow2} data={data2} margin={0}/>
+                <Table col={col2} render={renderRow2} data={valid} margin={0}/>
               </div>
               <div className="mt-2 flex justify-center">
-                <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#f1f1f1]"/>
+                <Pagination 
+                  loop showControls 
+                  total={totalPages} 
+                  initialPage={1} 
+                  page={currentPage} 
+                  onChange={handlePageChange} 
+                  variant="faded" 
+                  className="rounded-md bg-[#f1f1f1]"/>
               </div>
             </CardBody>
           </Card>
@@ -427,10 +417,17 @@ const DemandePage = ()=> {
           <Card style={{boxShadow: "none"}}>
             <CardBody>
               <div className="h-[440px]">
-                <Table col={col} render={renderRow} data={data} margin={0}/>
+                <Table col={col} render={renderRow} data={attente} margin={0}/>
               </div>
               <div className="mt-2 flex justify-center">
-                <Pagination loop showControls total={10} initialPage={1} variant="faded" className="rounded-md bg-[#f1f1f1]"/>
+              <Pagination 
+                  loop showControls 
+                  total={totalPages2} 
+                  initialPage={1} 
+                  page={currentPage2} 
+                  onChange={handlePageChange2} 
+                  variant="faded" 
+                  className="rounded-md bg-[#f1f1f1]"/>
               </div>
             </CardBody>
           </Card>
