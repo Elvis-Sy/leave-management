@@ -13,11 +13,6 @@ const col =[
     accessor: "info"
   },
   {
-    header: "Manager ID",
-    accessor: "managerId", 
-    className:"hidden md:table-cell"
-  },
-  {
     header: "Effectifs",
     accessor: "nbrSub", 
     className:"hidden md:table-cell"
@@ -38,35 +33,29 @@ const col =[
   },
 ]
 
-const etab = [
-  {
-      label: "Directeur",
-      value: "directeur"
-  },
-  {
-      label: "Secretaire",
-      value: "secretaire"
-  },
-  {
-      label: "Gardien",
-      value: "gardien"
-  },
-  {
-      label: "Chat",
-      value: "chat"
-  },
-]
-
 const ManagerPage = ()=> {
 
   const [row, setRow] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 6 // Nombre de lignes par page
   const [selectedSort, setSelectedSort] = useState('ASC');
+  const [etab, setEtab] = useState([])
+  const [etablissement, setEtablissement] = useState(null);
 
     useEffect(() => {
         allManager()
+        getEtab()
     }, []);
+
+    // Fonction pour gérer la sélection de l'établissement
+    const handleEtablissementSelect = (item) => {
+      setEtablissement(item);
+    };
+
+    // Fonction qui sera appelée lors du clic sur le bouton "Filtrer"
+    const handleFiltrer = () => {
+      filtreManager(etablissement);
+    };
 
     //Prendre les donnees
     const allManager = async () => {
@@ -83,6 +72,72 @@ const ManagerPage = ()=> {
           console.error('Erreur lors de la requête:', error.response?.data || error.message);
       }
     };  
+
+    //Recherche par nom
+    const searchManager = async (val) => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/employes/manager/search/${val}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        setRow(response.data.employe || []);
+
+      } catch (error) {
+          console.error('Erreur lors de la requête:', error.response?.data || error.message);
+          setRow([])
+      }
+    };
+
+    //Trier les donners ASC ou DESC
+    const handleSortClick = (order) => {
+      const sortedData = [...row].sort((a, b) => {
+        const aValue = a.nbrSub;
+        const bValue = b.nbrSub;
+
+        if (order === 'ASC') {
+          return aValue > bValue ? 1 : -1; // Pour l'ordre croissant
+        } else {
+          return aValue < bValue ? 1 : -1; // Pour l'ordre décroissant
+        }
+      });
+
+      setRow(sortedData);
+      setSelectedSort(order); // Mettez à jour le tri sélectionné
+    };
+
+    //Filtrage des donnees
+    const filtreManager = async (etablissement = '') => {
+      try {
+        
+        if (!etablissement) {
+          allManager()
+          return;
+        }
+    
+        // Construire la requête en fonction des filtres fournis
+        let query = `http://localhost:5000/api/employes/managerFiltre?`;
+    
+        if (etablissement) {
+          query += `etablissement=${encodeURIComponent(etablissement)}&`;
+        }
+    
+        // Retirer le dernier "&" inutile
+        query = query.slice(0, -1);
+    
+        const response = await axios.get(query, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+    
+        setRow(response.data.employe || []);
+      } catch (error) {
+        console.error('Erreur lors de la requête:', error.response?.data || error.message);
+        setRow([]);
+      }
+    };
 
   //Gestion de la pagination et des pages
     //Calcul des nombres de pages
@@ -106,11 +161,10 @@ const ManagerPage = ()=> {
         name={item.name}
         description={item.email}
         avatarProps={{
-          src: "http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
+          src: `http://localhost:5000/${item.photo}`
         }}
         />
       </td>
-      <td className="hidden md:table-cell">{item.managerId}</td>
       <td className="hidden md:table-cell"><span className="text-2xl font-semibold">{item.nbrSub}</span> employes</td>
       <td className="hidden md:table-cell">{item.poste}</td>
       <td className="hidden lg:table-cell">{item.etablissement}</td>
@@ -123,26 +177,24 @@ const ManagerPage = ()=> {
               </button>
             </Link>
           </Tooltip>
-          <div className="flex gap-4">
-            <Tooltip content="Modifier" color="primary" showArrow={true}>
-              <button onClick={()=>console.log(roles)} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#7591ff]">
-                <img src="/edit.png" alt="" width={20} height={20}/>
-              </button>
-            </Tooltip>
-            <Tooltip content="Supprimer" color="danger" showArrow={true}>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
-                <img src="/delete.png" alt="" width={20} height={20}/>
-              </button>
-            </Tooltip>
-          </div>
         </div>
       </td>
     </tr>
   )
 
-  const handleSortClick = (sortType) => {
-    setSelectedSort(sortType);
-  };
+  //Etablissement
+  const getEtab = async ()=> {
+    try {
+
+      const response = await axios.get('http://localhost:5000/api/details/etablissement');
+
+      setEtab(response.data.etabi)
+
+    } catch (error) {
+      console.error("Error listage departments:", error);
+      setEtab([])
+    }
+  }
 
   return (
     <div className=" bg-white shadow-lg p-4 rounded-md flex-1 m-4 mt-0">
@@ -150,11 +202,11 @@ const ManagerPage = ()=> {
       <div className="flex justify-between items-center">
         <h1 className="hidden md:block text-lg font-semibold">Managers</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch/>
+        <TableSearch search={searchManager} all={allManager}/>
           <div className="flex items-center gap-4 self-end">
             
             {/* FILTER */}
-            <Popover placement="left" showArrow={true} className="filter">
+            <Popover placement="left" showArrow={true} className="filter2">
               <PopoverTrigger>
                 <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
                   <img src="/filter.png" alt="" width={20} height={20}/>
@@ -162,42 +214,23 @@ const ManagerPage = ()=> {
               </PopoverTrigger>
               <PopoverContent className="p-4 flex flex-col gap-3">
 
-                {/* Filtrage par date */}
-                <div className="flex flex-col gap-1">
-                  <h5 className="text-bleuspat font-medium">Filtrage par date</h5>
-                  <div className="flex items-center gap-1">
-                    <span>Entre</span> 
-                    <div className='relative border-2 p-2 rounded-xl focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-200'>
-                      <input 
-                        type="date" 
-                        className="block w-full text-gray-700 bg-transparent placeholder-gray-400 focus:outline-none" 
-                        placeholder="jj-mm-aaaa" 
-                      />
-                    </div>
-                    <span>et</span>
-                    <div className='relative border-2 p-2 rounded-xl focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-200'>
-                      <input 
-                        type="date" 
-                        className="block w-full text-gray-700 bg-transparent placeholder-gray-400 focus:outline-none" 
-                        placeholder="jj-mm-aaaa" 
-                      />
-                    </div>
-                  </div>
-                </div>
-
                 {/* Filtrage par établissement */}
                 <div className="flex flex-col gap-1 w-full">
-                  <h5 className="text-bleuspat font-medium">Filtrer par établissement</h5>
+                  <h5 className="text-bleuspat font-medium">Par établissement</h5>
                   <Autocomplete
                     variant="bordered"
                     label="Etablissement"
                     placeholder="Recherche de poste"
                     className="w-full font-semibold auto"
                     defaultItems={etab}
+                    defaultSelectedKey={etablissement}
+                    onSelectionChange={handleEtablissementSelect}
                   >
                     {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
                   </Autocomplete>
                 </div>
+
+                <Button variant="flat" className="w-full" color="primary" onPress={handleFiltrer}>Filtrer</Button>
 
               </PopoverContent>
             </Popover>

@@ -1,3 +1,4 @@
+import { OtherModule } from './utils/posteDepartement/other.module';
 import { MailerModule } from './utils/mailer/mailer.module';
 import { DemandeModule } from './modules/demande.module';
 import { EmployeModule } from './modules/employe.module';
@@ -10,6 +11,7 @@ import { join } from 'path';
 
 @Module({
   imports: [
+    OtherModule,
     MailerModule,
     DemandeModule,
     EmployeModule, PrismaModule, ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),

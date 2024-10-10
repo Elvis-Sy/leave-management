@@ -262,3 +262,16 @@
     --tw-bg-opacity: 1;
     background-color: #1d71b8 !important;
 } 
+.filter.data-\[placement\=left\]\:before\:top-1\/2[data-placement="left"]::before {
+    content: var(--tw-content);
+    top: 40%;
+}
+.filter2.before\:bg-content1::before {
+    content: var(--tw-content);
+    --tw-bg-opacity: 1;
+    background-color: #1d71b8 !important;
+} 
+.filter2.data-\[placement\=left\]\:before\:top-1\/2[data-placement="left"]::before {
+    content: var(--tw-content);
+    top: 50%;
+}

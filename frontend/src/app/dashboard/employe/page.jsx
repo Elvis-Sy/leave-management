@@ -5,11 +5,13 @@ import TableSearch from "../../components/TableSearch"
 import Table from "../../components/Table"
 import Link from "next/link"
 import axios from "axios"
-import {Button, Autocomplete, AutocompleteItem, Popover, PopoverContent, PopoverTrigger, Tooltip, User, Chip, Avatar, Pagination, useDisclosure, Modal,} from '@nextui-org/react'
+import {Button, Autocomplete, AutocompleteItem, Popover, PopoverContent, PopoverTrigger, Tooltip, User, Chip, Avatar, Pagination, Modal,} from '@nextui-org/react'
 import NewEmploye from '../../modals/newEmploye'
 import SuppEmploye from '../../modals/suppEmploye'
+import ModifEmploye from '../../modals/modifEmploye'
 import { format } from "date-fns";
 import {fr} from 'date-fns/locale'
+import { ToastContainer } from 'react-toastify';
 
 //Formater la date
 const formatDate = (date)=>{
@@ -21,11 +23,6 @@ const col =[
   {
     header: "Info",
     accessor: "info"
-  },
-  {
-    header: "Employe ID",
-    accessor: "employeId", 
-    className:"hidden md:table-cell"
   },
   {
     header: "Date Embauche",
@@ -53,25 +50,6 @@ const col =[
   },
 ]
 
-const etab = [
-  {
-      label: "Directeur",
-      value: "directeur"
-  },
-  {
-      label: "Secretaire",
-      value: "secretaire"
-  },
-  {
-      label: "Gardien",
-      value: "gardien"
-  },
-  {
-      label: "Chat",
-      value: "chat"
-  },
-]
-
 const EmployePage = ()=> {
 
   const [roles, setRole] = useState(null);
@@ -80,7 +58,21 @@ const EmployePage = ()=> {
   const rowsPerPage = 6 // Nombre de lignes par page
   const [selectedSort, setSelectedSort] = useState("ASC"); // Pour suivre le tri actuel
   const [openModal, setOpenModal] = useState(null);
-  const [idSupp, setIdSupp] = useState(null);
+  const [idSupp, setId] = useState(null);
+  const [dateDebut, setDateDebut] = useState('');
+  const [dateFin, setDateFin] = useState('');
+  const [etablissement, setEtablissement] = useState(null);
+  const [etab, setEtab] = useState([])
+
+  // Fonction pour gérer la sélection de l'établissement
+  const handleEtablissementSelect = (item) => {
+    setEtablissement(item);
+  };
+
+  // Fonction qui sera appelée lors du clic sur le bouton "Filtrer"
+  const handleFiltrer = () => {
+    filtreEmploye(etablissement, dateDebut, dateFin);
+  };
 
   //Ouvertur modal
   const onOpen = (modalId) => {
@@ -96,6 +88,7 @@ const EmployePage = ()=> {
     const storedRole = localStorage.getItem('role');
     setRole(storedRole);
     allEmploye();
+    getEtab()
   }, []);
 
   //Prendre les donnees
@@ -131,6 +124,46 @@ const EmployePage = ()=> {
     }
   }; 
 
+  //Filtrage des donnees
+  const filtreEmploye = async (etablissement = '', dateDebut = '', dateFin = '') => {
+    try {
+      
+      if (!etablissement && !dateDebut && !dateFin) {
+        allEmploye()
+        return;
+      }
+  
+      // Construire la requête en fonction des filtres fournis
+      let query = `http://localhost:5000/api/employes/filtre?`;
+  
+      if (etablissement) {
+        query += `etablissement=${encodeURIComponent(etablissement)}&`;
+      }
+  
+      if (dateDebut && dateFin) {
+        query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(dateFin)}&`;
+      } else if (dateDebut) {
+        query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(dateDebut)}&`;
+      } else if (dateFin){
+        query += `dateDebut=${encodeURIComponent(dateFin)}&dateFin=${encodeURIComponent(dateFin)}&`;
+      }
+  
+      // Retirer le dernier "&" inutile
+      query = query.slice(0, -1);
+  
+      const response = await axios.get(query, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+  
+      setRow(response.data.employe || []);
+    } catch (error) {
+      console.error('Erreur lors de la requête:', error.response?.data || error.message);
+      setRow([]);
+    }
+  };
+
   //Gestion de la pagination et des pages
     //Calcul des nombres de pages
     const totalPages = Math.ceil(row.length / rowsPerPage)
@@ -145,9 +178,6 @@ const EmployePage = ()=> {
     setCurrentPage(page)
   }
 
-  //Open Close
-  // const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
-
   // Personnalisation des cellules
   const renderRow = (item)=>(
     <tr key={item.id} className="border-b border-gray-200 text-sm hover:bg-bleuspat/10">
@@ -160,7 +190,6 @@ const EmployePage = ()=> {
           }}
         />
       </td>
-      <td className="hidden md:table-cell">{item.employeId}</td>
       <td className="hidden md:table-cell">
         {item.DateEmb ? 
           <span>{formatDate(item.DateEmb)}</span>
@@ -199,12 +228,12 @@ const EmployePage = ()=> {
           {roles == "Admin" && (
             <div className="flex gap-4">
               <Tooltip content="Modifier" color="primary" showArrow={true}>
-                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
+                <button onClick={()=>{ onOpen("modifModal"); setId(item.id) }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
                   <img src="/edit.png" alt="" width={20} height={20}/>
                 </button>
               </Tooltip>
               <Tooltip content="Supprimer" color="danger" showArrow={true}>
-                <button onClick={()=>{ onOpen("suppModal"); setIdSupp(item.id) }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
+                <button onClick={()=>{ onOpen("suppModal"); setId(item.id) }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
                   <img src="/delete.png" alt="" width={20} height={20}/>
                 </button>
               </Tooltip>
@@ -231,8 +260,23 @@ const EmployePage = ()=> {
     setSelectedSort(order); // Mettez à jour le tri sélectionné
   };
 
+  //Etablissement
+  const getEtab = async ()=> {
+    try {
+
+      const response = await axios.get('http://localhost:5000/api/details/etablissement');
+
+      setEtab(response.data.etabi)
+
+    } catch (error) {
+      console.error("Error listage departments:", error);
+      setEtab([])
+    }
+  }
+
   return (
     <div className="bg-white shadow-lg p-4 rounded-md flex-1 m-4 mt-0">
+       <ToastContainer/>
       {/* TOP */}
       <div className="flex justify-between items-center">
         <h1 className="hidden md:block text-lg font-semibold">Employes</h1>
@@ -251,7 +295,7 @@ const EmployePage = ()=> {
 
                 {/* Filtrage par date */}
                 <div className="flex flex-col gap-1">
-                  <h5 className="text-bleuspat font-medium">Filtrage par date</h5>
+                  <h5 className="text-bleuspat font-medium">Par date</h5>
                   <div className="flex items-center gap-1">
                     <span>Entre</span> 
                     <div className='relative border-2 p-2 rounded-xl focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-200'>
@@ -259,6 +303,9 @@ const EmployePage = ()=> {
                         type="date" 
                         className="block w-full text-gray-700 bg-transparent placeholder-gray-400 focus:outline-none" 
                         placeholder="jj-mm-aaaa" 
+                        name="dateDebut"
+                        value={dateDebut}
+                        onChange={(e) => setDateDebut(e.target.value)}
                       />
                     </div>
                     <span>et</span>
@@ -267,6 +314,9 @@ const EmployePage = ()=> {
                         type="date" 
                         className="block w-full text-gray-700 bg-transparent placeholder-gray-400 focus:outline-none" 
                         placeholder="jj-mm-aaaa" 
+                        name="dateFin"
+                        value={dateFin}
+                        onChange={(e) => setDateFin(e.target.value)}
                       />
                     </div>
                   </div>
@@ -274,17 +324,21 @@ const EmployePage = ()=> {
 
                 {/* Filtrage par établissement */}
                 <div className="flex flex-col gap-1 w-full">
-                  <h5 className="text-bleuspat font-medium">Filtrer par établissement</h5>
+                  <h5 className="text-bleuspat font-medium">Par établissement</h5>
                   <Autocomplete
                     variant="bordered"
                     label="Etablissement"
                     placeholder="Recherche de poste"
                     className="w-full font-semibold auto"
                     defaultItems={etab}
+                    defaultSelectedKey={etablissement}
+                    onSelectionChange={handleEtablissementSelect}
                   >
                     {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
                   </Autocomplete>
                 </div>
+
+                <Button variant="flat" className="w-full" color="primary" onPress={handleFiltrer}>Filtrer</Button>
 
               </PopoverContent>
             </Popover>
@@ -327,12 +381,16 @@ const EmployePage = ()=> {
       </div>
 
       {/* Modal */}
-      <Modal isOpen={openModal == "ajoutModal"} onClose={onClose} size="2xl" scrollBehavior="inside">
+      <Modal isOpen={openModal == "ajoutModal"} onClose={onClose} size="2xl">
         <NewEmploye onClose={onClose} reload={allEmploye} />
       </Modal>
 
       <Modal isOpen={openModal == "suppModal"} onClose={onClose} size="sm">
         <SuppEmploye onClose={onClose} idEmp={idSupp} all={allEmploye}/>
+      </Modal>
+
+      <Modal isOpen={openModal == "modifModal"} onClose={onClose} size="2xl">
+        <ModifEmploye onClose={onClose} idEmploye={idSupp} all={allEmploye}/>
       </Modal>
       
     </div>

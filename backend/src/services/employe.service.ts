@@ -8,6 +8,8 @@ import { AddEmployeDto, ModifEmployeDto } from 'src/dto/employeDto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerService } from 'src/utils/mailer/mailer.service';
 import { JwtService } from '@nestjs/jwt';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class EmployeService { 
@@ -35,7 +37,7 @@ export class EmployeService {
       const token = this.jwtService.sign({ email }, { secret: "congeSPAT", expiresIn: '48h' });
   
       // Envoyer le mail
-      // await this.mailer.sendSignupConfirmation(email, nom, token); DE-COMMENTER LORS DU REEL
+      // await this.mailer.sendSignupConfirmation(email, nom, token); //DE-COMMENTER LORS DU REEL
   
       await this.prisma.employes.create({
         data: {
@@ -70,7 +72,6 @@ export class EmployeService {
           manager: {
             select: {
               nom: true,
-              prenom: true,
               photoProfile: true
             },
           },
@@ -98,7 +99,7 @@ export class EmployeService {
           employeId: data.CIN,
           name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
           email: data.compte.email,
-          manager: data.manager ? data.manager.prenom ? `${data.manager.nom} ${data.manager.prenom}` : `${data.manager.nom}` : null,
+          manager: data.manager ?  `${data.manager.nom}` : null,
           photo: data.photoProfile ? data.photoProfile : "avatar.png",
           photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
           DateEmb: data.dateEmbauche,
@@ -108,6 +109,36 @@ export class EmployeService {
       })
 
       return rows;
+    }
+
+    //Tout les employes mais seulement le nom
+    async Supperieur(){
+      const noms = await this.prisma.employes.findMany({
+        where: {
+          NOT: {
+            compte: null, // Filtrer seulement les employés qui ont un compte utilisateur
+          },
+          compte: {
+            password: {
+              not: null
+            }
+          }
+        },
+        select: {
+          nom: true,
+          prenom: true,
+          idEmploye: true
+        }
+      })
+
+      const name = noms.map((item)=>{
+        return {
+          label: item.prenom ? `${item.idEmploye}- ${item.nom} ${item.prenom}` : `${item.idEmploye}- ${item.nom}`,
+          value: item.idEmploye
+        }
+      })
+
+      return name
     }
 
     //Affichage tout les Manager
@@ -164,16 +195,33 @@ export class EmployeService {
     //Suppression d'employe
     async deleteEmploye(idEmploye: number){
 
-        //Mettre à jour l'idManager des subordonnés a null
-        await this.prisma.employes.updateMany({
-            where: { idManager: idEmploye },
-            data: { idManager: null },
-        });
+      //verifier le profil
+      const employe = await this.prisma.employes.findUnique({
+        where: { idEmploye },
+        select: { photoProfile: true },
+      });
 
-        //Supprimer l'employé (avec suppression en cascade de ses comptes utilisateurs)
-        return await this.prisma.employes.delete({
-            where: { idEmploye },
-        });
+      if (employe?.photoProfile) {
+          const filePath = path.join(process.cwd(), 'profil', employe.photoProfile);
+          fs.unlink(filePath, (err) => {
+              if (err) {
+                  console.error(`Erreur lors de la suppression de l'image: ${err}`);
+              } else {
+                  console.log('Image supprimée avec succès');
+              }
+          });
+      }
+
+      //Mettre à jour l'idManager des subordonnés a null
+      await this.prisma.employes.updateMany({
+          where: { idManager: idEmploye },
+          data: { idManager: null },
+      });
+
+      //Supprimer l'employé (avec suppression en cascade de ses comptes utilisateurs)
+      return await this.prisma.employes.delete({
+          where: { idEmploye },
+      });
     }
 
     //Recherche d'employe
@@ -189,7 +237,6 @@ export class EmployeService {
           manager: {
             select: {
               nom: true,
-              prenom: true,
               photoProfile: true
             },
           },
@@ -217,7 +264,7 @@ export class EmployeService {
           employeId: data.CIN,
           name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
           email: data.compte.email,
-          manager: data.manager ? data.manager.prenom ? `${data.manager.nom} ${data.manager.prenom}` : `${data.manager.nom}` : null,
+          manager: data.manager ? `${data.manager.nom}` : null,
           photo: data.photoProfile ? data.photoProfile : "avatar.png",
           photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
           DateEmb: data.dateEmbauche,
@@ -227,6 +274,156 @@ export class EmployeService {
       })
 
       return rows;
+    }
+
+    //Fitrage des donnees
+    async filtreEmploye(etablissement: string | undefined, dateDebut: string | undefined, dateFin: string | undefined){
+      try {
+        
+        const whereClause: any = {};
+    
+        // Filtrer par établissement si fourni
+        if (etablissement) {
+          whereClause.etablissement = {
+            idEtablissement : parseInt(etablissement)
+          };
+        }
+
+        console.log(etablissement)
+    
+        // Vérification et inversion si la dateDebut est après la dateFin
+        if (dateDebut && dateFin) {
+          const startDate = new Date(dateDebut);
+          const endDate = new Date(dateFin);
+    
+          if (startDate > endDate) {
+            // Inverser les dates si dateDebut est après dateFin
+            whereClause.dateEmbauche = {
+              gte: endDate,  
+              lte: startDate,
+            };
+          } else {
+            // Dates correctes, pas besoin d'inverser
+            whereClause.dateEmbauche = {
+              gte: startDate,
+              lte: endDate,
+            };
+          }
+        }
+    
+        // Requête Prisma avec les conditions dynamiques
+        const employes = await this.prisma.employes.findMany({
+          where: whereClause,
+          include: {
+            manager: {
+              select: {
+                nom: true,
+                photoProfile: true
+              },
+            },
+            poste: {
+              select: {
+                designPoste: true,
+              },
+            },
+            compte: {
+              select: {
+                email: true
+              }
+            },
+            etablissement: {
+              select: {
+                designEtablissement: true
+              }
+            }
+          },
+        });
+
+        const rows = employes.map((data)=>{
+          return {
+            id: data.idEmploye,
+            employeId: data.CIN,
+            name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
+            email: data.compte.email,
+            manager: data.manager ? `${data.manager.nom}` : null,
+            photo: data.photoProfile ? data.photoProfile : "avatar.png",
+            photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
+            DateEmb: data.dateEmbauche,
+            Etablissement: data.etablissement.designEtablissement,
+            poste: data.poste.designPoste,
+          }
+        })
+    
+        return rows;
+      } catch (error) {
+        console.error('Erreur lors de la requête Prisma:', error);
+        throw error;
+      }
+    }
+
+    async filtreManager(etablissement: string | undefined){
+      try {
+        const whereClause: any = {};
+
+        whereClause.subordonne = {
+          some: {}
+        }
+    
+        // Filtrer par établissement si fourni
+        if (etablissement) {
+          whereClause.etablissement = {
+            idEtablissement : parseInt(etablissement)
+          };
+        }
+    
+        // Requête Prisma avec les conditions dynamiques
+        const Manager = await this.prisma.employes.findMany({
+          where: whereClause,
+          select: {
+            idEmploye: true,
+            nom: true,
+            prenom: true,
+            CIN: true,
+            photoProfile: true,
+            _count: {
+              select: {subordonne: true}
+            },
+            poste: {
+              select: {
+                designPoste: true,
+              },
+            },
+            compte: {
+              select: {
+                email: true
+              }
+            },
+            etablissement: {
+              select: {
+                designEtablissement: true
+              }
+            }
+          }
+        });
+
+        const rows = Manager.map((data)=>{
+          return {
+            id: data.idEmploye,
+            managerId: data.CIN,
+            name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
+            email: data.compte.email,
+            photo: data.photoProfile ? data.photoProfile : "avatar.png",
+            etablissement: data.etablissement.designEtablissement,
+            nbrSub: data._count.subordonne,
+            poste: data.poste.designPoste,
+          }
+        })
+    
+        return rows;
+      } catch (error) {
+        console.error('Erreur lors de la requête Prisma:', error);
+        throw error;
+      }
     }
 
     //Recherche de Manager
@@ -286,7 +483,40 @@ export class EmployeService {
 
     //Modification information employe
     async updateEmploye(idEmploye: number, modifEmployeDto: ModifEmployeDto, p0?: { profile: string; }){
-      const { idManager, idposte, idEtablissement, ...employeData } = modifEmployeDto;
+      const { idManager, idposte, idEtablissement, email, ...employeData } = modifEmployeDto;
+
+      const existingEmploye = await this.prisma.employes.findUnique({
+        where: { idEmploye },
+        select: { photoProfile: true }
+      });
+
+      const cin = await this.prisma.employes.findUnique({ 
+        where: { 
+          CIN: employeData.CIN
+        }
+      });
+      if (cin && cin.idEmploye !== idEmploye) throw new ConflictException('CIN invalide ou deja utilisé');
+
+      const existe = await this.prisma.compte_Utilisateur.findUnique({ 
+        where: {
+           email
+        } 
+      });
+      if (existe && existe.employeId !== idEmploye) throw new ConflictException('Autre employe possedant deja ce compte');
+
+      
+      if (p0?.profile && existingEmploye.photoProfile) {
+          
+        const oldFilePath = path.join(process.cwd(), 'profil', existingEmploye.photoProfile);
+        
+        fs.unlink(oldFilePath, (err) => {
+            if (err) {
+                console.error(`Erreur lors de la suppression de l'image: ${err}`);
+            } else {
+                console.log('Ancienne image supprimée avec succès');
+            }
+        });
+      }
 
       await this.prisma.employes.update({
         where:{
@@ -294,8 +524,13 @@ export class EmployeService {
         },
         data: {
           ...employeData,
-          photoProfile: p0.profile,
-          manager: idManager ? { connect: { idEmploye: idManager } } : undefined,
+          compte: {
+            update: {
+              email: email
+            }
+          },
+          photoProfile: p0?.profile || existingEmploye.photoProfile,
+          manager: idManager ? { connect: { idEmploye: idManager } } : { disconnect: true },
           poste: { connect: { idPoste: idposte } },
           etablissement: { connect: { idEtablissement: idEtablissement}}
         },
@@ -399,48 +634,64 @@ export class EmployeService {
       const timeValue = parseInt(expirationTime.slice(0, -1), 10);
       return timeValue * timeInMs[timeUnit];
     }
+
+    //Informations
+    async info(idEmploye: number){
+      const info = await this.prisma.employes.findUnique({
+        where: {
+          idEmploye
+        },
+        select: {
+          nom: true,
+          prenom: true,
+          photoProfile: true,
+          compte: {
+            select: {
+              email: true
+            }
+          },
+          poste: {
+            select: {
+              designPoste: true
+            }
+          },
+          etablissement: {
+            select: {
+              designEtablissement: true,
+              section: true
+            }
+          },
+          sexe: true,
+          CIN: true,
+          dateEmbauche: true,
+          periodeEssai: true,
+          manager: {
+            select: {
+              nom: true,
+              prenom: true,
+              idEmploye: true
+            }
+          }
+        }
+      })
+
+      const information = {
+        nom: info.nom,
+        prenom: info.prenom,
+        sexe: info.sexe,
+        CIN: info.CIN,
+        email: info.compte.email,
+        manager: info.manager ? info.manager.prenom ? `${info.manager.idEmploye}- ${info.manager.nom} ${info.manager.prenom}` : `${info.manager.idEmploye}- ${info.manager.nom}` : null,
+        dateEmbauche: info.dateEmbauche,
+        periodeEssai: info.periodeEssai,
+        etablissement: info.etablissement.section == "Direction" ? `Direct. ${info.etablissement.designEtablissement}` : `Dpt ${info.etablissement.designEtablissement}`,
+        poste: info.poste.designPoste,
+        photo: info.photoProfile || "avatar.png"
+      } 
+
+      return information;
+    }
     
 
  }
 
-
-
-
-
-
- //Ajout des employes
-    // async addEmploye(employeDto: AddEmployeDto, p0?: { profile: string; }){
-    //   const { email, password, idManager, idposte, ...employeData } = employeDto;
-
-    //   //Verifier si il possede deja un compte
-    //   const existe = await this.prisma.compte_Utilisateur.findUnique({where: {email}});
-    //   if(existe) throw new ConflictException('Employe possedant deja un compte');
-
-    //   //Send confirmation email
-    //   await this.mailer.sendSignupConfirmation(email);
-
-    //   //Hasher le mot de passe
-    //   const hashedpwd = await this.passwordService.hashPassword(password);
-
-    //   await this.prisma.employes.create({
-    //     data: {
-    //         ...employeData,
-
-    //         photoProfile: p0.profile,
-
-    //         manager: idManager ? { connect: { idEmploye: idManager } } : undefined,
-
-    //         poste: { connect: { idPoste: idposte } },
-
-    //         compte: {
-    //             create: {
-    //                 email,
-    //                 password: hashedpwd,
-    //                 role: 'Employe',
-    //                 derniereConnexion: new Date(),
-    //             },
-    //         },
-    //     },
-    //   });
-       
-    // }

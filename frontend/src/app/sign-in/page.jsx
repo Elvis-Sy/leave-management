@@ -47,15 +47,12 @@ function LoginPage() {
         localStorage.setItem('role', role);
         localStorage.setItem('id', idEmploye)
 
-        setTimeout(()=>{
-          // Redirection selon le rôle
-          if (role === 'Admin') {
-            router.push('/dashboard/admin'); // Redirection vers la page admin
-          } else if (role === 'Employe') {
-            router.push('/dashboard/manager'); // Redirection vers la page utilisateur
-          }
-        }, 1000)
-        
+        // Redirection selon le rôle
+        if (role === 'Admin') {
+          router.push('/dashboard/admin'); // Redirection vers la page admin
+        } else if (role === 'Employe') {
+          router.push('/dashboard/manager'); // Redirection vers la page utilisateur
+        }  
 
       } else {
 
@@ -84,18 +81,25 @@ function LoginPage() {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (formRef.current) {
+      if (e.key === 'Enter') {
+        formRef.current.dispatchEvent(new Event('submit', { bubbles: true }));
+      }
+    }
+  };
 
 
   return (
     <div className='flex flex-col items-center justify-center text-center w-full h-screen flex-1 px-20'>
       <ToastContainer/>
-      <div className="bg-white rounded-2xl shadow-2xl flex w-2/3 max-w-5xl">
+      <div className="bg-white rounded-2xl shadow-2xl flex w-1/2 max-w-5xl">
         {/* LEFT SIDE */}
         <div className="w-full md:w-3/5 p-5">
           <div className="py-6">
             <h2 className='text-xl font-bold text-bleuspat mb-2'>LOG IN</h2>
             <div className='border-2 w-10 border-bleuspat inline-block mb-2'></div>
-            <form ref={formRef} onSubmit={handleSubmit(onLogin)} className='flex flex-col lg:pl-14 w-full flex-wrap md:flex-nowrap md:mb-0 gap-4'>
+            <form ref={formRef} onKeyDown={handleKeyDown} onSubmit={handleSubmit(onLogin)} className='flex flex-col w-full flex-wrap md:flex-nowrap gap-4'>
 
               <div>
                 <Input
@@ -145,7 +149,7 @@ function LoginPage() {
               </div>
 
             </form>
-            <div className='flex my-4 md:px-16 justify-end'>
+            <div className='flex my-4 mr-1 justify-end'>
               <a href="#" className='text-xs text-gray-500 hover:text-bleuspat/80 font-medium'>Mot de passe oublié ?</a>
             </div>
             <button type="submit" onClick={handleButtonClick} className='transition-all duration-200 mt-2 border-2 border-bleuspat bg-bleuspat text-white rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-bleuspat'>Se connecter</button>
@@ -155,11 +159,11 @@ function LoginPage() {
         {/* RIGHT SIDE */}
         <div className="hidden md:flex flex-col items-center w-2/5 bg-bleuspat text-white rounded-r-2xl">
           <div className="bg-gray-100 rounded-full w-fit mt-20">
-            <img src="/logo.svg" alt="" width={150} height={150}/>
+            <img src="/logo.svg" alt="" width={100} height={100}/>
           </div>
-          <div className='w-full px-12'>
+          <div className='w-full px-8'>
             <div className='border-2 w-10 border-white inline-block mb-2 rounded-full'></div>
-            <h2 className='text-3xl font-bold mb-2'>Gestion et suivi des congés</h2>
+            <h2 className='text-2xl font-bold mb-2'>Gestion et suivi des congés</h2>
           </div>
         </div>
       </div>

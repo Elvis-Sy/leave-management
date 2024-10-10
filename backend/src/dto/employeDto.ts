@@ -56,10 +56,14 @@ export class ModifEmployeDto {
     readonly sexe: string;
 
     @IsNotEmpty()
+    @IsEmail()
+    readonly email: string;
+
+    @IsNotEmpty()
     @IsString()
     readonly CIN: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     readonly dateEmbauche?: Date;
 
     @IsOptional()

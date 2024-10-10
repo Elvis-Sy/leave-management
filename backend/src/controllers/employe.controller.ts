@@ -2,17 +2,15 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Body, Controller, Delete, Get, Param, Patch, Post, Request, UploadedFile, UseGuards, UseInterceptors, } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, Request, UploadedFile, UseGuards, UseInterceptors, } from '@nestjs/common';
 import { EmployeService } from 'src/services/employe.service';
 import { AddEmployeDto, ModifEmployeDto } from 'src/dto/employeDto';
 import { JwtAuthGuard } from 'src/auth/authorization/auth.guard';
 import { RolesGuard } from 'src/auth/authorization/authorization.guard';
 import { Roles } from 'src/auth/authorization/roles.decorator';
 import { Role } from 'src/auth/authorization/roleEmploye.enum';
-import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer'
-import { of } from 'rxjs';
 
 //Storage setting
 const storage = {
@@ -31,7 +29,7 @@ const storage = {
 
 @Controller('employes')
 export class EmployeController { 
-    constructor(private readonly employeService: EmployeService, private readonly configService: ConfigService){}
+    constructor(private readonly employeService: EmployeService){}
 
     @Post('ajout')
     @UseGuards(JwtAuthGuard, RolesGuard)
@@ -47,10 +45,13 @@ export class EmployeController {
             if(employeDto.dateEmbauche){
                 employeDto.dateEmbauche = new Date(employeDto.dateEmbauche)
             }
+            if(employeDto.idManager){
+                employeDto.idManager = Number(employeDto.idManager)
+            }
             const filename = photoProfile ? photoProfile.filename : null
             await this.employeService.addEmploye(employeDto, {profile: filename});
             return {
-                message: "La demande de confirmation a bien été envoyée à l'employe. ",
+                message: "Demande de confirmation envoyée avec succes. ",
             };
         } catch (error) {
             console.error("Erreur lors de l'ajout':", error);
@@ -153,19 +154,33 @@ export class EmployeController {
 
     @Patch(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @UseInterceptors(FileInterceptor('file', storage))
+    @UseInterceptors(FileInterceptor('photoProfile', storage))
     @Roles(Role.ADMIN) //Admin
-    async updateEmploye(@Param('id') id: string, @Body() modifEmploye: ModifEmployeDto, @UploadedFile() file: Express.Multer.File){
+    async updateEmploye(@Param('id') id: string, @Request() req, @UploadedFile() photoProfile: Express.Multer.File){
         try {
-            const filename = file ? file.filename : ""
-            await this.employeService.updateEmploye(parseInt(id), modifEmploye, {profile: filename});
+            const employeDto = req.body;
+            employeDto.CIN = employeDto.CIN
+            employeDto.idposte = Number(employeDto.idposte)
+            employeDto.idEtablissement = Number(employeDto.idEtablissement)
+            employeDto.periodeEssai = Boolean(employeDto.periodeEssai)
+            if(employeDto.dateEmbauche){
+                employeDto.dateEmbauche = new Date(employeDto.dateEmbauche)
+            }
+            if(employeDto.idManager){
+                employeDto.idManager = Number(employeDto.idManager)
+            } else {
+                employeDto.idManager = null
+            }
+            const filename = photoProfile ? photoProfile.filename : ""
+            await this.employeService.updateEmploye(parseInt(id), employeDto, {profile: filename});
             return{
                 message: 'Employé modifié avec succès',
             }
         } catch (error) {
             console.error('Erreur lors du listage:', error);
             return{
-                message: "erreur lors de la modification de l'employe"
+                message: "erreur lors de la modification de l'employe",
+                cause: error.message
             }
         }
     }
@@ -214,6 +229,82 @@ export class EmployeController {
             
         }
         
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('filtre')
+    async filtreEmp(
+        @Query('etablissement') etablissement?: string,
+        @Query('dateDebut') dateDebut?: string,
+        @Query('dateFin') dateFin?: string,
+    ) {
+        try {
+            const employe = await this.employeService.filtreEmploye(etablissement, dateDebut, dateFin);
+            return {
+                message: "Confirmation réalisée avec succès",
+                employe: employe
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('managerFiltre')
+    async filtreMg(
+        @Query('etablissement') etablissement?: string,
+    ) {
+        try {
+            const manager = await this.employeService.filtreManager(etablissement);
+            return {
+                message: "Confirmation réalisée avec succès",
+                employe: manager
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @Get('supperieur')
+    async getSupperieur(){
+        try {
+            const supperieur = await this.employeService.Supperieur()
+            return {
+                message: "Supperieur liste avec succes",
+                supp: supperieur
+            }
+        } catch (error) {
+            return {
+                message: "Erreur lors du listage des supperieur",
+                cause: error
+            }
+        }
+    }
+
+    @Get('modif/:id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN) //Admin
+    async modifInfo(@Param('id') id: string){
+        try {
+            const modif = await this.employeService.info(parseInt(id))
+            return {
+                message: "Supperieur liste avec succes",
+                info: modif
+            }
+        } catch (error) {
+            return {
+                message: "Erreur lors du listage des infos",
+                cause: error
+            }
+        }
     }
     
  }

@@ -99,7 +99,7 @@ model DemandesConges {
   typeId Int
   type   TypesConges @relation("TypeDemande", fields: [typeId], references: [idType])
 
-  statutId Int
+  statutId Int @default(1)
   statuts  StatutDemande @relation("StatutDemande", fields: [statutId], references: [idStatut])
 
   ferries JourFerries[] @relation("DemandeJourFerie")

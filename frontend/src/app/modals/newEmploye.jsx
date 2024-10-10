@@ -1,29 +1,12 @@
 "use client"
 
-import React, {useRef, useState} from 'react'
+import React, {useRef, useState, useEffect} from 'react'
 import { useForm } from 'react-hook-form';
 import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Autocomplete, AutocompleteItem, RadioGroup, Radio, Checkbox} from '@nextui-org/react'
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const etab = [
-    {
-        label: "Informatique et telecom",
-        value: "1"
-    },
-    {
-        label: "Technologique",
-        value: "2"
-    },
-]
-
-const postes = [
-    {
-        label: "Directeur",
-        value: "1"
-    },
-]
 
 const NewEmploye = ({onClose, reload}) => {
 
@@ -31,10 +14,15 @@ const NewEmploye = ({onClose, reload}) => {
     const [essai, setEssai] = useState(false);
     const fileInputRef = useRef(null);
     const formRef = useRef();
-    const [sexe, setSexe] = useState('');
-    const handleChange = (event) => {
-      setSexe(event.target.value);
-    };
+    const [etab, setEtab] = useState([])
+    const [postes, setPostes] = useState([])
+    const [manager, setManager] = useState([])
+
+    useEffect(()=>{
+      getEtab()
+      getPoste()
+      getSupp()
+    }, [])
 
     //Pointage input file
     const handleImageClick = () => {
@@ -65,8 +53,8 @@ const NewEmploye = ({onClose, reload}) => {
       errors.dateEmbauche = null;
       if (e.target.checked) {
         setValue('dateEmbauche', ''); // Réinitialise le champ
-    }
-  };
+      }
+    };
 
     // Gestion de la soumission du formulaire
     const onSubmit = async (data) => {
@@ -83,15 +71,23 @@ const NewEmploye = ({onClose, reload}) => {
             data.idposte = Number(item.value)
           }
         })
+        manager.forEach((item)=>{
+          if(data.idManager == item.label){
+            data.idManager = Number(item.value)
+          }
+        })
 
         formData.append('email', data.email)
         formData.append('idposte', data.idposte)
         formData.append('nom', data.nom)
         formData.append('prenom', data.prenom)
-        formData.append('sexe', sexe)
+        formData.append('sexe', data.sexe)
         formData.append('CIN', Number(data.CIN))
         if(data.dateEmbauche){
           formData.append('dateEmbauche', data.dateEmbauche)
+        }
+        if(data.idManager){
+          formData.append('idManager', data.idManager)
         }
         formData.append('periodeEssai', Number(data.periodeEssai))
         formData.append('idEtablissement', Number(data.idEtablissement))
@@ -126,11 +122,9 @@ const NewEmploye = ({onClose, reload}) => {
             style: {fontSize: "bolder", fontWeight: "bolder"}
           });
 
-          setTimeout(()=>{
-            reload()
-            onClose()
-          }, 2000)
-          
+
+          reload()
+          onClose()          
         }
     
       } catch (error) {
@@ -145,9 +139,48 @@ const NewEmploye = ({onClose, reload}) => {
       }
     };
 
+    const getEtab = async ()=> {
+      try {
+
+        const response = await axios.get('http://localhost:5000/api/details/etablissement');
+
+        setEtab(response.data.etabi)
+
+      } catch (error) {
+        console.error("Error listage departments:", error);
+        setEtab([])
+      }
+    }
+
+    const getPoste = async ()=> {
+      try {
+
+        const response = await axios.get('http://localhost:5000/api/details/postes');
+
+        setPostes(response.data.poste)
+
+      } catch (error) {
+        console.error("Error listage departments:", error);
+        setPostes([])
+      }
+    }
+
+    const getSupp = async ()=> {
+      try {
+
+        const response = await axios.get('http://localhost:5000/api/employes/supperieur');
+
+        setManager(response.data.supp)
+
+      } catch (error) {
+        console.error("Error listage departments:", error);
+        setManager([])
+      }
+    }
+
+
   return (
       <>
-        <ToastContainer/>
         <ModalContent>
           {(onClose) => (
             <>
@@ -192,28 +225,29 @@ const NewEmploye = ({onClose, reload}) => {
                   <div className="flex flex-col gap-4">
                   <div className="ml-4 font-semibold">
                       <label className="block mb-2 text-gray-700">Genre de l'employé <span className="text-red-500 text-sm">*</span> :</label>
-                      <div className="flex">
-                        <label className="mr-4 font-normal">
-                          <input
-                            type="radio"
-                            value="M"
-                            checked={sexe === 'M'}
-                            onChange={handleChange}
-                            className="mr-1 text-bleuspat"
-                          />
-                          Homme
-                        </label>
-                        <label className="mr-4 font-normal">
-                          <input
-                            type="radio"
-                            value="F"
-                            checked={sexe === 'F'}
-                            onChange={handleChange}
-                            className="mr-1 text-bleuspat"
-                          />
-                          Femme
-                        </label>
+                      <div className="">
+                        <div className="flex">
+                          <label className="mr-4 font-normal">
+                            <input
+                              type="radio"
+                              value="M"
+                              className="mr-1 text-bleuspat"
+                              {...register('sexe', { required: "Le sexe est requis" })} 
+                            />
+                            Homme
+                          </label>
+                          <label className="mr-4 font-normal">
+                            <input
+                              type="radio"
+                              value="F"
+                              className="mr-1 text-bleuspat"
+                              {...register('sexe', { required: "Le sexe est requis" })} 
+                            />
+                            Femme
+                          </label>
+                        </div>
                       </div>
+                      {errors.sexe && <span className="flex justify-start text-[#f31260] text-xs text-right">{errors.sexe.message}</span>}
                     </div>
 
                     <Input
@@ -266,6 +300,17 @@ const NewEmploye = ({onClose, reload}) => {
                     isInvalid={!!errors.email}
                     errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.email ? errors.email.message : ''}</span>} 
                   />
+
+                <Autocomplete
+                  variant="bordered"
+                  label="Manager"
+                  placeholder="Sous la subordination de..."
+                  className="w-full font-semibold auto mb-2"
+                  defaultItems={manager}
+                  {...register('idManager')}
+                >
+                  {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+                </Autocomplete>
 
                   <div className="flex gap-2">
                     <Autocomplete
