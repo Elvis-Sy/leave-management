@@ -2,117 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Table from "../../../components/Table"
-import { Popover, PopoverTrigger, PopoverContent,Tabs, Tab, Card, CardBody, User, Tooltip, Pagination, Chip, Avatar, Button, Autocomplete, AutocompleteItem } from '@nextui-org/react';
+import { Modal, Popover, PopoverTrigger, PopoverContent,Tabs, Tab, Card, CardBody, User, Tooltip, Pagination, Chip, Avatar, Button, Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import TableSearch from '../../../components/TableSearch'
 import axios from "axios";
+import AcceptModal from '../../../modals/acceptModal'
 
 const nbr = 9;
-
-const etab = [
-  {
-      label: "Directeur",
-      value: "directeur"
-  },
-  {
-      label: "Secretaire",
-      value: "secretaire"
-  },
-  {
-      label: "Gardien",
-      value: "gardien"
-  },
-  {
-      label: "Chat",
-      value: "chat"
-  },
-]
-
-const data = [
-  {
-    id: 1,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateDebut: "25-01-2024",
-    dateFin: "7-02-2024" 
-  },
-  {
-    id: 2,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateDebut: "25-01-2024",
-    dateFin: "7-02-2024" 
-  },
-  {
-    id: 3,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateDebut: "25-01-2024",
-    dateFin: "7-02-2024" 
-  },
-  {
-    id: 6,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateDebut: "25-01-2024",
-    dateFin: "7-02-2024" 
-  },
-  {
-    id: 4,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateDebut: "25-01-2024",
-    dateFin: "7-02-2024" 
-  },
-  {
-    id: 5,
-    demandeId: "123123",
-    dateEnvoi: "01-01-2024",
-    name: "Jenna ortega",
-    photo: "/illustration1.png",
-    etablissement: "Direction informatique",
-    manager: "Elvis Sy",
-    poste: "Directeur",
-    type: "Conge paye",
-    nbrJrs: 25,
-    dateDebut: "25-01-2024",
-    dateFin: "7-02-2024" 
-  }
-]
 
 const col =[
   {
@@ -177,19 +72,59 @@ const col2 =[
 
 const DemandePage = ()=> {
 
-  const [selectedSort, setSelectedSort] = useState('ASC');
+  const [type, setType] = useState([]);
   const [valid, setValid] = useState([])
   const [attente, setAttente] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [currentPage2, setCurrentPage2] = useState(1)
   const rowsPerPage = 6 
+  const [activeTab, setActiveTab] = useState('$.0')
+  const [typeConge, setTypeConge] = useState()
+  const [dateDebut, setDateDebut] = useState('');
+  const [dateFin, setDateFin] = useState('');
+  const [openModal, setOpenModal] = useState(null);
+  const [idDM, setIdDM] = useState();
+
 
   useEffect(()=>{
     allValid()
     allAttente()
+    getType()
   }, [])
 
-  //Valide demande
+  const handleTypeSelect = (item) => {
+    setTypeConge(item);
+  };
+
+  //Ouvertur modal
+  const onOpen = (modalId) => {
+    setOpenModal(modalId);
+  };
+
+  //Fermeture modal
+  const onClose = () => {
+    setOpenModal(null);
+  };
+
+  // Fonction qui sera appelée lors du clic sur le bouton "Filtrer"
+  const handleFiltrer = () => {
+    filtreEmploye(typeConge, dateDebut, dateFin, activeTab);
+  };
+
+  const refresh = (val)=>{
+    if(val == '$.0'){
+      allValid()
+    } else {
+      allAttente()
+    }
+  }
+
+  const fullRefresh = ()=>{
+    allValid()
+    allAttente()
+  }
+
+  //Valide demande/////////////////////////////////
     const allValid = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/demandes/valid', {
@@ -219,9 +154,26 @@ const DemandePage = ()=> {
       const handlePageChange = (page) => {
         setCurrentPage(page)
       }
-  //
 
-  //Valide demande
+      //Recherche par nom
+      const searchValid = async (val) => {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/demandes/searchValid/${val}`, {
+              headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`
+              }
+          });
+
+          setValid(response.data.demande || []);
+
+        } catch (error) {
+            console.error('Erreur lors de la requête:', error.response?.data || error.message);
+            setValid([])
+        }
+      }; 
+  ///////////////////////////////////////////////
+
+  //Attente demande//////////////////////////////
     const allAttente = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/demandes/attente', {
@@ -243,7 +195,7 @@ const DemandePage = ()=> {
       const totalPages2 = Math.ceil(valid.length / rowsPerPage)
 
       //Diviser les donnes selon le nombre de page
-      const paginatedData2 = valid.slice(
+      const paginatedData2 = attente.slice(
         (currentPage2 - 1) * rowsPerPage, 
         currentPage2 * rowsPerPage
       ) 
@@ -251,7 +203,78 @@ const DemandePage = ()=> {
       const handlePageChange2 = (page) => {
         setCurrentPage2(page)
       }
-  //
+
+    //Recherche par nom
+    const searchAttente = async (val) => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/demandes/searchAttente/${val}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        setAttente(response.data.demande || []);
+
+      } catch (error) {
+          console.error('Erreur lors de la requête:', error.response?.data || error.message);
+          setAttente([])
+      }
+    }; 
+  /////////////////////////////////////////////
+
+  //Filtrage des donnees
+  const filtreEmploye = async (type = '', dateDebut = '', dateFin = '', active) => {
+    try {
+      
+      if (!type && !dateDebut && !dateFin) {
+        allAttente()
+        allValid()
+        return;
+      }
+  
+      // Construire la requête en fonction des filtres fournis
+      let query = ''
+      if(active == '$.0'){
+        query = `http://localhost:5000/api/demandes/validFiltre?`;
+      } else {
+        query = `http://localhost:5000/api/demandes/attenteFiltre?`;
+      }
+      
+  
+      if (type) {
+        query += `type=${encodeURIComponent(type)}&`;
+      }
+  
+      if (dateDebut && dateFin) {
+        query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(dateFin)}&`;
+      } else if (dateDebut) {
+        query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(dateDebut)}&`;
+      } else if (dateFin){
+        query += `dateDebut=${encodeURIComponent(dateFin)}&dateFin=${encodeURIComponent(dateFin)}&`;
+      }
+  
+      // Retirer le dernier "&" inutile
+      query = query.slice(0, -1);
+  
+      const response = await axios.get(query, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if(active == '$.0'){
+        setValid(response.data.demande || []);
+      } else {
+        setAttente(response.data.demande || []);
+      }
+  
+      
+    } catch (error) {
+      console.error('Erreur lors de la requête:', error.response?.data || error.message);
+      setValid([]);
+      setAttente([]);
+    }
+  };
 
   // Personnalisation des cellules
   const renderRow = (item)=>(
@@ -301,7 +324,7 @@ const DemandePage = ()=> {
       <td>
         <div className="flex items-center gap-4">
           <Tooltip content="Approuver" color="success" showArrow={true}>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-green-400/20">
+            <button onClick={()=>{ setIdDM(item.id); onOpen("AcceptModal") }} className="w-8 h-8 flex items-center justify-center rounded-full bg-green-400/20">
               <img src="/accept.png" alt="" width={25} height={25}/>
             </button>
           </Tooltip>
@@ -352,18 +375,19 @@ const DemandePage = ()=> {
       </td>
 
       <td className="hidden lg:table-cell ">
-        <Chip
+        {item.manager ? <Chip
           variant="flat"
           size="lg"
           avatar={
             <Avatar
               name={item.manager}
-              src="http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
+              src={`http://localhost:5000/${item.photoManager}`}
             />
           }
         >
           {item.manager}
-        </Chip>
+        </Chip> :
+        <Chip variant="flat" size='lg'>Admin</Chip>}
       </td>
 
       <td className="">
@@ -385,20 +409,30 @@ const DemandePage = ()=> {
     </tr>
   )
 
-  const handleSortClick = (sortType) => {
-    setSelectedSort(sortType);
-  };
+  //Type Conge
+  const getType = async ()=> {
+    try {
+
+      const response = await axios.get('http://localhost:5000/api/details/types');
+
+      setType(response.data.type)
+
+    } catch (error) {
+      console.error("Error listage departments:", error);
+      setType([])
+    }
+  }
 
   return (
     <div className="relative bg-white shadow-lg p-4 rounded-md flex-1 m-3 mt-0">
       {/* TOP */}
-      <Tabs aria-label="Options" className="m-0">
+      <Tabs aria-label="Options" className="m-0" selectedKey={activeTab} onSelectionChange={(key)=>{ setActiveTab(key); refresh(key) }}>
         
         <Tab title="Tout" className="text-md font-medium">
           <Card style={{boxShadow: "none"}}>
             <CardBody>
               <div className="h-[440px]">
-                <Table col={col2} render={renderRow2} data={valid} margin={0}/>
+                <Table col={col2} render={renderRow2} data={paginatedData} margin={0}/>
               </div>
               <div className="mt-2 flex justify-center">
                 <Pagination 
@@ -417,7 +451,7 @@ const DemandePage = ()=> {
           <Card style={{boxShadow: "none"}}>
             <CardBody>
               <div className="h-[440px]">
-                <Table col={col} render={renderRow} data={attente} margin={0}/>
+                <Table col={col} render={renderRow} data={paginatedData2} margin={0}/>
               </div>
               <div className="mt-2 flex justify-center">
               <Pagination 
@@ -438,7 +472,7 @@ const DemandePage = ()=> {
 
       <div className="absolute right-0 top-0 m-4">
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch/>
+          {activeTab == '$.0' ? <TableSearch search={searchValid} all={allValid}/> : <TableSearch search={searchAttente} all={allAttente}/>}
           <div className="flex items-center justify-center gap-4 self-end">
             
             {/* FILTER */}
@@ -452,7 +486,7 @@ const DemandePage = ()=> {
 
                 {/* Filtrage par date */}
                 <div className="flex flex-col gap-1">
-                  <h5 className="text-bleuspat font-medium">Filtrage par date</h5>
+                  <h5 className="text-bleuspat font-medium">Par date</h5>
                   <div className="flex items-center gap-1">
                     <span>Entre</span> 
                     <div className='relative border-2 p-2 rounded-xl focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-200'>
@@ -460,6 +494,8 @@ const DemandePage = ()=> {
                         type="date" 
                         className="block w-full text-gray-700 bg-transparent placeholder-gray-400 focus:outline-none" 
                         placeholder="jj-mm-aaaa" 
+                        value={dateDebut}
+                        onChange={(e) => setDateDebut(e.target.value)}
                       />
                     </div>
                     <span>et</span>
@@ -468,6 +504,8 @@ const DemandePage = ()=> {
                         type="date" 
                         className="block w-full text-gray-700 bg-transparent placeholder-gray-400 focus:outline-none" 
                         placeholder="jj-mm-aaaa" 
+                        value={dateFin}
+                        onChange={(e) => setDateFin(e.target.value)}
                       />
                     </div>
                   </div>
@@ -475,31 +513,22 @@ const DemandePage = ()=> {
 
                 {/* Filtrage par établissement */}
                 <div className="flex flex-col gap-1 w-full">
-                  <h5 className="text-bleuspat font-medium">Filtrer par établissement</h5>
+                  <h5 className="text-bleuspat font-medium">Par types de congés</h5>
                   <Autocomplete
                     variant="bordered"
-                    label="Etablissement"
-                    placeholder="Recherche de poste"
+                    label="Type de conges"
+                    placeholder="Recherche du type"
                     className="w-full font-semibold auto"
-                    defaultItems={etab}
+                    defaultItems={type}
+                    defaultSelectedKey={typeConge}
+                    onSelectionChange={handleTypeSelect}
                   >
                     {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
                   </Autocomplete>
                 </div>
 
-              </PopoverContent>
-            </Popover>
+                <Button variant="flat" className="w-full" color="primary" onPress={handleFiltrer}>Filtrer</Button>
 
-            {/* SORT */}
-            <Popover placement="bottom" showArrow={true} className="sort">
-              <PopoverTrigger>
-                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#829af8]">
-                  <img src="/sort.png" alt="" width={24} height={24}/>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="p-2 flex flex-col gap-2 w-[150px]">
-                <Button variant="flat" onClick={() => handleSortClick('ASC')} className="w-full" color={selectedSort === 'ASC' ? 'primary' : 'default'}>ASC</Button>
-                <Button variant="flat" onClick={() => handleSortClick('DESC')} className="w-full" color={selectedSort === 'DESC' ? 'primary' : 'default'}>DESC</Button>
               </PopoverContent>
             </Popover>
             
@@ -507,6 +536,9 @@ const DemandePage = ()=> {
         </div>
       </div>
 
+      <Modal isOpen={openModal == "AcceptModal"} onClose={onClose} size="sm">
+        <AcceptModal onClose={onClose} id={idDM} reload={fullRefresh}/>
+      </Modal>
 
     </div>
   )

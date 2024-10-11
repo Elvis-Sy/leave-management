@@ -14,6 +14,15 @@ export class DemandeService {
     async addDemande(demandeDto: AddDemandeDto){
         const { employeId, typeId, statutId, ...demande } = demandeDto;
 
+        const essai = await this.prisma.employes.findFirst({
+            where: {
+                idEmploye: employeId,
+                periodeEssai: true
+            }
+        })
+
+        if(essai) throw new Error('Vous êtes encore en pérode d\'essai.');
+
         const existingDemande = await this.prisma.demandesConges.findFirst({
             where: {
                 employeId: employeId,
@@ -24,7 +33,7 @@ export class DemandeService {
         });
 
         if (existingDemande) {
-            throw new Error('L\'employé a déjà une demande de congé en cours.');
+            throw new Error('Vous avez déjà une demande de congé en cours.');
         }
 
         await this.prisma.demandesConges.create({
@@ -120,6 +129,7 @@ export class DemandeService {
                         select: {
                             nom: true,
                             prenom: true,
+                            photoProfile: true
                         }
                     }
                   }
@@ -161,8 +171,9 @@ export class DemandeService {
             dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
             name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
             photo: demande.employe.photoProfile ? demande.employe.photoProfile : 'avatar.png',
+            photoManager: demande.employe.manager ? demande.employe.manager.photoProfile ? demande.employe.manager.photoProfile : 'avatar.png' : 'avatar.png',
             etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
-            manager: demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim(),
+            manager: demande.employe.manager ? demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim() : null,
             type: demande.type.designType,
             statut: demande.statuts.designStatut,
             nbrJrs: nbrJours,
@@ -330,5 +341,431 @@ export class DemandeService {
     
         return allMonths;
     }
+
+    async searchValid(val: string){
+        const demande = await this.prisma.demandesConges.findMany({
+            select: {
+                idDemande: true,
+                dateDebut: true,
+                dateFin: true,
+                dateConfirmation: true,
+                dateEnvoie: true,
+                employe: {
+                  select: {
+                    nom: true,
+                    prenom: true,
+                    photoProfile: true,
+                    etablissement: {
+                        select: {
+                            designEtablissement: true,
+                            section: true
+                        }
+                    },
+                    manager: {
+                        select: {
+                            nom: true,
+                            prenom: true,
+                            photoProfile: true
+                        }
+                    }
+                  }
+                },
+                statuts: {
+                    select: {
+                        designStatut: true
+                    }
+                },
+                type: {
+                    select: {
+                        designType: true
+                    }
+                }
+            },
+            where: {
+                employe: {
+                    OR: [
+                        { nom: { contains: val } },
+                        { prenom: { contains: val } }
+                    ]
+                },
+                statuts: {
+                    designStatut: {
+                        not: "En attente"
+                    }
+                }
+            }
+        })
+
+        
+
+        let nbrJours = 0;
+
+        demande.forEach(dm =>{
+            const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            nbrJours = diffDays;
+
+            delete dm.dateDebut;
+            delete dm.dateFin;
+        })
+
+        const dm = demande.map((demande) => ({
+            id: demande.idDemande,
+            dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+            dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
+            name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
+            photo: demande.employe.photoProfile ? demande.employe.photoProfile : 'avatar.png',
+            photoManager: demande.employe.manager.photoProfile ? demande.employe.manager.photoProfile : 'avatar.png',
+            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
+            manager: demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim(),
+            type: demande.type.designType,
+            statut: demande.statuts.designStatut,
+            nbrJrs: nbrJours,
+        }));
+
+        console.log(dm)
+
+        return dm;
+    }
+
+    async searchAttente(val: string){
+        const demande = await this.prisma.demandesConges.findMany({
+            select: {
+                idDemande: true,
+                dateDebut: true,
+                dateFin: true,
+                dateEnvoie: true,
+                employe: {
+                  select: {
+                    nom: true,
+                    prenom: true,
+                    photoProfile: true,
+                    etablissement: {
+                        select: {
+                            designEtablissement: true,
+                            section: true
+                        }
+                    }
+                  }
+                },
+                type: {
+                    select: {
+                        designType: true
+                    }
+                }
+            },
+            where: {
+                employe: {
+                    OR: [
+                        { nom: { contains: val } },
+                        { prenom: { contains: val } }
+                    ]
+                },
+                statuts: {
+                    designStatut: 'En attente'  // Filtre les demandes avec le statut "En attente"
+                }
+            }
+        })
+
+        let nbrJours = 0;
+
+        demande.forEach(dm =>{
+            const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            nbrJours = diffDays;
+        })
+
+        const dm = demande.map((demande, index) => ({
+            id: demande.idDemande,
+            dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+            name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
+            photo: demande.employe.photoProfile || 'avatar.png',
+            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
+            type: demande.type.designType,
+            nbrJrs: nbrJours,  // Nombre de jours
+            dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
+            dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR')  // Formater la date de fin
+        }));
+
+
+        return dm;
+    }
+
+    //Fitrage des donnees
+    async filtreValid(type: string | undefined, dateDebut: string | undefined, dateFin: string | undefined){
+        try {
+          
+          const whereClause: any = {};
+
+          whereClause.statuts = {
+            designStatut: {
+                not: "En attente"
+            }
+          }
+      
+          // Filtrer par type
+          if (type) {
+            whereClause.type = {
+              idType : parseInt(type)
+            };
+          }
+      
+          // Vérification et inversion si la dateDebut est après la dateFin
+          if (dateDebut && dateFin) {
+            const startDate = new Date(dateDebut);
+            const endDate = new Date(dateFin);
+      
+            if (startDate > endDate) {
+              // Inverser les dates si dateDebut est après dateFin
+              whereClause.dateEnvoie = {
+                gte: endDate,  
+                lte: startDate,
+              };
+            } else {
+              // Dates correctes, pas besoin d'inverser
+              whereClause.dateEnvoie = {
+                gte: startDate,
+                lte: endDate,
+              };
+            }
+          }
+      
+          // Requête Prisma avec les conditions dynamiques
+          const demande = await this.prisma.demandesConges.findMany({
+            where: whereClause,
+            select: {
+                idDemande: true,
+                dateDebut: true,
+                dateFin: true,
+                dateConfirmation: true,
+                dateEnvoie: true,
+                employe: {
+                  select: {
+                    nom: true,
+                    prenom: true,
+                    photoProfile: true,
+                    etablissement: {
+                        select: {
+                            designEtablissement: true,
+                            section: true
+                        }
+                    },
+                    manager: {
+                        select: {
+                            nom: true,
+                            prenom: true,
+                            photoProfile: true
+                        }
+                    }
+                  }
+                },
+                statuts: {
+                    select: {
+                        designStatut: true
+                    }
+                },
+                type: {
+                    select: {
+                        designType: true
+                    }
+                }
+            },
+          });
+  
+          let nbrJours = 0;
+
+          demande.forEach(dm =>{
+              const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              nbrJours = diffDays;
+  
+              delete dm.dateDebut;
+              delete dm.dateFin;
+          })
+  
+          const dm = demande.map((demande) => ({
+              id: demande.idDemande,
+              dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+              dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
+              name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
+              photo: demande.employe.photoProfile ? demande.employe.photoProfile : 'avatar.png',
+              photoManager: demande.employe.manager.photoProfile ? demande.employe.manager.photoProfile : 'avatar.png',
+              etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
+              manager: demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim(),
+              type: demande.type.designType,
+              statut: demande.statuts.designStatut,
+              nbrJrs: nbrJours,
+          }));
+      
+          return dm;
+        } catch (error) {
+          console.error('Erreur lors de la requête Prisma:', error);
+          throw error;
+        }
+      }
+
+      async filtreAttente(type: string | undefined, dateDebut: string | undefined, dateFin: string | undefined){
+        try {
+          
+          const whereClause: any = {};
+
+          whereClause.statuts = {
+            designStatut: 'En attente'
+          }
+      
+          // Filtrer par type
+          if (type) {
+            whereClause.type = {
+              idType : parseInt(type)
+            };
+          }
+      
+          // Vérification et inversion si la dateDebut est après la dateFin
+          if (dateDebut && dateFin) {
+            const startDate = new Date(dateDebut);
+            const endDate = new Date(dateFin);
+      
+            if (startDate > endDate) {
+              // Inverser les dates si dateDebut est après dateFin
+              whereClause.dateDebut = {
+                gte: endDate,  
+                lte: startDate,
+              };
+            } else {
+              // Dates correctes, pas besoin d'inverser
+              whereClause.dateDebut = {
+                gte: startDate,
+                lte: endDate,
+              };
+            }
+          }
+      
+          // Requête Prisma avec les conditions dynamiques
+          const demande = await this.prisma.demandesConges.findMany({
+            where: whereClause,
+            select: {
+                idDemande: true,
+                dateDebut: true,
+                dateFin: true,
+                dateEnvoie: true,
+                employe: {
+                  select: {
+                    nom: true,
+                    prenom: true,
+                    photoProfile: true,
+                    etablissement: {
+                        select: {
+                            designEtablissement: true,
+                            section: true
+                        }
+                    }
+                  }
+                },
+                type: {
+                    select: {
+                        designType: true
+                    }
+                }
+            },
+          });
+  
+          let nbrJours = 0;
+
+        demande.forEach(dm =>{
+            const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            nbrJours = diffDays;
+        })
+
+        const dm = demande.map((demande, index) => ({
+            id: demande.idDemande,
+            dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+            name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
+            photo: demande.employe.photoProfile || 'avatar.png',
+            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
+            type: demande.type.designType,
+            nbrJrs: nbrJours,  // Nombre de jours
+            dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
+            dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR')  // Formater la date de fin
+        }));
+      
+          return dm;
+        } catch (error) {
+          console.error('Erreur lors de la requête Prisma:', error);
+          throw error;
+        }
+      }
+
+      async acceptDM(idDemande: number, idEmploye?: string){
+        await this.prisma.demandesConges.update({
+            where: { idDemande },
+            data: {
+                statutId: 2,
+                dateConfirmation: new Date(),
+            },
+        });
+
+        if(idEmploye != 'null'){   
+            await this.prisma.historiquesActions.create({
+                data: {
+                ancienneValeur: 'En attente',
+                nouvelleValeur: 'Approuvée',
+                dateAction: new Date(),
+                niveau: 'Manager',
+                typeAction: 'Approbation', // Assuming "approve" is a valid enum value
+                userId: parseInt(idEmploye),
+                },
+            });
+        } else {
+            await this.prisma.historiquesActions.create({
+                data: {
+                ancienneValeur: 'En attente',
+                nouvelleValeur: 'Approuvée',
+                dateAction: new Date(),
+                niveau: 'Admin',
+                typeAction: 'Approbation',
+                },
+            });
+        }
+      }
+
+      async refusDM(idDemande: number, idEmploye?: string, motif: string){
+        if (!motif) {
+            throw new Error('Le refus doit avoir une raison');
+        }
+
+        await this.prisma.demandesConges.update({
+            where: { idDemande },
+            data: {
+            statutId: 3, 
+            dateConfirmation: new Date(),
+            },
+        });
+
+        if(idEmploye != 'null'){
+            await this.prisma.historiquesActions.create({
+                data: {
+                    ancienneValeur: 'En attente',
+                    nouvelleValeur: `Refusée - ${motif}`,
+                    dateAction: new Date(),
+                    niveau: 'Manager',
+                    typeAction: 'Refus',
+                    userId: parseInt(idEmploye),
+                },
+            });
+        } else {
+            await this.prisma.historiquesActions.create({
+                data: {
+                ancienneValeur: 'En attente',
+                nouvelleValeur: `Refusée - ${motif}`,
+                dateAction: new Date(),
+                niveau: 'Admin',
+                typeAction: 'Refus',
+                },
+            });
+        }
+      }
 
 }

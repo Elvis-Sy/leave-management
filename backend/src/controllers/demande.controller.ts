@@ -2,7 +2,7 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Controller, Get, Post, Param, Body, Patch, UseGuards, } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Patch, UseGuards, Query, } from '@nestjs/common';
 import { AddDemandeDto } from 'src/dto/demandeDto';
 import { DemandeService } from 'src/services/demande.service';
 import { JwtAuthGuard } from 'src/auth/authorization/auth.guard';
@@ -113,6 +113,102 @@ export class DemandeController {
             return{
                 message: "Erreur lors de l'affichage"
             }
+        }
+    }
+
+    @Get('searchValid/:val')
+    @Roles(Role.ADMIN)
+    async validSearch(@Param('val') val: string){
+        try {
+            const demandes = await this.demandeService.searchValid(val);
+            return {
+                message: `Demandes listés avec succès avec ${val}.`,
+                demande: demandes
+            };
+        } catch (error) {
+            console.error("Erreur lors du listage:", error);
+            return{
+                message: "Erreur lors du listage"
+            }
+        }
+    }
+
+    @Get('searchAttente/:val')
+    @Roles(Role.ADMIN)
+    async AttenteSearch(@Param('val') val: string){
+        try {
+            const demandes = await this.demandeService.searchAttente(val);
+            return {
+                message: `Demandes listés avec succès avec ${val}.`,
+                demande: demandes
+            };
+        } catch (error) {
+            console.error("Erreur lors du listage:", error);
+            return{
+                message: "Erreur lors du listage"
+            }
+        }
+    }
+
+    @Get('validFiltre')
+    @Roles(Role.ADMIN)
+    async filtreValid(
+        @Query('type') type?: string,
+        @Query('dateDebut') dateDebut?: string,
+        @Query('dateFin') dateFin?: string,
+    ) {
+        try {
+            const demande = await this.demandeService.filtreValid(type, dateDebut, dateFin);
+            return {
+                message: "Confirmation réalisée avec succès",
+                demande: demande
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @Get('attenteFiltre')
+    @Roles(Role.ADMIN)
+    async filtreAttente(
+        @Query('type') type?: string,
+        @Query('dateDebut') dateDebut?: string,
+        @Query('dateFin') dateFin?: string,
+    ) {
+        try {
+            const demande = await this.demandeService.filtreAttente(type, dateDebut, dateFin);
+            return {
+                message: "Confirmation réalisée avec succès",
+                demande: demande
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @Patch('accept')
+    @Roles(Role.ADMIN, Role.MANAGER)
+    async accept(@Query('idDM') id: string, @Query('idUser') idEmploye?: string){
+        try {
+            await this.demandeService.acceptDM(parseInt(id), idEmploye);
+            console.log(id, idEmploye)
+            return {
+                message: "Demande approuvee",
+            }
+        } catch (error) {
+            console.error('Erreur d\'approbation:', error);
+            return{
+                message: error.message
+            }
+            
         }
     }
 

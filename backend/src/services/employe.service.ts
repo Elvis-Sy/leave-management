@@ -288,8 +288,6 @@ export class EmployeService {
             idEtablissement : parseInt(etablissement)
           };
         }
-
-        console.log(etablissement)
     
         // Vérification et inversion si la dateDebut est après la dateFin
         if (dateDebut && dateFin) {

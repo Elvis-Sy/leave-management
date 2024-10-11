@@ -92,6 +92,7 @@ model DemandesConges {
   dateFin    DateTime
   dateEnvoie DateTime? @default(now())
   dateConfirmation DateTime?
+  motifRefus String @db.VarChar(500)
 
   employeId Int      
   employe   Employes @relation("UserDemande", fields: [employeId], references: [idEmploye])
@@ -141,8 +142,8 @@ model HistoriquesActions {
 
   typeAction Action 
 
-  userId Int
-  user   Employes @relation("HistoAction", fields: [userId], references: [idEmploye])
+  userId Int?
+  user   Employes? @relation("HistoAction", fields: [userId], references: [idEmploye])
 
   @@map("historiques_Actions")
 }

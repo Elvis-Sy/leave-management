@@ -231,7 +231,8 @@ export class EmployeController {
         
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN) //Admin
     @Get('filtre')
     async filtreEmp(
         @Query('etablissement') etablissement?: string,
@@ -253,7 +254,8 @@ export class EmployeController {
         }
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN) //Admin
     @Get('managerFiltre')
     async filtreMg(
         @Query('etablissement') etablissement?: string,

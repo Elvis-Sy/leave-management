@@ -228,12 +228,12 @@ const EmployePage = ()=> {
           {roles == "Admin" && (
             <div className="flex gap-4">
               <Tooltip content="Modifier" color="primary" showArrow={true}>
-                <button onClick={()=>{ onOpen("modifModal"); setId(item.id) }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
+                <button onClick={()=>{ setId(item.id); onOpen("modifModal") }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#829af8]">
                   <img src="/edit.png" alt="" width={20} height={20}/>
                 </button>
               </Tooltip>
               <Tooltip content="Supprimer" color="danger" showArrow={true}>
-                <button onClick={()=>{ onOpen("suppModal"); setId(item.id) }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
+                <button onClick={()=>{ setId(item.id); onOpen("suppModal") }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]">
                   <img src="/delete.png" alt="" width={20} height={20}/>
                 </button>
               </Tooltip>

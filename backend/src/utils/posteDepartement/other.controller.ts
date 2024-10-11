@@ -40,4 +40,20 @@ export class OtherController {
             }
         }
     }
+
+    @Get('types')
+    async getType(){
+        try {
+            const types = await this.otherService.typeConge()
+            return {
+                message: "Type liste avec succes",
+                type: types
+            }
+        } catch (error) {
+            return {
+                message: "Erreur lors du listage des types",
+                cause: error
+            }
+        }
+    }
  }

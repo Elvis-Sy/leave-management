@@ -45,4 +45,22 @@ export class OtherService {
 
         return postes
     }
+
+    async typeConge(){
+        const types = await this.prisma.typesConges.findMany({
+            select: {
+                idType: true,
+                designType: true
+            }
+        })
+
+        const type = types.map((item) =>{
+            return {
+                label: item.designType,
+                value: item.idType
+            }
+        })
+
+        return type
+    }
  }
