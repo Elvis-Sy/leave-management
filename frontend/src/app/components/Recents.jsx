@@ -1,4 +1,9 @@
+'use client'
+
 import {User} from "@nextui-org/react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+
 
 //Temporaire
 const manager = [
@@ -53,28 +58,44 @@ const manager = [
 
 ]
 
-const Recents = () => {
+const Recents = ({id}) => {
+    const [action, setAction] = useState([])
+
+    useEffect(()=>{
+        allAction(id)
+    }, [id])
+
+    //Recuperation des donnees
+    const allAction = async (id) => {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/employes/recents/${id}`, {
+              headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`
+              }
+          });
+          
+          setAction(response.data.recent)
+    
+        } catch (error) {
+            setAction([])
+            console.error('Erreur lors de la requête:', error.response?.data || error.message);
+        }
+    };
+
+
   return (
     <div className="bg-white shadow-lg p-4 rounded-md flex-1">
         <div className="w-full">
             <div className="flex items-center justify-start mb-4">
-                <h1 className="text-xl font-semibold">Activites recentes des managers</h1>
+                <h1 className="text-xl font-semibold">Activites recentes</h1>
             </div>
             <div className="flex flex-col gap-2">
-                {manager.map(m=>(
-                    <div key={m.id} className="flex justify-between items-center p-1 rounded-xl border-2 border-gray-100">
-                        <User   
-                            name={m.nom}
-                            description={m.description}
-                            avatarProps={{
-                                src: "http://localhost:5000/jenna-ortega-7680x4320-16936.jpg"
-                            }}
-                        />
+                {action.map(m=>(
+                    <div key={m.id} className="flex justify-between items-center p-2 rounded-md border-2 border-gray-100">
+                        <p>{m.Date}</p>
                         <div className="flex flex-col text-right mr-1">
-                            <p className="mt-2 text-gray-500 text-xs font-medium">Actions</p>
-                            <p className={`text-sm font-semibold ${m.poste == "Approuvee" ? "text-[#40c057]" : "text-[#fa5252]"}`}>{m.poste}</p>
+                            <p className={`text-sm font-semibold ${m.action == "Approbation" ? "text-[#40c057]" : "text-[#fa5252]"}`}>{m.action}</p>
                         </div>
-                        
                     </div>
                 ))}
             </div>

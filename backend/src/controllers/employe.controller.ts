@@ -308,5 +308,39 @@ export class EmployeController {
             }
         }
     }
+
+    @Get('supplementaire/:id')
+    @UseGuards(JwtAuthGuard)
+    async infoSupp(@Param('id') id: string){
+        try {
+            const supp = await this.employeService.supplementaire(parseInt(id))
+            return {
+                message: "Info supplementaire liste avec succes",
+                info: supp
+            }
+        } catch (error) {
+            return {
+                message: "Erreur lors du listage des infos",
+                cause: error
+            }
+        }
+    }
+
+    @Get('recents/:id')
+    @UseGuards(JwtAuthGuard)
+    async recentAction(@Param('id') id: string){
+        try {
+            const recent = await this.employeService.lastManagerAction(parseInt(id))
+            return {
+                message: "Derniere actions liste avec succes",
+                recent: recent
+            }
+        } catch (error) {
+            return {
+                message: "Erreur lors du listage des actions",
+                cause: error
+            }
+        }
+    }
     
  }

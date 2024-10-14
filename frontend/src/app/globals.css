@@ -121,29 +121,12 @@
 }
 
 .Bigcalendar .rbc-event{
-    border: none !important;
     color: black !important;
     width: 100% !important;
     font-size: 18px;
     margin: 10px 0;
 }
 
-.Bigcalendar .rbc-event:nth-child(1){
-    background-color: #06b5eb;
-}
-.Bigcalendar .rbc-event:nth-child(2){
-    background-color: #2f2792;
-}
-
-.Bigcalendar .rbc-event:nth-child(3){
-    background-color: #5d2c96;
-}
-.Bigcalendar .rbc-event:nth-child(4){
-    background-color: #f5c7f569;
-}
-.Bigcalendar .rbc-event:nth-child(5){
-    background-color: #02253069;
-}
 .Bigcalendar .rbc-event-label{
     color: white !important;
 }
@@ -193,15 +176,18 @@
 }
 
 .calendrier .rbc-row:nth-child(1) .rbc-event{
-    background-color: #228be6;
-}
-
-.calendrier .rbc-row:nth-child(2) .rbc-event{
     background-color: #829af8;
 }
 
+.calendrier .rbc-row:nth-child(2) .rbc-event{
+    background-color: #228be6;
+}
+
 .calendrier .rbc-month-row .rbc-event-content{
-    font-size: 10px;
+    font-size: 15px;
+    height: 26px;
+    display: flex;
+    align-items: center;
 }
 
 .calendrier .rbc-time-content{

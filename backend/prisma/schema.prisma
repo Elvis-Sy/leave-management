@@ -92,7 +92,7 @@ model DemandesConges {
   dateFin    DateTime
   dateEnvoie DateTime? @default(now())
   dateConfirmation DateTime?
-  motifRefus String @db.VarChar(500)
+  motifRefus String? @db.VarChar(500)
 
   employeId Int      
   employe   Employes @relation("UserDemande", fields: [employeId], references: [idEmploye])
@@ -152,7 +152,8 @@ model HistoriquesActions {
 model JourFerries {
   idJour      Int      @id @default(autoincrement())
   dateFeriee  DateTime
-  description String
+  label String
+  description String?
 
   conges DemandesConges[] @relation("DemandeJourFerie")
 

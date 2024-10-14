@@ -6,6 +6,8 @@ import { Modal, Popover, PopoverTrigger, PopoverContent,Tabs, Tab, Card, CardBod
 import TableSearch from '../../../components/TableSearch'
 import axios from "axios";
 import AcceptModal from '../../../modals/acceptModal'
+import RefuseModal from '../../../modals/refuseModal'
+
 
 const nbr = 9;
 
@@ -63,10 +65,6 @@ const col2 =[
   {
     header: "Statut",
     accessor: "statut", 
-  },
-  {
-    header: "Action",
-    accessor: "action"
   },
 ]
 
@@ -329,7 +327,7 @@ const DemandePage = ()=> {
             </button>
           </Tooltip>
           <Tooltip content="Refuser" color="danger" showArrow={true}>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]/20">
+            <button onClick={()=>{ setIdDM(item.id); onOpen("RefuseModal") }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]/20">
               <img src="/reject.png" alt="" width={20} height={20}/>
             </button>
           </Tooltip>
@@ -397,15 +395,6 @@ const DemandePage = ()=> {
         </div>
       </td>
 
-      <td>
-        <div className="flex items-center justify-center gap-4">
-          <Tooltip content="Infos" color="primary" showArrow={true}>
-            <button className="w-6 h-6 flex items-center justify-center rounded-full bg-bleuspat">
-              <img src="/info.png" alt="" width={17} height={17}/>
-            </button>
-          </Tooltip>
-        </div>
-      </td>
     </tr>
   )
 
@@ -538,6 +527,10 @@ const DemandePage = ()=> {
 
       <Modal isOpen={openModal == "AcceptModal"} onClose={onClose} size="sm">
         <AcceptModal onClose={onClose} id={idDM} reload={fullRefresh}/>
+      </Modal>
+      
+      <Modal isOpen={openModal == "RefuseModal"} onClose={onClose} size="sm">
+        <RefuseModal onClose={onClose} id={idDM} reload={fullRefresh}/>
       </Modal>
 
     </div>

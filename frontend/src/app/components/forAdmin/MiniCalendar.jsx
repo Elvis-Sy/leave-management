@@ -4,21 +4,39 @@ import { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import { Spinner, Tooltip } from "@nextui-org/react";
-
-const joursFeries = [
-  { date: new Date(2024, 0, 1), description: 'Jour de l\'An' },
-  { date: new Date(2024, 8, 13), description: 'Lany date eeeeeeeeeeeeeeee ohh yeee' },
-  { date: new Date(2024, 8, 15), description: 'Event 2' },
-  { date: new Date(2024, 8, 30), description: 'Event 3' },
-  { date: new Date(2024, 4, 8), description: 'Event 4' }
-];
+import axios from "axios";
 
 const CongeCalendar = () => {
   const [isClient, setIsClient] = useState(false);
+  const [joursFeries, setJoursFeries] = useState([]);
 
   useEffect(() => {
-    setIsClient(true); // S'assurer que le composant est rendu côté client
+    setIsClient(true);
+    allFerrier()
   }, []);
+
+  const allFerrier = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/ferrier/event', {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
+      const ferrie = response.data.ferrie;
+      const events = ferrie.map((ev)=>{
+        return {
+          date: new Date(ev.start),
+          description: ev.description,
+          title: ev.title
+        }
+      })
+      setJoursFeries(events)
+
+    } catch (error) {
+      setJoursFeries([])
+        console.error('Erreur lors de la requête:', error.response?.data || error.message);
+    }
+  };
 
   const tileContent = ({ date, view }) => {
     if (view === 'month') {
@@ -29,7 +47,7 @@ const CongeCalendar = () => {
           closeDelay={0}
           content={ holidayInfo ? (
               <div className="px-1 py-2">
-                <div className="text-small font-bold">{holidayInfo.date.toLocaleDateString('fr-FR')}</div>
+                <div className="text-small font-bold">{holidayInfo.title}</div>
                 <div className="text-tiny text-gray-600">{holidayInfo.description}</div>
               </div>
             ) : null

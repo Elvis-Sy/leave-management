@@ -2,7 +2,7 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Controller, Get, Post, Param, Body, Patch, UseGuards, Query, } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Patch, UseGuards, Query, Request, } from '@nestjs/common';
 import { AddDemandeDto } from 'src/dto/demandeDto';
 import { DemandeService } from 'src/services/demande.service';
 import { JwtAuthGuard } from 'src/auth/authorization/auth.guard';
@@ -199,12 +199,65 @@ export class DemandeController {
     async accept(@Query('idDM') id: string, @Query('idUser') idEmploye?: string){
         try {
             await this.demandeService.acceptDM(parseInt(id), idEmploye);
-            console.log(id, idEmploye)
             return {
                 message: "Demande approuvee",
             }
         } catch (error) {
             console.error('Erreur d\'approbation:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @Patch('refuse')
+    @Roles(Role.ADMIN, Role.MANAGER)
+    async refuse(@Body() motif, @Query('idDM') id: string, @Query('idUser') idEmploye?: string){
+        try {
+            const motifRefus = motif.motif;
+            await this.demandeService.refusDM(motifRefus, parseInt(id), idEmploye);
+            return {
+                message: "Demande refusee",
+            }
+        } catch (error) {
+            console.error('Erreur de refus:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @Get('event')
+    @Roles(Role.ADMIN)
+    async actif(){
+        try {
+            const demande = await this.demandeService.CongeEvent();
+            return {
+                message: "Conge actif réalisé avec succès",
+                demande: demande
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @Get('event/:id')
+    @Roles(Role.ADMIN)
+    async actifSub(@Param('id') id: string){
+        try {
+            const demande = await this.demandeService.CongeEventSub(parseInt(id));
+            return {
+                message: "Conge actif réalisé avec succès",
+                demande: demande
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
             return{
                 message: error.message
             }

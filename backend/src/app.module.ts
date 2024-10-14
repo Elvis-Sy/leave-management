@@ -1,3 +1,4 @@
+import { FerrierModule } from './modules/ferrier.module';
 import { OtherModule } from './utils/posteDepartement/other.module';
 import { MailerModule } from './utils/mailer/mailer.module';
 import { DemandeModule } from './modules/demande.module';
@@ -11,6 +12,7 @@ import { join } from 'path';
 
 @Module({
   imports: [
+    FerrierModule,
     OtherModule,
     MailerModule,
     DemandeModule,

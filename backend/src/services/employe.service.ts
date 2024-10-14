@@ -689,7 +689,61 @@ export class EmployeService {
 
       return information;
     }
-    
+
+    //Supplementaire
+    async supplementaire(idManager: number){
+      
+      const subordinatesCount = await this.prisma.employes.count({
+        where: {
+          idManager
+        },
+      });
+
+      // Récupérer le nombre total de demandes de congé en attente des subordonnés
+      const pendingRequestsCount = await this.prisma.demandesConges.count({
+        where: {
+          employe: {
+            idManager
+          },
+          statuts: {
+            designStatut: 'En attente',
+          },
+        },
+      });
+
+      return {
+        attente: pendingRequestsCount,
+        total: subordinatesCount
+      }
+    }
+
+    //10 Dernieres actions 
+    async lastManagerAction(userId: number){
+      const managerActions = await this.prisma.historiquesActions.findMany({
+        where: {
+          userId, // ID du manager dont on récupère les actions
+          niveau: 'Manager'
+        },
+        orderBy: {
+          dateAction: 'desc',
+        },
+        take: 10, // Limiter les résultats aux 10 dernières actions
+        select: {
+          idHistorique: true,
+          dateAction: true,  
+          typeAction: true, 
+        },
+      });
+
+      // Formatage des données pour correspondre à votre structure
+      const formattedActions = managerActions.map(action => ({
+        id: action.idHistorique,
+        Date: action.dateAction.toLocaleDateString('fr-FR'), // Formatage de la date
+        action: action.typeAction,  // Type d'action
+      }));
+
+      return formattedActions;
+    }
 
  }
 

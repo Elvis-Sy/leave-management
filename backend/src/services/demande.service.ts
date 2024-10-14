@@ -342,6 +342,7 @@ export class DemandeService {
         return allMonths;
     }
 
+    //Recherche
     async searchValid(val: string){
         const demande = await this.prisma.demandesConges.findMany({
             select: {
@@ -698,6 +699,7 @@ export class DemandeService {
         }
       }
 
+      //Accepter demande
       async acceptDM(idDemande: number, idEmploye?: string){
         await this.prisma.demandesConges.update({
             where: { idDemande },
@@ -731,7 +733,8 @@ export class DemandeService {
         }
       }
 
-      async refusDM(idDemande: number, idEmploye?: string, motif: string){
+      //Refuser demande
+      async refusDM(motif: string, idDemande: number, idEmploye?: string){
         if (!motif) {
             throw new Error('Le refus doit avoir une raison');
         }
@@ -741,6 +744,7 @@ export class DemandeService {
             data: {
             statutId: 3, 
             dateConfirmation: new Date(),
+            motifRefus: motif
             },
         });
 
@@ -766,6 +770,69 @@ export class DemandeService {
                 },
             });
         }
+      }
+
+      //Conge actif
+      async CongeEvent(){
+        const conges = await this.prisma.demandesConges.findMany({
+            where: {
+              statuts: {
+                designStatut: 'Approuvee', 
+              },
+              dateFin: {
+                gt: new Date(),
+              },
+            },
+            include: {
+              employe: {
+                select: {
+                  nom: true,
+                  prenom: true
+                },
+              },
+              type: {
+                select: {
+                  designType: true,
+                },
+              },
+            },
+          });
+
+        
+          return conges;
+      }
+
+      //Conge actif
+      async CongeEventSub(idManager: number){
+        const conges = await this.prisma.demandesConges.findMany({
+            where: {
+              employe: {
+                idManager
+              },
+              statuts: {
+                designStatut: 'Approuvee', 
+              },
+              dateFin: {
+                gt: new Date(),
+              },
+            },
+            include: {
+              employe: {
+                select: {
+                  nom: true,
+                  prenom: true
+                },
+              },
+              type: {
+                select: {
+                  designType: true,
+                },
+              },
+            },
+          });
+
+        
+          return conges;
       }
 
 }

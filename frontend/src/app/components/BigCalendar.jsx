@@ -1,7 +1,9 @@
-import {Calendar, momentLocalizer, Views} from 'react-big-calendar'
+import {Calendar, momentLocalizer} from 'react-big-calendar'
 import moment from 'moment' 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import 'moment/locale/fr';
+import axios from 'axios';
+import { Popover, PopoverTrigger, PopoverContent } from '@nextui-org/react';
 
 moment.locale('fr');
 
@@ -94,8 +96,41 @@ const events =[
     },
 ]
 
-const BigCalendar = () => {
+const BigCalendar = ({id}) => {
     const [currentDate, setCurrentDate] = useState(new Date())
+    const [actif, setActif] = useState([])
+
+    useEffect(()=>{
+      allConge(id)
+    }, [id])
+
+    //Prendre les donneesd des conges
+    const allConge = async (id) => {
+      try {
+      const response = await axios.get(`http://localhost:5000/api/demandes/event/${id}`, {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
+      const conges = response.data.demande;
+
+      const events = conges.map(conge => ({
+          title: conge.employe.prenom ? `${conge.employe.nom} ${conge.employe.prenom}` : conge.employe.nom,
+          type: conge.type.designType,  
+          allDay: false,             
+          start: new Date(conge.dateDebut), 
+          end: new Date(conge.dateFin),     
+      }));
+
+      console.log(events)
+
+      setActif(events)
+
+      } catch (error) {
+          setActif([])
+          console.error('Erreur lors de la requête:', error.response?.data || error.message);
+      }
+    };
 
     //Navigation
     const handleNavigate = (date) => {
@@ -104,48 +139,46 @@ const BigCalendar = () => {
 
     //Choix des couleur selon le type de conge
     const eventStyleGetter = (event) => {
-        let backgroundColor;
-        switch (event.type) {
-          case 'Réunion':
-            backgroundColor = 'lightblue';
-            break;
-          case 'Formation':
-            backgroundColor = 'lightgreen';
-            break;
-          case 'Déjeuner':
-            backgroundColor = 'lightcoral';
-            break;
-          default:
-            backgroundColor = 'lightgrey';
-        }
-        return {
-          style: {
-            backgroundColor,
-            borderRadius: '5px',
-            opacity: 0.8,
-            color: 'black',
-            border: 'none',
-            display: 'block',
-          },
-        };
+      let backgroundColor;
+      switch (event.type) {
+        case 'Paye':
+          backgroundColor = 'lightyellow';
+          break;
+        case 'Paternite':
+          backgroundColor = 'lightblue';
+          break;
+        case 'Maladie':
+          backgroundColor = 'lightcoral';
+          break;
+        case 'Maternite':
+          backgroundColor = 'lightsalmon';
+          break;
+        default:
+          backgroundColor = '#228be6';
+      }
+      return {
+        style: {
+          backgroundColor,
+          borderRadius: '5px',
+          opacity: 0.8,
+          color: 'black',
+          border: '1px solid gray',
+          display: 'block',
+        },
       };
+    };
 
-    //Lors du clique de la date elle-meme
-  const handleSelectDate = (date) => {
-    setSelectedDate(date);
-    alert(`Date sélectionnée: ${moment(date).format('DD MMMM YYYY')}`);
-  };
 
-  //Lors du clique des slots dans les +2 more
-  const handleExtraEvents = (events) => {
-    const eventDetails = events.map(event => `${event.title} - du ${moment(event.start).format('DD MMMM YYYY')} au ${moment(event.end-1).format('DD MMMM YYYY')}`).join('\n');
-    alert(`Événements supplémentaires :\n${eventDetails}`);
-  };
+  // //Lors du clique des slots dans les +2 more
+  // const handleExtraEvents = (events) => {
+  //   const eventDetails = events.map(event => `${event.title} - du ${moment(event.start).format('DD MMMM YYYY')} au ${moment(event.end-1).format('DD MMMM YYYY')}`).join('\n');
+  //   alert(`Événements supplémentaires :\n${eventDetails}`);
+  // };
 
   return (
     <Calendar
         localizer={localizer}
-        events={events}
+        events={actif}
         startAccessor="start"
         endAccessor="end"
         style={{height: "90%"}}
@@ -159,9 +192,16 @@ const BigCalendar = () => {
         components={{
             // toolbar: (props) => CustomToolbar(props),
             eventWrapper: ({ event, children }) => (
-              <div onClick={() => handleExtraEvents([event])}>
-                {children}
-              </div>
+              <Popover placement='top' showArrow={true} className='sort'>
+                  <PopoverTrigger>
+                    {children}
+                  </PopoverTrigger>
+                  <PopoverContent className='flex w-full flex-col justify-start gap-2 p-4 border border-gray-300'>
+                      <p className='w-full font-semibold text-gray-500'>Employe: <span className='text-black'>{event.title}</span></p>
+                      <p className='w-full text-gray-500 font-semibold'>Type: <span className='text-black'>Congé {event.type}</span></p>
+                      <p className='w-full text-gray-500 font-semibold'>Du <span className='text-black'>{moment(event.start).format('DD MMMM YYYY')}</span> au <span className='text-black'>{moment(event.end).format('DD MMMM YYYY')}</span></p>            
+                  </PopoverContent>
+              </Popover>
             ),
             eventContainerWrapper: ({ children, event }) => (
               <div onClick={() => handleExtraEvents(event.events || [event])}>
