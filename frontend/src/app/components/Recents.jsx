@@ -1,6 +1,5 @@
 'use client'
 
-import {User} from "@nextui-org/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 

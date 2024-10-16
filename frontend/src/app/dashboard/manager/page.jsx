@@ -215,20 +215,21 @@ const ManagerPage = ()=> {
               <PopoverContent className="p-4 flex flex-col gap-3">
 
                 {/* Filtrage par établissement */}
-                <div className="flex flex-col gap-1 w-full">
-                  <h5 className="text-bleuspat font-medium">Par établissement</h5>
-                  <Autocomplete
-                    variant="bordered"
-                    label="Etablissement"
-                    placeholder="Recherche de poste"
-                    className="w-full font-semibold auto"
-                    defaultItems={etab}
-                    defaultSelectedKey={etablissement}
-                    onSelectionChange={handleEtablissementSelect}
-                  >
-                    {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
-                  </Autocomplete>
-                </div>
+                <Autocomplete
+                  variant="bordered"
+                  label="Etablissement"
+                  placeholder="Recherche de poste"
+                  className="w-full font-semibold auto"
+                  items={etab}
+                  selectedKey={etablissement?.value}
+                  onSelectionChange={handleEtablissementSelect}
+                >
+                  {(item) => (
+                    <AutocompleteItem key={item.value} value={item.value}>
+                      {item.label}
+                    </AutocompleteItem>
+                  )}
+                </Autocomplete>
 
                 <Button variant="flat" className="w-full" color="primary" onPress={handleFiltrer}>Filtrer</Button>
 

@@ -219,7 +219,7 @@ const EmployePage = ()=> {
       <td>
         <div className="flex items-center gap-4">
           <Tooltip content="Inspecter" color="success" showArrow={true}>
-            <Link href={`/list/employes/${item.id}`}>
+            <Link href={`/dashboard/employe/${item.id}`}>
               <button className="w-8 h-8 flex items-center justify-center rounded-full bg-green-400">
                 <img src="/view.png" alt="" width={20} height={20} className="bg-transparent"/>
               </button>

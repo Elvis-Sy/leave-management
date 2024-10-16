@@ -14,6 +14,9 @@ export class DemandeService {
     async addDemande(demandeDto: AddDemandeDto){
         const { employeId, typeId, statutId, ...demande } = demandeDto;
 
+        const dateDebut = demande.dateDebut;
+        const dateFin = demande.dateFin;
+
         const essai = await this.prisma.employes.findFirst({
             where: {
                 idEmploye: employeId,
@@ -34,6 +37,25 @@ export class DemandeService {
 
         if (existingDemande) {
             throw new Error('Vous avez déjà une demande de congé en cours.');
+        }
+
+        const startDate = new Date(dateDebut);
+        const endDate = new Date(dateFin);
+        const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Ajouter 1 pour inclure le dernier jour
+
+        // Vérifier le solde de congés payés
+        const soldeConges = await this.prisma.soldesConges.findFirst({
+            where: {
+                idEmp: employeId,
+                type: {
+                    designType: 'Paye', // Vérifier uniquement pour le type de congé payé
+                },
+            },
+        });
+
+        if (!soldeConges || soldeConges.soldeTotal.toNumber() < diffDays) {
+            throw new Error('Le solde de congés payés est insuffisant pour cette demande.');
         }
 
         await this.prisma.demandesConges.create({

@@ -11,20 +11,20 @@ export class MailerService {
 
         // local pour les tests
         // const testAccount = await nodemailer.createTestAccount()
-        const transport = nodemailer.createTransport({
-            host: "localhost", // Par exemple, MailHog tourne souvent sur localhost
-            port: 1025,        // Le port de MailHog ou smtp4dev
-            ignoreTLS: false,
-            auth: null
-        });
-
         // const transport = nodemailer.createTransport({
-        //     service: 'gmail',
-        //     auth: {
-        //         user: 'andriamanantena48@gmail.com',  // Remplacez par votre email
-        //         pass: 'rdxvyqlvttexlzov',   // Remplacez par votre mot de passe ou un mot de passe d'application
-        //     },
+        //     host: "localhost", // Par exemple, MailHog tourne souvent sur localhost
+        //     port: 1025,        // Le port de MailHog ou smtp4dev
+        //     ignoreTLS: false,
+        //     auth: null
         // });
+
+        const transport = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'andriamanantena48@gmail.com',  // Remplacez par votre email
+                pass: 'rdxvyqlvttexlzov',   // Remplacez par votre mot de passe ou un mot de passe d'application
+            },
+        });
 
 
         return transport;

@@ -10,6 +10,7 @@ import { MailerService } from 'src/utils/mailer/mailer.service';
 import { JwtService } from '@nestjs/jwt';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class EmployeService { 
@@ -578,11 +579,11 @@ export class EmployeService {
     async setPassword(token: string, newPassword: string) {
       try {
         // verifier le token
-        const decoded = this.jwtService.decode(token); // using verify method from JwtService
+        const decoded = this.jwtService.decode(token);
         const { email } = decoded as { email: string };
   
         // verifier l'employe
-        const employeeAccount = await this.prisma.compte_Utilisateur.findUnique({ where: { email } });
+        const employeeAccount = await this.prisma.compte_Utilisateur.findUnique({ where: { email }, include: { utilisateur: true }, });
         if (!employeeAccount) throw new NotFoundException('Token invalid ou employe non existant');
         if(employeeAccount.password) throw new BadRequestException('Lien déjà utilisé !');
   
@@ -592,6 +593,40 @@ export class EmployeService {
           where: { email },
           data: { password: hashedpwd },
         });
+
+        //Récupérer tous les types de congés disponibles
+        const typesConges = await this.prisma.typesConges.findMany();
+
+        // Créer les soldes de congés pour chaque type de congé
+        const soldeCongesPromises = typesConges.map((type) => {
+          
+          const isMale = employeeAccount.utilisateur.sexe === 'M';
+          const isFemale = employeeAccount.utilisateur.sexe === 'F';
+
+          if (type.designType === 'Maternite' && isMale) {
+            // Ne pas créer de solde pour Maternité si l'employé est masculin
+            return Promise.resolve();
+          }
+
+          if (type.designType === 'Paternite' && isFemale) {
+            // Ne pas créer de solde pour Paternité si l'employé est féminin
+            return Promise.resolve();
+          }
+
+          // Créer le solde de congé s'il n'y a pas de restriction
+          return this.prisma.soldesConges.create({
+            data: {
+              soldeTotal: 0,
+              soldeUtilise: 0,
+              idEmp: employeeAccount.employeId,
+              idType: type.idType,
+            },
+          });
+        });
+
+        // Attendre que toutes les promesses de création des soldes se terminent
+        await Promise.all(soldeCongesPromises);
+
       } catch (err) {
         throw new BadRequestException('Token is invalid or expired');
       }
@@ -743,6 +778,112 @@ export class EmployeService {
       }));
 
       return formattedActions;
+    }
+
+    //Calcul des conges accumules
+    async ajouterCongesPourTousLesEmployes() {
+      // Récupérer tous les employés
+      const employes = await this.prisma.employes.findMany();
+  
+      for (const employe of employes) {
+          const { idEmploye, dateEmbauche, periodeEssai } = employe;
+
+          
+          if (periodeEssai) {
+            continue; // Passer à l'employé suivant si en période d'essai
+          }
+  
+          // Vérifier si le type de congé est "payé"
+          const typeConges = await this.prisma.soldesConges.findFirst({
+              where: {
+                  idEmp: idEmploye,
+                  type: {
+                      designType: 'Paye',
+                  },
+              },
+          });
+  
+          // Si le type de congé "payé" est trouvé
+          if (typeConges) {
+              
+              const dateEmbaucheObj = new Date(dateEmbauche);
+              const dateActuelle = new Date();
+  
+              // Calculer la différence en mois
+              const moisDiff = (dateActuelle.getFullYear() - dateEmbaucheObj.getFullYear()) * 12 + (dateActuelle.getMonth() - dateEmbaucheObj.getMonth());
+  
+              const joursAccumules = (moisDiff * 2.5).toFixed(1); // Arrondi à un chiffre après la virgule
+  
+              // Mettre à jour les soldes de congés dans la base de données
+              await this.prisma.soldesConges.update({
+                  where: {
+                      idEmp_idType: {
+                          idEmp: idEmploye,
+                          idType: typeConges.idType,
+                      },
+                  },
+                  data: {
+                      soldeTotal: parseFloat(joursAccumules), // Convertir en float
+                  },
+              });
+          }
+      }
+    }
+
+    //Reinitialiser les conges
+    async reinitialisation(){
+      const dateReinitialisation = new Date(new Date().getFullYear(), 0, 1); // 1er janvier de l'année actuelle
+
+      // Vérifier si la date actuelle est la date de réinitialisation
+      const dateActuelle = new Date();
+      if (
+          dateActuelle.getDate() === dateReinitialisation.getDate() &&
+          dateActuelle.getMonth() === dateReinitialisation.getMonth()
+      ) {
+          // Réinitialiser tous les soldes de congé payé à 0
+          await this.prisma.soldesConges.updateMany({
+              where: {
+                  type: {
+                      designType: 'Paye',
+                  },
+              },
+              data: {
+                  soldeTotal: 0,
+                  soldeUtilise: 0,
+              },
+          });
+      }
+    }
+
+    //Recuperation des soldes de conges
+    async SoldesConges(employeId: number) {
+      
+      const soldesConges = await this.prisma.soldesConges.findMany({
+        where: {
+          idEmp: employeId, // Filtrer par ID de l'employé
+        },
+        include: {
+          type: true, // Inclure les détails du type de congé
+        },
+      });
+
+      return soldesConges;
+    }
+
+
+
+    @Cron("0 0 1 * *") // Exécute le 1er jour de chaque mois
+    handleCron() {
+      this.ajouterCongesPourTousLesEmployes()
+        .then(() => console.log('Soldes de congé mis à jour'))
+        .catch((error) => console.error('Erreur lors de la mise à jour des soldes :', error));
+    }
+
+    @Cron('0 0 1 1 *') // Exécute le 1er janvier à minuit
+    handleReset() {
+      this.reinitialisation()
+        .then(() => console.log('Soldes de congé payé réinitialisés'))
+        .catch((error) => console.error('Erreur lors de la réinitialisation des soldes :', error));
     }
 
  }

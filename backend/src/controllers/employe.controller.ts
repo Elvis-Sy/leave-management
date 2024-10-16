@@ -342,5 +342,22 @@ export class EmployeController {
             }
         }
     }
+
+    @Get(':id/soldes')
+    @UseGuards(JwtAuthGuard)
+    async getSoldes(@Param('id') id: string) {
+        try {
+            const solde = await this.employeService.SoldesConges(parseInt(id))
+            return {
+                message: "Solde conge liste avec succes",
+                solde: solde
+            }
+        } catch (error) {
+            return {
+                message: "Erreur lors du listage des soldes",
+                cause: error
+            }
+        }
+    }
     
  }

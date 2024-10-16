@@ -14,7 +14,7 @@ const AdminPage = ()=> {
 
   useEffect(() => {
     infoCard()
-}, []);
+  }, []);
 
   //Prendre les donnes pour les cards
   const infoCard = async () => {

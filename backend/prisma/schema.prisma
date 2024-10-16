@@ -162,7 +162,7 @@ model JourFerries {
 
 //Solde de conge/////////////////////
 model SoldesConges {
-  soldeTotal   Int
+  soldeTotal   Decimal @db.Decimal(10, 1)
   soldeUtilise Int
 
   idEmp   Int
