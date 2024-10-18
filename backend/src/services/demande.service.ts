@@ -438,15 +438,13 @@ export class DemandeService {
             dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
             name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
             photo: demande.employe.photoProfile ? demande.employe.photoProfile : 'avatar.png',
-            photoManager: demande.employe.manager.photoProfile ? demande.employe.manager.photoProfile : 'avatar.png',
+            photoManager: demande.employe.manager ? demande.employe.manager.photoProfile ? demande.employe.manager.photoProfile : 'avatar.png' : 'avatar.png',
             etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
-            manager: demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim(),
+            manager: demande.employe.manager ? demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim() : null,
             type: demande.type.designType,
             statut: demande.statuts.designStatut,
             nbrJrs: nbrJours,
         }));
-
-        console.log(dm)
 
         return dm;
     }
@@ -613,9 +611,9 @@ export class DemandeService {
               dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
               name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
               photo: demande.employe.photoProfile ? demande.employe.photoProfile : 'avatar.png',
-              photoManager: demande.employe.manager.photoProfile ? demande.employe.manager.photoProfile : 'avatar.png',
+              photoManager: demande.employe.manager ? demande.employe.manager.photoProfile ? demande.employe.manager.photoProfile : 'avatar.png' : 'avatar.png',
               etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
-              manager: demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim(),
+              manager: demande.employe.manager ? demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim() : null,
               type: demande.type.designType,
               statut: demande.statuts.designStatut,
               nbrJrs: nbrJours,
@@ -855,6 +853,52 @@ export class DemandeService {
 
         
           return conges;
+      }
+
+      //Filtre conge
+      async filtreConge(etablissement: string | undefined){
+        try {
+          const whereClause: any = {};
+
+          whereClause.statuts = {
+            designStatut: 'Approuvee',
+          };
+
+          whereClause.dateFin = {
+            gt: new Date(),
+          };
+      
+          // Filtrer par établissement si fourni
+          if (etablissement) {
+            whereClause.employe = {
+              etablId : parseInt(etablissement)
+            };
+          }
+      
+          // Requête Prisma avec les conditions dynamiques
+          const conge = await this.prisma.demandesConges.findMany({
+            where: whereClause,
+            include: {
+                employe: {
+                  select: {
+                    nom: true,
+                    prenom: true
+                  },
+                },
+                type: {
+                  select: {
+                    designType: true,
+                  },
+                },
+              },
+          });
+  
+      
+          return conge;
+        } catch (error) {
+          console.error('Erreur lors de la requête Prisma:', error);
+          throw error;
+        }
       }
 
 }

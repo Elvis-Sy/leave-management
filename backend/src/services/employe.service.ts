@@ -537,10 +537,13 @@ export class EmployeService {
     }
 
     //Information personnelle
-    async personalInfo(idEmploye: number){
+    async personalInfo(email: string){
+
       const info = await this.prisma.employes.findFirst({
         where: {
-          idEmploye
+          compte: {
+            email
+          }
         },
         select: {
           nom: true,
@@ -560,16 +563,34 @@ export class EmployeService {
         }
       })
 
-      if (!info) {
-        throw new Error("Employé non trouvé"); // Ajoutez cette ligne
-    }
+      let personnalInfos = {};
 
-      const personnalInfos =  {
-        name: info.prenom ? `${info.nom} ${info.prenom}` : `${info.nom}`,
-        email: info.compte.email,
-        photo: info.photoProfile ? info.photoProfile : "avatar.png",
-        dernier: info.compte.derniereConnexion ? info.compte.derniereConnexion : null,
-        poste: info.poste.designPoste,
+      if (!info) {
+
+        const compte = await this.prisma.compte_Utilisateur.findUnique({
+          where: {
+            email
+          }
+        })
+
+        personnalInfos =  {
+          name: "Utilisateur",
+          email: compte.email,
+          photo: "avatar.png",
+          dernier: compte.derniereConnexion,
+          poste: null
+        }
+
+      } else {
+
+        personnalInfos =  {
+          name: info.prenom ? `${info.nom} ${info.prenom}` : `${info.nom}`,
+          email: info.compte.email,
+          photo: info.photoProfile ? info.photoProfile : "avatar.png",
+          dernier: info.compte.derniereConnexion ? info.compte.derniereConnexion : null,
+          poste: info.poste.designPoste,
+        }
+
       }
 
       return personnalInfos;
@@ -868,6 +889,24 @@ export class EmployeService {
       });
 
       return soldesConges;
+    }
+
+    //Deconnexion
+    async deconnex(email: string){
+
+      if(!email){
+        throw new NotFoundException("Aucun compte email associé !")
+      }
+
+      await this.prisma.compte_Utilisateur.update({
+        where: {
+          email
+        },
+        data: {
+          derniereConnexion: new Date()
+        }
+      })
+      
     }
 
 

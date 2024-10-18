@@ -41,7 +41,7 @@ export class EmployeController {
             employeDto.CIN = employeDto.CIN
             employeDto.idposte = Number(employeDto.idposte)
             employeDto.idEtablissement = Number(employeDto.idEtablissement)
-            employeDto.periodeEssai = Boolean(employeDto.periodeEssai)
+            employeDto.periodeEssai = employeDto.periodeEssai == '1' ? true : false;
             if(employeDto.dateEmbauche){
                 employeDto.dateEmbauche = new Date(employeDto.dateEmbauche)
             }
@@ -88,12 +88,12 @@ export class EmployeController {
             const parsedId = parseInt(id, 10);
             await this.employeService.deleteEmploye(parsedId);
             return {
-                message: 'Employé supprimé avec succès.'
+                message: 'Employé supprimé.'
             };
         } catch (error) {
             console.error('Erreur lors de la suppression:', error);
             return {
-                message: "erreur lors de la suppression"
+                message: "Erreur lors de la suppression"
             };
         }
     }
@@ -162,9 +162,11 @@ export class EmployeController {
             employeDto.CIN = employeDto.CIN
             employeDto.idposte = Number(employeDto.idposte)
             employeDto.idEtablissement = Number(employeDto.idEtablissement)
-            employeDto.periodeEssai = Boolean(employeDto.periodeEssai)
+            employeDto.periodeEssai = employeDto.periodeEssai == '1' ? true : false;
             if(employeDto.dateEmbauche){
                 employeDto.dateEmbauche = new Date(employeDto.dateEmbauche)
+            } else {
+                employeDto.dateEmbauche = null
             }
             if(employeDto.idManager){
                 employeDto.idManager = Number(employeDto.idManager)
@@ -185,26 +187,11 @@ export class EmployeController {
         }
     }
 
-    @Get('info/:id')
+    @Get('info/:email')
     @UseGuards(JwtAuthGuard)
-    async infoPerso(@Param('id') id: string){
+    async infoPerso(@Param('email') email: string){
         try {
-
-            if (!id || isNaN(parseInt(id))) {
-                // Si l'ID est null ou invalide, retourner un objet par défaut
-                return {
-                  message: 'Aucune information disponible',
-                  info: {
-                    name: "Utilisateur",
-                    email: null,
-                    photo: "avatar.png",
-                    dernier: null,
-                    poste: null
-                  }
-                };
-              }
-
-            const info = await this.employeService.personalInfo(parseInt(id));
+            const info = await this.employeService.personalInfo(email);
             return{
                 message: 'Votre information',
                 info: info
@@ -242,7 +229,7 @@ export class EmployeController {
         try {
             const employe = await this.employeService.filtreEmploye(etablissement, dateDebut, dateFin);
             return {
-                message: "Confirmation réalisée avec succès",
+                message: "Employe filtre",
                 employe: employe
             }
         } catch (error) {
@@ -263,7 +250,7 @@ export class EmployeController {
         try {
             const manager = await this.employeService.filtreManager(etablissement);
             return {
-                message: "Confirmation réalisée avec succès",
+                message: "Manager filter",
                 employe: manager
             }
         } catch (error) {
@@ -359,5 +346,23 @@ export class EmployeController {
             }
         }
     }
+
+    @Post('deconnex')
+    @UseGuards(JwtAuthGuard)
+    async deconnexion(@Body() email){
+        try {
+            const mail = email.email;
+            await this.employeService.deconnex(mail)
+            return {
+                message: "Deconnexion de l'utilisateur",
+            }
+        } catch (error) {
+            return {
+                message: "Erreur lors de la deconnexion",
+                cause: error
+            }
+        }
+    }
+
     
  }

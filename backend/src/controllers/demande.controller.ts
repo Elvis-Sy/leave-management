@@ -265,4 +265,24 @@ export class DemandeController {
         }
     }
 
+    @Get('congeFiltre')
+    @Roles(Role.ADMIN) //Admin
+    async filtreConge(
+        @Query('etablissement') etablissement?: string,
+    ) {
+        try {
+            const conge = await this.demandeService.filtreConge(etablissement);
+            return {
+                message: "Confirmation réalisée avec succès",
+                demande: conge
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
  }
