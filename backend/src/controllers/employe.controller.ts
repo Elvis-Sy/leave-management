@@ -285,7 +285,7 @@ export class EmployeController {
         try {
             const modif = await this.employeService.info(parseInt(id))
             return {
-                message: "Supperieur liste avec succes",
+                message: "Information pour la modification",
                 info: modif
             }
         } catch (error) {
@@ -364,5 +364,22 @@ export class EmployeController {
         }
     }
 
+    @Get('employe/:id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.EMPLOYE) //Admin
+    async personal(@Param('id') id: string){
+        try {
+            const info = await this.employeService.EmployeInfo(parseInt(id))
+            return {
+                message: "Information pour les employes",
+                info: info
+            }
+        } catch (error) {
+            return {
+                message: "Erreur lors du listage des infos",
+                cause: error
+            }
+        }
+    }
     
  }

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "target": "es5",
     "lib": [
       "dom",
       "dom.iterable",
@@ -7,27 +8,31 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "incremental": true,
-    "module": "esnext",
     "esModuleInterop": true,
+    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "incremental": true,
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": [
     "next-env.d.ts",
-    ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "src/app/dashboard/layout.jsx"  ],
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+, "components/sidebar/sidebar-item.jsx", "components/sidebar/collapse-items.jsx", "components/sidebar/companies-dropdown.jsx", "components/sidebar/sidebar-menu.jsx", "components/sidebar/sidebar.styles.ts", "components/sidebar/sidebar.jsx", "components/navbar/burguer-button.jsx", "components/navbar/darkmodeswitch.jsx", "components/navbar/navbar.jsx", "components/navbar/notifications-dropdown.jsx", "components/navbar/user-dropdown.jsx", "components/home/demandeCard.jsx", "components/home/card-balance2.jsx", "components/home/card-balance3.jsx", "components/home/content.jsx", "components/charts/tauxChart.jsx", "components/auth/authLayout.jsx", "components/auth/login.jsx", "components/table/render-cell.jsx", "components/table/table.jsx", "components/accounts/index.jsx", "app/(app)/page.tsx", "app/(app)/(admin)/managers/page.tsx", "components/auth/register.jsx"  ],
   "exclude": [
     "node_modules"
   ]

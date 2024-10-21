@@ -229,7 +229,7 @@ export class DemandeController {
         }
     }
 
-    @Get('event')
+    @Get('events')
     @Roles(Role.ADMIN)
     async actif(){
         try {
@@ -253,7 +253,25 @@ export class DemandeController {
         try {
             const demande = await this.demandeService.CongeEventSub(parseInt(id));
             return {
-                message: "Conge actif réalisé avec succès",
+                message: "Conge actif listé avec succès",
+                demande: demande
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @Get('event/:id/employe')
+    @Roles(Role.EMPLOYE) //Employe
+    async actifSubEmp(@Param('id') id: string){
+        try {
+            const demande = await this.demandeService.CongeEventEmp(parseInt(id));
+            return {
+                message: "Conge actif listé avec succès",
                 demande: demande
             }
         } catch (error) {
@@ -274,6 +292,24 @@ export class DemandeController {
             const conge = await this.demandeService.filtreConge(etablissement);
             return {
                 message: "Confirmation réalisée avec succès",
+                demande: conge
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @Get('lastDemande/:id')
+    @Roles(Role.EMPLOYE) //Admin
+    async derniereDemande(@Param('id') id: string) {
+        try {
+            const conge = await this.demandeService.lastDemande(parseInt(id));
+            return {
+                message: "Dernière demande réalisée avec succès",
                 demande: conge
             }
         } catch (error) {

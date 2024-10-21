@@ -2,7 +2,7 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AddDemandeDto } from 'src/dto/demandeDto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -822,7 +822,21 @@ export class DemandeService {
           return conges;
       }
 
-      //Conge actif
+      //Conge actif coté employe
+      async CongeEventEmp(idEmploye: number){
+        const emp = await this.prisma.employes.findUnique({ where: {idEmploye} });
+
+        if(!emp) throw new NotFoundException("Employe non trouvé !")
+
+        if(emp.idManager){
+          return this.CongeEventSub(emp.idManager);
+        } else {
+          return []
+        }
+
+      }
+
+      //Conge actif coté manager
       async CongeEventSub(idManager: number){
         const conges = await this.prisma.demandesConges.findMany({
             where: {
@@ -899,6 +913,48 @@ export class DemandeService {
           console.error('Erreur lors de la requête Prisma:', error);
           throw error;
         }
+      }
+
+      //Derniere demande de conge
+      async lastDemande(employeId: number){
+        const derniereDemande = await this.prisma.demandesConges.findFirst({
+          where: {
+            employeId
+          },
+          orderBy: {
+            idDemande: 'desc',  // Trie par la clé primaire pour obtenir la demande la plus récente
+          },
+          include: {
+            statuts: {
+              select: {
+                designStatut: true
+              }
+            },
+            type:{
+              select: {
+                designType: true
+              }
+            },   
+          },
+        });
+
+        let demandeAvecNombreJours = null;
+        if (derniereDemande) {
+          const dateDebut = new Date(derniereDemande.dateDebut).getTime();
+          const dateFin = new Date(derniereDemande.dateFin).getTime();
+        
+          // Calcul du nombre de jours
+          const nombreJours = Math.ceil((dateFin - dateDebut + 76400) / (1000 * 60 * 60 * 24));
+        
+          // Ajouter l'attribut calculé à l'objet de la demande
+          demandeAvecNombreJours = {
+            ...derniereDemande,
+            nombreJours: nombreJours,
+          };
+
+      }
+
+        return demandeAvecNombreJours
       }
 
 }

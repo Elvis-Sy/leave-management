@@ -878,17 +878,75 @@ export class EmployeService {
 
     //Recuperation des soldes de conges
     async SoldesConges(employeId: number) {
+
+      const currentDate = new Date();
       
-      const soldesConges = await this.prisma.soldesConges.findMany({
+      const leaveData = await this.prisma.typesConges.findMany({
         where: {
-          idEmp: employeId, // Filtrer par ID de l'employé
+          solde: {
+            some: {
+              idEmp: employeId,
+            },
+          },
         },
-        include: {
-          type: true, // Inclure les détails du type de congé
+        select: {
+          designType: true,
+          solde: {
+            where: {
+              idEmp: employeId, // Filtrer les soldes pour cet employé
+            },
+            select: {
+              soldeTotal: true,
+              soldeUtilise: true,
+            },
+          },
+          demandes: {
+            where: {
+              employeId, // Filtrer par l'ID de l'employé
+              dateDebut: {
+                lte: currentDate, // Date de début <= jour actuel
+              },
+              dateFin: {
+                gte: currentDate, // Date de fin >= jour actuel
+              },
+            },
+            select: {
+              dateDebut: true,
+              dateFin: true,
+            },
+          },
         },
       });
+      
+      const formattedLeaveData = leaveData.map(leave => {
+        // Calculer le nombre total de jours de congé (dateFin - dateDebut)
+        const totalDays = leave.demandes.reduce((total, conge) => {
+          const dateDebutTime = new Date(conge.dateDebut).getTime();
+          const dateFinTime = new Date(conge.dateFin).getTime();
+          const daysDiff = Math.ceil((dateFinTime - dateDebutTime + 76400) / (1000 * 60 * 60 * 24)); // Différence en jours
+          return total + daysDiff;
+        }, 0);
+      
+        // Calculer le nombre de jours utilisés jusqu'à aujourd'hui
+        const usedDays = leave.demandes.reduce((total, conge) => {
+          const dateDebutTime = new Date(conge.dateDebut).getTime();
+          const currentTime = currentDate.getTime();
+          const dateFinTime = new Date(conge.dateFin).getTime();
+      
+          const daysDiff = Math.ceil((Math.min(currentTime, dateFinTime) - dateDebutTime) / (1000 * 60 * 60 * 24)); // Différence en jours
+          return total + Math.max(0, daysDiff); // Éviter les valeurs négatives si congé pas encore commencé
+        }, 0);
+      
+        return {
+          type: leave.designType, // Le type de congé (Payés, Maladie, etc.)
+          total: totalDays, // Le total de jours pour ce type de congé
+          accumulated: leave.solde[0]?.soldeTotal || 0, // Nombre total de jours accumulés
+          used: usedDays, // Nombre de jours utilisés
+        };
+      });
 
-      return soldesConges;
+      return formattedLeaveData
+
     }
 
     //Deconnexion
@@ -907,6 +965,37 @@ export class EmployeService {
         }
       })
       
+    }
+
+    //Information coté employé
+    async EmployeInfo(idEmploye: number){
+      const first = await this.info(idEmploye);
+      const seconde = await this.prisma.soldesConges.findUnique({
+        where: {
+          idEmp_idType: {
+            idEmp: idEmploye,
+            idType: 1
+          },
+        },
+        select: {
+          soldeTotal: true
+        }
+      })
+
+      if(!seconde) throw new NotFoundException("Aucun solde retrouvé !")
+
+      return {
+        nom: first.nom,
+        prenom: first.prenom,
+        CIN: first.CIN,
+        email: first.email,
+        manager: first.manager,
+        dateEmbauche: first.dateEmbauche,
+        etablissement: first.etablissement,
+        poste: first.poste,
+        solde: seconde.soldeTotal,
+        photo: first.photo
+      }
     }
 
 

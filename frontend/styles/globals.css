@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+
+/*Mini calendrier dashboard*/
+.react-calendar {
+  border: none !important;
+  width: 100% !important;
+  --tw-bg-opacity: 1 !important;
+  background-color: hsl(var(--nextui-default-50) / var(--nextui-default-50-opacity, var(--tw-bg-opacity))) !important;
+}
+.react-calendar__navigation button {
+  font-weight: bold;
+  border-radius: 10px;
+}
+.react-calendar__navigation__label {
+  pointer-events: none !important;  
+  cursor: default !important;     
+  color: inherit !important;   
+}
+.react-calendar__tile{
+  border-radius: 10px;
+}
+.react-calendar__tile:hover{
+  color: black !important;
+}
+.react-calendar__tile--now {
+  border: 2px solid #1d71b8 !important;
+  background-color: transparent !important;
+  font-weight: 600 !important;
+}
+.react-calendar__tile--active {
+  background-color: transparent !important;
+  color: black !important;
+}
+
+
+/*Tendance charts*/
+.tendance .recharts-default-legend{
+  @apply text-xs !important
+}
+.tandance .recharts-legend-item .recharts-surface{
+  @apply w-3 h-3 !important 
+}
+
+
+/*Input login*/
+.login.group[data-focus="true"] .group-data-\[focus\=true\]\:border-default-foreground {
+  --tw-border-opacity: 1;
+  border-color: #bbcafc !important;
+}
+
+
+/*Big calendar*/
+.Bigcalendar .rbc-btn-group:last-child{
+  display: none !important; 
+}
+.rbc-calendar{
+  margin-top: 15px !important;
+}
+.Bigcalendar .rbc-header.rbc-today{
+  background-color: hsl(var(--nextui-default-100) / var(--nextui-default-50-opacity, var(--tw-bg-opacity))) !important;
+}
+.Bigcalendar .rbc-toolbar-label{
+  text-align: right !important;
+  padding: 0px 20px !important;
+  color: gray;
+}
+.Bigcalendar .rbc-btn-group:first-child{
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+.Bigcalendar .rbc-btn-group:first-child button{
+  border: none !important;
+  background-color: #f1f0ff !important;
+  margin-left: 2px !important;
+}
+.Bigcalendar .rbc-toolbar button.rbc-active{
+  background-color: #dbdafe !important;
+  box-shadow: none !important;
+}
+.Bigcalendar .rbc-time-view{
+  border-color: #eee !important;
+}
+.Bigcalendar .rbc-time-content{
+  display: none !important;
+  border: none !important;
+}
+.Bigcalendar .rbc-time-header{
+  flex: 1;
+}
+.Bigcalendar .rbc-time-gutter.rbc-time-column{
+  font-size: 12px !important;
+}
+.Bigcalendar .rbc-time-gutter.rbc-time-column .rbc-timeslot-group{
+  padding:  0px 20px !important;
+}
+
+.Bigcalendar .rbc-timeslot-group{
+  background-color: #f7fdff !important;
+}
+.Bigcalendar .rbc-day-slot{
+  font-size: 14px !important;
+}
+.Bigcalendar .rbc-event{
+  color: black !important;
+  width: 100% !important;
+  font-size: 18px;
+  margin: 10px 0;
+}
+.Bigcalendar .rbc-event-label{
+  color: white !important;
+}
+.Bigcalendar .rbc-time-header-content .rbc-allday-cell .rbc-day-bg{
+  background-color: hsl(var(--nextui-default-100) / var(--nextui-default-100-opacity, var(--tw-bg-opacity))) !important;
+}
+
+
+/*Autocomplete*/
+.auto.group .group[data-focus="true"] .group-data-\[focus\=true\]\:border-default-foreground {
+  --tw-border-opacity: 1;
+  border-color: #bbcafc !important;
+}
+
+
+/*Arrow popover*/
+.sort.before\:bg-content1::before {
+  content: var(--tw-content);
+  --tw-bg-opacity: 1;
+  background-color: #1d71b8 !important;
+  right: 0 !important;
+} 
+.sortE.before\:bg-content1::before {
+  content: var(--tw-content);
+  --tw-bg-opacity: 1;
+  background-color: #1d71b8 !important;
+  right: 0 !important;
+} 
+.sortE.data-\[placement\=bottom\]\:before\:left-1\/2[data-placement="bottom"]::before {
+  content: var(--tw-content);
+  left: 50% !important;
+}
+.sort.data-\[placement\=bottom\]\:before\:left-1\/2[data-placement="bottom"]::before {
+  content: var(--tw-content);
+  left: 68% !important;
+}
+.filter.before\:bg-content1::before {
+  content: var(--tw-content);
+  --tw-bg-opacity: 1;
+  background-color: #1d71b8 !important;
+} 
+.filter.data-\[placement\=left\]\:before\:top-1\/2[data-placement="left"]::before {
+  content: var(--tw-content);
+  top: 40%;
+}
+.filter2.before\:bg-content1::before {
+  content: var(--tw-content);
+  --tw-bg-opacity: 1;
+  background-color: #1d71b8 !important;
+} 
+.filter2.data-\[placement\=left\]\:before\:top-1\/2[data-placement="left"]::before {
+  content: var(--tw-content);
+  top: 50%;
+}
+
+
+/*Calendrier ferries*/
+.calendrier .rbc-month-row .rbc-row-bg .rbc-today{
+  background-color: hsl(var(--nextui-default-300) / var(--nextui-default-50-opacity, var(--tw-bg-opacity))) !important;
+}
+.calendrier .rbc-show-more {
+  background-color: transparent !important;
+  text-align: right !important;
+  width: 100% !important;
+  margin-right: 5px !important;
+}
+.rbc-overlay {
+  background-color: hsl(var(--nextui-default-100) ) !important;
+  border-radius: 10px !important;
+}
+.calendrier .rbc-month-row .rbc-row-bg .rbc-day-bg:hover {
+  background-color: hsl(var(--nextui-default-200) / var(--nextui-default-200-opacity, var(--tw-bg-opacity))) !important;
+  cursor: pointer !important;
+}
+.calendrier .rbc-btn-group:first-child button{
+  border: none !important;
+  background-color: #1d72b8b0 !important;
+  color: white;
+  margin-left: 2px !important;
+}
+.calendrier .rbc-btn-group button.btn-actif{
+  background-color: #1d71b8 !important;
+}
+.calendrier .rbc-month-row .rbc-event-content{
+  font-size: 15px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+}
+.calendrier .rbc-row .rbc-event{
+  background-color: #228be6 !important;
+}
+
+/*Calendrier conge*/
+.conge .rbc-time-content{
+  display: none;
+}
+.conge .rbc-time-header{
+  flex: 1;
+  color: (lightblue)#add8e6 (lightcoral)#f08080 (lightsalmon)#ffa07a (lightyellow)#ffffe0;
+}
+.conge .rbc-today{
+  background-color: hsl(var(--nextui-default-200) / var(--nextui-default-200-opacity, var(--tw-bg-opacity))) !important;;
+}
+.conge .rbc-btn-group:first-child button{
+  border: none !important;
+  background-color: #1d72b8b0 !important;
+  color: white;
+  margin-left: 2px !important;
+}
+.conge .rbc-btn-group button.btn-actif{
+  background-color: #1d71b8 !important;
+}
+.conge .rbc-time-header-content .rbc-allday-cell .rbc-day-bg{
+  background-color: hsl(var(--nextui-default-100) / var(--nextui-default-100-opacity, var(--tw-bg-opacity))) !important;
+}
+
+.conge .rbc-time-header-content .rbc-allday-cell .rbc-row-content{
+  margin: 10px;
+}
+
+.conge .rbc-time-header-content .rbc-allday-cell .rbc-row-content .rbc-event{
+  margin: 5px 0;
+}
