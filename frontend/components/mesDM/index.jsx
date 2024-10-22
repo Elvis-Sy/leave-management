@@ -178,7 +178,7 @@ const MesDemandes = () => {
                         <label className={`block dark:text-white ${errors.dateDebut ? 'text-[#f31260]' : 'text-black'} text-sm mb-1 font-semibold`}>
                             Date de debut <span className="text-red-500 text-sm">*</span>
                         </label>
-                        <div className={`group relative border-1 p-2 rounded-xl ${errors.dateDebut ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300/50'}`}>
+                        <div className={`group relative border-2 p-2 rounded-xl ${errors.dateDebut ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300/50'}`}>
                             <input 
                             type="date" 
                             value={formattedStartDate} 
@@ -197,7 +197,7 @@ const MesDemandes = () => {
                         <label className={`block dark:text-white ${errors.dateFin ? 'text-[#f31260]' : 'text-black'} text-sm mb-1 font-semibold`}>
                             Date de fin <span className="text-red-500 text-sm">*</span>
                         </label>
-                        <div className={`group relative border-1 p-2 rounded-xl ${errors.dateFin ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300/50'}`}>
+                        <div className={`group relative border-2 p-2 rounded-xl ${errors.dateFin ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300/50'}`}>
                             <input 
                             type="date" 
                             value={formattedEndDate}

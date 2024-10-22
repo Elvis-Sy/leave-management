@@ -26,14 +26,12 @@ const DeconnexionModal = () => {
             if(response.data.cause){
                 alert('Aucun compte associé !')
             } else {
-                localStorage.removeItem('token');
-
-                localStorage.removeItem('role'); 
-
-                localStorage.removeItem('id')
-
                 // Rediriger a la page de login
-                router.push('/login'); 
+                router.push('/login');
+
+                localStorage.removeItem('token');
+                localStorage.removeItem('role'); 
+                localStorage.removeItem('id')
 
                 console.log('Deconnexion')
             } 
