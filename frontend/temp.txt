@@ -1,0 +1,214 @@
+import React, { useState } from 'react';
+import { DateRange } from 'react-date-range';
+import 'react-date-range/dist/styles.css'; 
+import 'react-date-range/dist/theme/default.css';
+import { format } from 'date-fns';
+
+
+$2b$10$Y/RvTdHDv8vHj7ARW6TXCeQKoX879lI83TzKpaKejoauPs7eXZD3O
+
+  const [state, setState] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: 'selection'
+    }
+  ]);
+
+  const formattedStartDate = format(state[0].startDate, 'dd-MM-yyyy');
+  const formattedEndDate = format(state[0].endDate, 'dd-MM-yyyy'); 
+
+
+
+
+   
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '50px' }}>
+            <DateRange
+              editableDateInputs={false}
+              onChange={item => setState([item.selection])}
+              moveRangeOnFirstSelection={false}
+              ranges={state}
+              months={2}
+              direction="horizontal"
+              showDateDisplay={false}
+              rangeColors={['#64748b']}
+            />
+
+            {/* Affichage des dates formatées */}
+            <div style={{ marginTop: '20px' }}>
+              <div>
+                <label>Date de début :</label>
+                <input type="text" value={formattedStartDate} readOnly style={{ marginLeft: '10px', padding: '5px' }} />
+              </div>
+              <div style={{ marginTop: '10px' }}>
+                <label>Date de fin :</label>
+                <input type="text" value={formattedEndDate} readOnly style={{ marginLeft: '10px', padding: '5px' }} />
+              </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+"use client"
+
+import React, { useState } from 'react';
+import { DateRange } from 'react-date-range';
+import { format } from 'date-fns';
+import 'react-date-range/dist/styles.css'; 
+import 'react-date-range/dist/theme/default.css'; 
+
+const DateRangeSelector = () => {
+  const [state, setState] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: 'selection'
+    }
+  ]);
+
+  const formattedStartDate = format(state[0].startDate, 'dd-MM-yyyy');
+  const formattedEndDate = format(state[0].endDate, 'dd-MM-yyyy');
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '50px' }}>
+      <div style={{ width: '400px', height: '300px' }}> {/* Dimensions personnalisées */}
+        <DateRange
+          editableDateInputs={false}
+          onChange={item => setState([item.selection])}
+          moveRangeOnFirstSelection={false}
+          ranges={state}
+          months={1}
+          direction="horizontal"
+          rangeColors={['#64748b']}
+          showDateDisplay={false}
+        />
+      </div>
+
+      {/* Affichage des dates formatées */}
+      <div style={{ marginTop: '20px' }}>
+        <div>
+          <label>Date de début :</label>
+          <input type="text" value={formattedStartDate} readOnly style={{ marginLeft: '10px', padding: '5px' }} />
+        </div>
+        <div style={{ marginTop: '10px' }}>
+          <label>Date de fin :</label>
+          <input type="text" value={formattedEndDate} readOnly style={{ marginLeft: '10px', padding: '5px' }} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DateRangeSelector;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"use client"
+import { useState } from 'react';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'moment/locale/fr';
+
+moment.locale('fr'); // Changer la langue en français
+const localizer = momentLocalizer(moment);
+
+// Exemple d'événements
+const events = [
+  // {
+  //   title: 'Long Event',
+  //   start: new Date(2024, 8, 1),
+  //   end: new Date(2024, 8, 3),
+  //   allDay: true,
+  // },
+  // {
+  //   title: 'Meeting',
+  //   start: new Date(2024, 8, 6),
+  //   end: new Date(2024, 8, 6),
+  //   allDay: false,
+  // },
+];
+
+const MyBigCalendar = () => {
+
+  const [currentView, setCurrentView] = useState('month'); // Gestion de la vue actuelle
+  const [currentDate, setCurrentDate] = useState(new Date()); // Gestion de la date actuelle
+
+  const handleNavigate = (date) => {
+    setCurrentDate(date);
+  };
+
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+  };
+
+  const CustomToolbar = (props) => {
+
+    return (
+      <div className="rbc-toolbar">
+        <span className="rbc-btn-group">
+          <button type="button" onClick={goToBack}>Précédent</button>
+          <button type="button" onClick={goToCurrent}>Aujourd'hui</button>
+          <button type="button" onClick={goToNext}>Suivant</button>
+        </span>
+        <span className="rbc-toolbar-label">{props.label}</span>
+        <span className="rbc-btn-group">
+          <button type="button" onClick={() => handleViewChange('month')}>Mois</button>
+          <button type="button" onClick={() => handleViewChange('week')}>Semaine</button>
+          <button type="button" onClick={() => handleViewChange('day')}>Jour</button>
+        </span>
+      </div>
+    );
+  };
+
+  return (
+    <div className="bg-white shadow-lg p-4 rounded-md m-4 flex-1">
+      <Calendar
+        localizer={localizer}
+        events={events}
+        startAccessor="start"
+        endAccessor="end"
+        style={{ height: 500 }}
+        views={['month', 'week', 'day']}
+        view={currentView}
+        date={currentDate}
+        onNavigate={handleNavigate}
+        onView={handleViewChange}
+        popup={true}
+      />
+    </div>
+  );
+};
+
+export default MyBigCalendar;

@@ -76,6 +76,13 @@ export const SidebarWrapper = () => {
                 icon={<HistoryIcon />}
                 role={'Admin'}
               />
+              <SidebarItem
+                isActive={pathname === "/mesDemandes"}
+                title="Mes demandes"
+                icon={<ReportsIcon />}
+                href="/mesDemandes"
+                role={'Employe'}
+              />
             </SidebarMenu>
 
             <SidebarMenu title="Calendrier">

@@ -62,9 +62,6 @@ export const Valides = () => {
           }
       });
 
-      console.log(val)
-      console.log(response.data)
-
       setRow(response.data.demande || []);
 
     } catch (error) {
@@ -264,7 +261,7 @@ export const Valides = () => {
           page={currentPage} 
           onChange={handlePageChange} 
           variant="faded" 
-          className="rounded-md bg-default-50"/>
+          className="rounded-md"/>
       </div>
 
     </div>

@@ -3,6 +3,9 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import moment from 'moment';
+import 'moment/locale/fr';
+
+moment.locale('fr');
 
 const InfoHead = () => {
 
@@ -35,7 +38,7 @@ const InfoHead = () => {
     <>
         <div className="flex flex-col lg:flex-row items-center justify-between w-full p-8 gap-4">
             <div className="flex flex-col lg:flex-row gap-4 items-center">
-                <img src={`http://localhost:5000/avatar.png`} alt="profil" className='w-20 h-20'/>
+                <img src={`http://localhost:5000/${info.photo}`} alt="profil" className='w-20 h-20 rounded-full'/>
                 <div className="flex flex-col gap-4 text-center lg:text-left">
                     <h1 className='text-3xl font-semibold'>Bonjour {info.prenom ? info.prenom : info.nom},</h1>
                     <p className='text-gray-500'>Bienvenu sur notre plateform de gestion de congé.</p>

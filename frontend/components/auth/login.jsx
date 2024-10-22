@@ -103,7 +103,7 @@ const Login =()=> {
           </div>
           <form ref={formRef} onKeyDown={handleKeyDown} onSubmit={handleSubmit(onLogin)} className='flex items-center flex-col w-full flex-wrap gap-4'>
 
-            <div className='flex w-full justify-center'>
+            <div className='flex flex-col w-full items-center'>
               <Input
                 isRequired
                 label="Email"
@@ -128,7 +128,7 @@ const Login =()=> {
               {errorMessage.type == "email" && <span className="flex justify-start text-[#f31260] text-xs text-right">{errorMessage.message}</span>} 
             </div>
               
-            <div className='flex w-full justify-center'>
+            <div className='flex flex-col w-full items-center'>
               <Input
                 isRequired
                 type='password'

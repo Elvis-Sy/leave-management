@@ -237,7 +237,7 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
                 <div className="flex items-center">
                 <div className='h-full w-1/2 p-2'>
                     {/* Label pour le file */}
-                    <label onClick={handleImageClick} className='group hover:underline flex gap-2 items-center font-semibold mb-2 text-gray-900 text-sm'>
+                    <label onClick={handleImageClick} className='group dark:text-white hover:underline flex gap-2 items-center font-semibold mb-2 text-gray-900 text-sm'>
                         <div
                             id='preview'
                             className='flex justify-center items-center w-20 h-20 rounded-full bg-gray-400 group-hover:bg-gray-500 bg-cover bg-center'
@@ -280,7 +280,7 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
                 </div>
                 <div className="flex flex-col gap-4">
                 <div className="ml-4 font-semibold">
-                    <label className="block mb-2 text-gray-700">Genre de l'employé <span className="text-red-500 text-sm">*</span> :</label>
+                    <label className="block dark:text-white mb-2 text-gray-700">Genre de l'employé <span className="text-red-500 text-sm">*</span> :</label>
                     <div className="">
                     <div className="flex">
                         <label className="mr-4 font-normal">
@@ -380,47 +380,47 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
             </Autocomplete>
 
                 <div className="flex gap-2">
-                <Autocomplete
-                    isRequired
-                    variant="bordered"
-                    label="Poste de travail"
-                    placeholder="Recherche de poste"
-                    className="w-full font-semibold auto"
-                    {...register('idposte', { 
-                    required: 'Le poste est requis', 
-                    })}
-                    defaultItems={postes}
-                    selectedKey={idposte}
-                    onSelectionChange={setIdPoste}
-                    isInvalid={!!errors.idposte}
-                    errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idposte ? errors.idposte.message : ''}</span>}
-                >
-                    {(item) => <AutocompleteItem value={item.value} key={item.label}>{item.label}</AutocompleteItem>}
-                </Autocomplete>
+                    <Autocomplete
+                        isRequired
+                        variant="bordered"
+                        label="Poste de travail"
+                        placeholder="Recherche de poste"
+                        className="w-full font-semibold auto"
+                        {...register('idposte', { 
+                        required: 'Le poste est requis', 
+                        })}
+                        defaultItems={postes}
+                        selectedKey={idposte}
+                        onSelectionChange={setIdPoste}
+                        isInvalid={!!errors.idposte}
+                        errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idposte ? errors.idposte.message : ''}</span>}
+                    >
+                        {(item) => <AutocompleteItem value={item.value} key={item.label}>{item.label}</AutocompleteItem>}
+                    </Autocomplete>
 
-                <Autocomplete
-                    isRequired
-                    variant="bordered"
-                    label="Etablissement"
-                    placeholder="Direction / Departement"
-                    className="w-full font-semibold auto"
-                    defaultItems={etab}
-                    {...register('idEtablissement', { 
-                    required: "L'etablissement est requis", 
-                    })}
-                    selectedKey={idEtablissement}
-                    onSelectionChange={setIdEtablissement}
-                    isInvalid={!!errors.idEtablissement}
-                    errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idEtablissement ? errors.idEtablissement.message : ''}</span>}
-                >
-                    {(item) => <AutocompleteItem value={item.value} key={item.label}>{item.label}</AutocompleteItem>}
-                </Autocomplete>
+                    <Autocomplete
+                        isRequired
+                        variant="bordered"
+                        label="Etablissement"
+                        placeholder="Direction / Departement"
+                        className="w-full font-semibold auto"
+                        defaultItems={etab}
+                        {...register('idEtablissement', { 
+                        required: "L'etablissement est requis", 
+                        })}
+                        selectedKey={idEtablissement}
+                        onSelectionChange={setIdEtablissement}
+                        isInvalid={!!errors.idEtablissement}
+                        errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idEtablissement ? errors.idEtablissement.message : ''}</span>}
+                    >
+                        {(item) => <AutocompleteItem value={item.value} key={item.label}>{item.label}</AutocompleteItem>}
+                    </Autocomplete>
                 </div>
 
                 <div className="flex items-center gap-8 mt-1">
                 <div className="w-1/2">
                     <div className={`${periodeEssai ? 'bg-gray-100' : ''} group relative border-2 p-2 rounded-xl ${errors.dateEmbauche ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300'}`}>
-                    <label className={`block ${errors.dateEmbauche ? 'text-[#f31260]' : 'text-gray-700'}  text-xs font-semibold`}>
+                    <label className={`block dark:text-white ${errors.dateEmbauche ? 'text-[#f31260]' : 'text-gray-700'}  text-xs font-semibold`}>
                         Date d'embauche <span className="text-red-500 text-sm">*</span>
                     </label>
                     <div className="">
@@ -429,7 +429,7 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
                             onChange={handleDateEmbaucheChange}
                             type="date" 
                             disabled={periodeEssai}
-                            className="block bg-transparent w-full text-gray-700 placeholder-gray-400 focus:outline-none" 
+                            className="block bg-transparent dark:text-white w-full text-gray-700 placeholder-gray-400 focus:outline-none" 
                             placeholder="jj-mm-aaaa" 
                             required 
                             {...register('dateEmbauche', { 

@@ -25,8 +25,9 @@
     "react-apexcharts": "^1.4.0",
     "react-big-calendar": "^1.15.0",
     "react-calendar": "^5.0.0",
+    "react-date-range": "^2.0.1",
     "react-dom": "18.2.0",
-    "react-hook-form": "^7.53.0",
+    "react-hook-form": "^7.53.1",
     "react-toastify": "^10.0.6",
     "recharts": "^2.13.0",
     "yup": "^1.4.0"

@@ -291,7 +291,7 @@ export const EmployePage = () => {
           page={currentPage} 
           onChange={handlePageChange} 
           variant="faded" 
-          className="rounded-md bg-default-50"/>
+          className="rounded-md"/>
       </div>
 
       {/* Modal */}

@@ -60,7 +60,7 @@ export const UserDropdown = () => {
         <PopoverTrigger className="flex items-center gap-2 py-2 px-2 rounded-xl">
           <div className="cursor-pointer">
             <div className="flex flex-col gap-1">
-              {infoUser.name && <span className="text-[12px] dark:text-white leading-3 font-medium text-gray-900">{infoUser.name}</span>}
+              {infoUser.name && <span className="text-[12px] dark:text-white leading-3 text-center font-medium text-gray-900">{infoUser.name}</span>}
               <div className="flex justify-end">
                 <span className="text-xs text-white px-2 rounded-full bg-gray-500">{role}</span>
               </div>
@@ -86,7 +86,7 @@ export const UserDropdown = () => {
             <span className="text-[12px] text-white px-2 rounded-full bg-gray-500">{role}</span>
           </div>
           <div>
-            {infoUser.poste && <p className="text-sm text-gray-700 font-medium font-mono">-{infoUser.poste}</p>}
+            {infoUser.poste && <p className="text-sm dark:text-gray-300 text-gray-700 font-medium font-mono">-{infoUser.poste}</p>}
             <p className="text-sm">-Dernière connexion : <span className="font-semibold">{formatDate(infoUser.dernier)}</span></p>
           </div>
           <div className="border-t text-sm border-gray-300 pt-2 flex items-center justify-between">

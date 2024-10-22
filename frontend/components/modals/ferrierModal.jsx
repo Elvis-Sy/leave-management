@@ -4,6 +4,9 @@ import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import moment from 'moment';
 import { toast } from 'react-toastify';
+import 'moment/locale/fr';
+
+moment.locale('fr');
 
 const FerrierModal = ({onClose, date, reload}) => {
 

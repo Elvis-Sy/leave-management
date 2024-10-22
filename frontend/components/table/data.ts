@@ -101,3 +101,38 @@ export const colAttente =[
     uid: "actions"
   },
 ]
+
+export const colDemandes =[
+  {
+    name: "Type",
+    uid: "infoD"
+  },
+  {
+    name: "Date d'envoi",
+    uid: "dateEnvoi", 
+    className: "hidden lg:table-cell"
+  },
+  {
+    name: "Date confirmation",
+    uid: "dateConfirmation", 
+    className: "hidden lg:table-cell"
+  },
+  {
+    name: "Date debut - fin",
+    uid: "Duree", 
+    className:"hidden md:table-cell"
+  },
+  {
+    name: "Durée",
+    uid: "nbr", 
+    className:"hidden md:table-cell"
+  },
+  {
+    name: "Statut",
+    uid: "statut", 
+  },
+  {
+    name: "Actions",
+    uid: "actions"
+  },
+]

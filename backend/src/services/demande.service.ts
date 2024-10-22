@@ -49,7 +49,7 @@ export class DemandeService {
             where: {
                 idEmp: employeId,
                 type: {
-                    designType: 'Paye', // Vérifier uniquement pour le type de congé payé
+                    designType: 'Paye',
                 },
             },
         });
@@ -952,9 +952,60 @@ export class DemandeService {
             nombreJours: nombreJours,
           };
 
-      }
+        }
 
         return demandeAvecNombreJours
+      }
+
+      //Les demandes d'un employe
+      async employeDM(employeId: number){
+        const demande = await this.prisma.demandesConges.findMany({
+            select: {
+                idDemande: true,
+                dateDebut: true,
+                dateFin: true,
+                dateConfirmation: true,
+                dateEnvoie: true,
+                statuts: {
+                    select: {
+                        designStatut: true
+                    }
+                },
+                type: {
+                    select: {
+                        designType: true
+                    }
+                }
+            },
+            where: {
+              employeId,
+            },
+            orderBy: {
+              idDemande: 'desc',
+            },
+        })
+
+        let nbrJours = 0;
+
+        demande.forEach(dm =>{
+            const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            nbrJours = diffDays;
+        })
+
+        const dm = demande.map((demande) => ({
+            id: demande.idDemande,
+            dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+            dateConf: demande.dateConfirmation ? new Date(demande.dateConfirmation).toLocaleDateString('fr-FR') : null,
+            type: demande.type.designType,
+            statut: demande.statuts.designStatut,
+            nbrJrs: nbrJours,
+            dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
+            dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR')  // Formater la date de fin
+        }));
+
+        return dm;
+      
       }
 
 }

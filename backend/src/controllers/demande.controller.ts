@@ -304,13 +304,31 @@ export class DemandeController {
     }
 
     @Get('lastDemande/:id')
-    @Roles(Role.EMPLOYE) //Admin
+    @Roles(Role.EMPLOYE) //Employe
     async derniereDemande(@Param('id') id: string) {
         try {
             const conge = await this.demandeService.lastDemande(parseInt(id));
             return {
                 message: "Dernière demande réalisée avec succès",
                 demande: conge
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @Get('employeDM/:id')
+    @Roles(Role.EMPLOYE) //Employe
+    async dmEmploye(@Param('id') id: string) {
+        try {
+            const dm = await this.demandeService.employeDM(parseInt(id));
+            return {
+                message: "Dernière demande réalisée avec succès",
+                demande: dm
             }
         } catch (error) {
             console.error('Erreur de filtre:', error);

@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { Button } from '@nextui-org/react'
 import axios from 'axios'
+import moment from 'moment';
+import 'moment/locale/fr';
+
+moment.locale('fr');
 
 const InfoFoot = () => {
 
     const [info, setInfo] = useState(null);
+    const [showImage, setShowImage] = useState(false);
 
     useEffect(()=>{
+        const timer = setTimeout(() => {
+            setShowImage(true);
+        }, 500);
+
         const id = localStorage.getItem('id')
         getInfo(id)
+
+        return () => clearTimeout(timer);
     }, [])
 
     //Prendre les infos
@@ -29,7 +40,7 @@ const InfoFoot = () => {
       };
 
   return (
-    <div className="h-[330px] bg-default-50 mt-8 p-8">
+    <div className="h-[315px] bg-default-50 rounded-lg m-8 p-8">
         {info ? (
             <>
                 <div className="flex justify-between gap-10">
@@ -58,15 +69,15 @@ const InfoFoot = () => {
                         </div>
                         <div className="flex flex-col gap-2 text-lg">
                             <p className='font-semibold'>Date d'envoi</p>
-                            <p className='text-gray-500 font-medium'>{info.dateEnvoie}</p>
+                            <p className='text-gray-500 font-medium'>{moment(info.dateEnvoie).format('DD MMMM YYYY')}</p>
                         </div>
                         <div className="flex flex-col gap-2 text-lg">
                             <p className='font-semibold'>Date de début</p>
-                            <p className='text-gray-500 font-medium'>{info.dateDebut}</p>
+                            <p className='text-gray-500 font-medium'>{moment(info.dateDebut).format('DD MMMM YYYY')}</p>
                         </div>
                         <div className="flex flex-col gap-2 text-lg">
                             <p className='font-semibold'>Date de fin</p>
-                            <p className='text-gray-500 font-medium'>{info.dateFin}</p>
+                            <p className='text-gray-500 font-medium'>{moment(info.dateFin).format('DD MMMM YYYY')}</p>
                         </div>
                         <div className="flex flex-col gap-2 text-lg">
                             <p className='font-semibold'>Durée</p>
@@ -85,7 +96,7 @@ const InfoFoot = () => {
             <>
                 <h1 className='text-xl font-semibold'>Dernière demande</h1>
                 <div className="h-full w-full flex text-gray-500 justify-center items-center text-2xl font-semibold">
-                    Aucun demande
+                    <img src='/vide.png' width={200} height={200} className={`transition-all duration-500 ${showImage ? 'opacity-100' : 'opacity-0'}`}/>
                 </div>
             </>
         )}

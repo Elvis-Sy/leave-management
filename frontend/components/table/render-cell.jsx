@@ -44,7 +44,7 @@ export const RenderCell = ({ user, columnKey }) => {
       return (
         <div className="flex items-center gap-4 ">
           <div>
-            <Tooltip content="Details" color="success">
+            <Tooltip content="Inspecter" color="success">
               {/* <Link href={`/managers/${user.id}`}> */}
                 <button onClick={()=>router.push(`/managers/${user.id}`)}>
                   <EyeIcon size={20} fill="#40c057" />

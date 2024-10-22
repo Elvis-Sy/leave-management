@@ -50,14 +50,16 @@ export class OtherService {
         const types = await this.prisma.typesConges.findMany({
             select: {
                 idType: true,
-                designType: true
+                designType: true,
+                nbJours: true
             }
         })
 
         const type = types.map((item) =>{
             return {
                 label: item.designType,
-                value: item.idType
+                value: item.idType,
+                duree: item.nbJours || 0
             }
         })
 
