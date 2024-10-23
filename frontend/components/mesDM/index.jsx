@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { DateRangePicker, Autocomplete, AutocompleteItem, Button, Modal, ModalContent, ModalHeader, ModalFooter, useDisclosure, ModalBody, Divider, Pagination } from '@nextui-org/react'
 import { useForm } from 'react-hook-form';
 import { format, differenceInDays, addDays } from 'date-fns';
@@ -10,6 +10,7 @@ import { TableWrapper } from '../table/table';
 import axios from 'axios';
 import moment from 'moment';
 import 'moment/locale/fr';
+import { toast, ToastContainer } from 'react-toastify';
 
 moment.locale('fr');
 
@@ -17,7 +18,7 @@ const MesDemandes = () => {
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
-  const { register, formState: { errors } } = useForm()
+  const { register, formState: { errors }, handleSubmit } = useForm()
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [type, setType] = useState([]);
@@ -26,6 +27,7 @@ const MesDemandes = () => {
   const [selectedType, setSelectedType] = useState({});
   const [label, setLabel] = useState('');
   const [row, setRow] = useState([])
+  const formRef = useRef();
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 5
   
@@ -56,6 +58,53 @@ const MesDemandes = () => {
     }
   };
 
+  // Gestion de la soumission du formulaire
+  const onSubmit = async (data) => {
+    try {
+        data.typeId = selectedType.value
+        data.dateDebut = new Date(startDate)
+        data.dateFin = new Date(endDate)
+        data.employeId = Number(localStorage.getItem('id'))
+      
+      const response = await axios.post('http://localhost:5000/api/demandes/ajout', data, {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+          }
+      });
+
+      if(response.data.cause){
+        toast.warn(`${response.data.cause}`, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        onClose()
+      } else {
+        toast.success(`${response.data.message}`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        allDM()
+        onClose()          
+      }
+  
+    } catch (error) {
+        console.error('Erreur lors de la soumission du formulaire :', error);
+    }
+    
+  };
+
   // Calculer la différence en jours
   useEffect(() => {
     if (startDate && endDate) {
@@ -64,7 +113,6 @@ const MesDemandes = () => {
     }
   }, [startDate, endDate]);
 
-  // Format the dates to display in input fields
   const formattedStartDate = startDate ? format(startDate, 'yyyy-MM-dd') : '';
   const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : '';
 
@@ -83,13 +131,10 @@ const MesDemandes = () => {
     }
   };
 
-  // Handle leave type selection
   const handleTypeSelect = (obj) => {
     const select = type.find((item)=>item.value == obj)
     if(select){
-        if(select.label == "Maternite"){
-            setMaternite(true)
-        }
+        select.label == "Maternite" ? setMaternite(true) : setMaternite(false);
         setLabel(select.label)
     } else {
         setLabel('')
@@ -113,23 +158,36 @@ const MesDemandes = () => {
 
   //Gestion de la pagination et des pages
     //Calcul des nombres de pages
-    const totalPages = Math.ceil(row.length / rowsPerPage)
-
+    let totalPages = 1;
+    if(row){
+        totalPages = Math.ceil(row.length / rowsPerPage)
+    }
+    
     //Diviser les donnes selon le nombre de page
-    const paginatedData = row.slice(
-      (currentPage - 1) * rowsPerPage, 
-      currentPage * rowsPerPage
-    ) 
+    let paginatedData = [];
+    if(row){
+        paginatedData = row.slice(
+            (currentPage - 1) * rowsPerPage, 
+            currentPage * rowsPerPage
+        ) 
+    }
 
   const handlePageChange = (page) => {
     setCurrentPage(page)
   }
 
+  const handleButtonClick = () => {
+    if (formRef.current) {
+      formRef.current.dispatchEvent(new Event('submit', { bubbles: true }));
+    }
+  };
+
   return (
     <div className="my-6 px-4 lg:px-6 flex flex-col gap-4">
+      <ToastContainer/>
       <div className="p-4 bg-default-50 rounded-lg shadow-sm">
         <h1 className='text-xl font-semibold'>Demande de congé</h1>
-        <form action="" className='mt-8 flex flex-col lg:flex-row gap-4'>
+        <form onSubmit={handleSubmit(onSubmit)} ref={formRef} className='mt-8 flex flex-col lg:flex-row gap-4'>
             <Autocomplete
             variant="bordered"
             isRequired
@@ -296,7 +354,7 @@ const MesDemandes = () => {
                 <Button color="danger" variant="light" onPress={onClose}>
                     Annuler
                 </Button>
-                <Button color='primary' type='submit'>
+                <Button color='primary' onPress={handleButtonClick}>
                     Confirmer
                 </Button>
                 </ModalFooter>

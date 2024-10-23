@@ -6,6 +6,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
 import { useEffect } from "react";
+import axios from "axios";
+import { getAttributesToken } from "@/helpers/attributesToken";
 
 export default function RootLayout({
   children,
@@ -30,6 +32,8 @@ export default function RootLayout({
           progress: undefined,
           });
 
+          handleLogout()
+
         setTimeout(() => {
           router.push('/login'); // Rediriger vers la page de connexion
         }, 3500); 
@@ -51,7 +55,9 @@ export default function RootLayout({
           progress: undefined,
         });
 
-        localStorage.removeItem('token'); // Supprimer le token expiré
+        handleLogout()
+
+        localStorage.removeItem('token');
         setTimeout(() => {
           router.push('/login'); // Rediriger vers la page de connexion
         }, 3000);
@@ -70,6 +76,25 @@ export default function RootLayout({
     };
 
   }, [router]);
+
+  const handleLogout = async () => {
+    try {
+        const attribut: any = getAttributesToken(localStorage.getItem('token'));
+        const temp: string = attribut.email;
+        const mail = {
+          email: temp
+        }
+
+        await axios.post('http://localhost:5000/api/employes/deconnex', mail, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        }); 
+
+    } catch (error) {
+        console.log('Erreur deconnex')
+    }  
+  };
 
   return (
     <>

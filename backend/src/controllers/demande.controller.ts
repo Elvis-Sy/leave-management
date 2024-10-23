@@ -26,7 +26,8 @@ export class DemandeController {
         } catch (error) {
             console.error("Erreur lors de l'ajout':", error);
             return{
-                message: "Erreur lors de la creation"
+                message: "Erreur lors de la creation",
+                cause: error.message
             }
         }
     }

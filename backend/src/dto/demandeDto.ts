@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsInt, IsDate, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsInt, IsOptional } from 'class-validator';
 
 export class AddDemandeDto {
 
@@ -19,7 +19,7 @@ export class AddDemandeDto {
     @IsInt()
     readonly typeId: number;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsInt()
     readonly statutId: number;
 

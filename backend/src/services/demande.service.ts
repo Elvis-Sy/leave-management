@@ -63,7 +63,6 @@ export class DemandeService {
                 ...demande,
                 employe: { connect: { idEmploye: employeId } },
                 type: { connect: { idType: typeId } },
-                statuts: { connect: { idStatut: statutId } }
             },
         });
     }
@@ -959,6 +958,9 @@ export class DemandeService {
 
       //Les demandes d'un employe
       async employeDM(employeId: number){
+
+        if(!employeId) throw new NotFoundException('Id non trouve')
+
         const demande = await this.prisma.demandesConges.findMany({
             select: {
                 idDemande: true,
