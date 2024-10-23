@@ -276,13 +276,13 @@ export class DemandeService {
         const totalCount = Object.values(total).reduce((sum: number, value: number) => sum + value, 0);
         
         // Initialiser les pourcentages à 0
-        const refus = total[`count${statuts[0]?.idStatut}`] ? (total[`count${statuts[0]?.idStatut}`] / totalCount) * 100 : 0;
-        const accord = total[`count${statuts[1]?.idStatut}`] ? (total[`count${statuts[1]?.idStatut}`] / totalCount) * 100 : 0;
+        const accord = total[`count${statuts[0]?.idStatut}`] ? (total[`count${statuts[0]?.idStatut}`] / totalCount) * 100 : 0;
+        const refus = total[`count${statuts[1]?.idStatut}`] ? (total[`count${statuts[1]?.idStatut}`] / totalCount) * 100 : 0;
     
         const taux = { 
-            "refus": total[`count${statuts[0]?.idStatut}`] || 0, // Utiliser || pour éviter undefined
+            "refus": total[`count${statuts[1]?.idStatut}`] || 0, // Utiliser || pour éviter undefined
             "tauxRefus": refus.toFixed(1), 
-            "accord": total[`count${statuts[1]?.idStatut}`] || 0, // Utiliser || pour éviter undefined
+            "accord": total[`count${statuts[0]?.idStatut}`] || 0, // Utiliser || pour éviter undefined
             "tauxAccord": accord.toFixed(1) 
         };
     
@@ -985,24 +985,21 @@ export class DemandeService {
             },
         })
 
-        let nbrJours = 0;
+        const dm = demande.map((demande) => {
+          
+          const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        demande.forEach(dm =>{
-            const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            nbrJours = diffDays;
-        })
-
-        const dm = demande.map((demande) => ({
+          return {
             id: demande.idDemande,
             dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
             dateConf: demande.dateConfirmation ? new Date(demande.dateConfirmation).toLocaleDateString('fr-FR') : null,
             type: demande.type.designType,
             statut: demande.statuts.designStatut,
-            nbrJrs: nbrJours,
+            nbrJrs: diffDays,
             dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
             dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR')  // Formater la date de fin
-        }));
+        }});
 
         return dm;
       

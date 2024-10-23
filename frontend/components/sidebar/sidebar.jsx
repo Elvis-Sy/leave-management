@@ -13,7 +13,6 @@ import { usePathname } from "next/navigation";
 import { CalendarIcon } from '../icons/calendar-icon'
 import { HistoryIcon } from '../icons/historique'
 import { ActiveLeaveIcon } from '../icons/actif-conge'
-import { HierarchyIcon } from '../icons/sidebar/hierarchie-icon'
 
 export const SidebarWrapper = () => {
   const pathname = usePathname();
@@ -87,7 +86,7 @@ export const SidebarWrapper = () => {
               <SidebarItem
                 isActive={pathname === "/monEquipe"}
                 title="Mon equipe"
-                icon={<HierarchyIcon />}
+                icon={<CustomersIcon />}
                 href="/monEquipe"
                 role={'Employe'}
               />
