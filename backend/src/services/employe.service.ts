@@ -998,7 +998,113 @@ export class EmployeService {
       }
     }
 
+    //Liste des collegue
+    async listeCollegue(idEmploye: number){
 
+      const pers = await this.prisma.employes.findUnique({
+        where: {
+          idEmploye
+        }
+      })
+
+      if(!pers) throw new NotFoundException("Aucun utilisateur")
+
+      let rows = [];
+      if(pers.idManager){
+        const employes = await this.prisma.employes.findMany({
+          where: {
+            NOT: {
+              compte: null,
+            },
+            OR: [
+              {idManager: pers.idManager},
+              {idManager: {not: null} }
+            ],
+            idEmploye: {
+              not: idEmploye
+            }
+          },
+          include: {
+            poste: {
+              select: {
+                designPoste: true,
+              },
+            },
+            etablissement: {
+              select: {
+                designEtablissement: true
+              }
+            }
+          },
+        });
+  
+        rows = employes.map((data)=>{
+          return {
+            id: data.idEmploye,
+            name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
+            photo: data.photoProfile ? data.photoProfile : "avatar.png",
+            Etablissement: data.etablissement.designEtablissement,
+            poste: data.poste.designPoste,
+          }
+        })
+      }
+
+      
+
+      return rows;
+    }
+
+    //recherche des collegue
+    async searchCollegue(idEmploye: number, val: string){
+
+      const pers = await this.prisma.employes.findUnique({
+        where: {
+          idEmploye
+        }
+      })
+
+      if(!pers) throw new NotFoundException("Aucun utilisateur")
+
+      const employes = await this.prisma.employes.findMany({
+        where: {
+          NOT: {
+            compte: null,
+          },
+          idManager: pers.idManager,
+          idEmploye: {
+            not: idEmploye
+          },
+          OR: [
+            { nom: {contains: val} },
+            { prenom: {contains: val} }
+          ]
+        },
+        include: {
+          poste: {
+            select: {
+              designPoste: true,
+            },
+          },
+          etablissement: {
+            select: {
+              designEtablissement: true
+            }
+          }
+        },
+      });
+
+      const rows = employes.map((data)=>{
+        return {
+          id: data.idEmploye,
+          name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
+          photo: data.photoProfile ? data.photoProfile : "avatar.png",
+          Etablissement: data.etablissement.designEtablissement,
+          poste: data.poste.designPoste,
+        }
+      })
+
+      return rows;
+    }
 
     @Cron("0 0 1 * *") // Exécute le 1er jour de chaque mois
     handleCron() {

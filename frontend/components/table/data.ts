@@ -136,3 +136,19 @@ export const colDemandes =[
     uid: "actions"
   },
 ]
+
+export const colCollegue = [
+  {
+    name: "Photo",
+    uid: "photo",
+    className:"hidden lg:table-cell"
+  },
+  {
+    name: "Nom",
+    uid: "nom", 
+  },
+  {
+    name: "Poste",
+    uid: "poste", 
+  },
+]

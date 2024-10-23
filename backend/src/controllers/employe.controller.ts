@@ -366,7 +366,7 @@ export class EmployeController {
 
     @Get('employe/:id')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.EMPLOYE) //Admin
+    @Roles(Role.EMPLOYE) //Employe
     async personal(@Param('id') id: string){
         try {
             const info = await this.employeService.EmployeInfo(parseInt(id))
@@ -377,6 +377,42 @@ export class EmployeController {
         } catch (error) {
             return {
                 message: "Erreur lors du listage des infos",
+                cause: error
+            }
+        }
+    }
+
+    @Post('employeSearch/:id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.EMPLOYE) //Employe
+    async searchPersonal(@Param('id') id: string, @Body() val){
+        try {
+            const info = await this.employeService.EmployeInfo(parseInt(id))
+            return {
+                message: "Information pour les employes",
+                info: info
+            }
+        } catch (error) {
+            return {
+                message: "Erreur lors du listage des infos",
+                cause: error
+            }
+        }
+    }
+
+    @Get('collegue/:id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.EMPLOYE) //Employe
+    async Collegue(@Param('id') id: string){
+        try {
+            const memb = await this.employeService.listeCollegue(parseInt(id))
+            return {
+                message: "Membre liste avec succes",
+                employe: memb
+            }
+        } catch (error) {
+            return {
+                message: "Erreur lors du listage",
                 cause: error
             }
         }
