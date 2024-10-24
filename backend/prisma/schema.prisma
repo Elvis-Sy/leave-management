@@ -20,10 +20,11 @@ enum Role {
   Admin
 }
 
-//Role utilisateur
+//Type action
 enum Action {
   Approbation
   Refus
+  Annulation
 }
 
 enum Section {

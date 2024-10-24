@@ -24,25 +24,18 @@ export class DemandeService {
             }
         })
 
-        if(essai) throw new Error('Vous êtes encore en pérode d\'essai.');
+        if(essai) throw new Error('Vous êtes encore en période d\'essai.');
 
         const existingDemande = await this.prisma.demandesConges.findFirst({
             where: {
                 employeId: employeId,
-                OR: [
-                    { statuts: { designStatut: 'En attente' } },
-                ],
+                statuts: { designStatut: 'En attente' },
             },
         });
 
         if (existingDemande) {
             throw new Error('Vous avez déjà une demande de congé en cours.');
         }
-
-        const startDate = new Date(dateDebut);
-        const endDate = new Date(dateFin);
-        const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Ajouter 1 pour inclure le dernier jour
 
         // Vérifier le solde de congés payés
         const soldeConges = await this.prisma.soldesConges.findFirst({
@@ -54,8 +47,20 @@ export class DemandeService {
             },
         });
 
-        if (!soldeConges || soldeConges.soldeTotal.toNumber() < diffDays) {
+        if(!soldeConges){
+          throw new Error('Aucun solde associé au type de congé.');
+        }
+
+        const startDate = new Date(dateDebut);
+        const endDate = new Date(dateFin);
+        const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Ajouter 1 pour inclure le dernier jour
+
+        if(typeId == soldeConges.idType){
+
+          if (soldeConges.soldeTotal.toNumber() < diffDays) {
             throw new Error('Le solde de congés payés est insuffisant pour cette demande.');
+          }
         }
 
         await this.prisma.demandesConges.create({
@@ -169,7 +174,9 @@ export class DemandeService {
             where: {
                 statuts: {
                     designStatut: {
-                        not: "En attente"
+                        not: {
+                          in: ["En attente", "Annulee"]
+                        }
                     }
                 }
             }
@@ -214,6 +221,13 @@ export class DemandeService {
             by: ['statutId'],
             _count: {
                 statutId: true
+            },
+            where: {
+              statuts: {
+                designStatut: {
+                  not: "Annulee"
+                }
+              }
             }
         })
 
@@ -299,6 +313,11 @@ export class DemandeService {
                 dateEnvoie: {
                     not: null,
                 },
+                statuts: {
+                  designStatut: {
+                    not: "Annulee"
+                  }
+                }
             },
             orderBy: {
                 dateEnvoie: 'asc',
@@ -412,7 +431,9 @@ export class DemandeService {
                 },
                 statuts: {
                     designStatut: {
-                        not: "En attente"
+                        not: {
+                          in: ["En attente", "Annulee"]
+                        }
                     }
                 }
             }
@@ -520,7 +541,9 @@ export class DemandeService {
 
           whereClause.statuts = {
             designStatut: {
-                not: "En attente"
+                not: {
+                  in: ["En attente", "Annulee"]
+                }
             }
           }
       
@@ -918,7 +941,12 @@ export class DemandeService {
       async lastDemande(employeId: number){
         const derniereDemande = await this.prisma.demandesConges.findFirst({
           where: {
-            employeId
+            employeId,
+            statuts: {
+              designStatut: {
+                not: "Annulee"
+              }
+            }
           },
           orderBy: {
             idDemande: 'desc',  // Trie par la clé primaire pour obtenir la demande la plus récente
@@ -981,6 +1009,11 @@ export class DemandeService {
             },
             where: {
               employeId,
+              statuts: {
+                designStatut: {
+                  not: "Annulee"
+                }
+              }
             },
             orderBy: {
               idDemande: 'desc',
@@ -1005,6 +1038,51 @@ export class DemandeService {
 
         return dm;
       
+      }
+
+      //Annulation demande
+      async annulerDemande(idDemande: number, userId: number) { 
+          // Récupérer les informations actuelles de la demande avant de faire des changements
+          const demande = await this.prisma.demandesConges.findUnique({
+            where: {
+              idDemande
+            },
+          });
+
+          //Recuperer id statut
+          const statutId = await this.prisma.statutDemande.findFirst({
+            where: {
+              designStatut: "Annulee"
+            }
+          })
+      
+          if (!demande) {
+            throw new Error("La demande n'existe pas.");
+          }
+
+            // Mettre à jour le statut de la demande à 'Annulée'
+          await this.prisma.demandesConges.update({
+              where: {
+                idDemande
+              },
+              data: {
+                statutId: statutId.idStatut, // Changer le statut à 'Annulée'
+                dateConfirmation: new Date(), // Mettre à jour la date de confirmation
+              },
+            })
+
+      
+            // Créer un enregistrement dans HistoriquesActions pour garder trace de ce changement
+            await this.prisma.historiquesActions.create({
+              data: {
+                ancienneValeur: "En attente",
+                nouvelleValeur: "Annulee", 
+                dateAction: new Date(),
+                niveau: "Employe",
+                typeAction: 'Annulation', 
+                userId, 
+              },
+            })
       }
 
 }

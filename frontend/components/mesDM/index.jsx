@@ -16,7 +16,7 @@ moment.locale('fr');
 
 const MesDemandes = () => {
 
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
 
   const { register, formState: { errors }, handleSubmit } = useForm()
   const [startDate, setStartDate] = useState("");
@@ -30,11 +30,13 @@ const MesDemandes = () => {
   const formRef = useRef();
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 5
+  const [id, setId] = useState(null)
   
 
   useEffect(()=>{
     const id = localStorage.getItem('id');
     if(id){
+        setId(id)
         allDM(id)
     }
     getType();
@@ -59,7 +61,7 @@ const MesDemandes = () => {
   };
 
   // Gestion de la soumission du formulaire
-  const onSubmit = async (data) => {
+  const onSubmit = async (data, onClose) => {
     try {
         data.typeId = selectedType.value
         data.dateDebut = new Date(startDate)
@@ -95,7 +97,7 @@ const MesDemandes = () => {
           progress: undefined,
         });
 
-        allDM()
+        allDM(id)
         onClose()          
       }
   
@@ -187,7 +189,7 @@ const MesDemandes = () => {
       <ToastContainer/>
       <div className="p-4 bg-default-50 rounded-lg shadow-sm">
         <h1 className='text-xl font-semibold'>Demande de congé</h1>
-        <form onSubmit={handleSubmit(onSubmit)} ref={formRef} className='mt-8 flex flex-col lg:flex-row gap-4'>
+        <form onSubmit={handleSubmit((data)=>onSubmit(data, onClose))} ref={formRef} className='mt-8 flex flex-col lg:flex-row gap-4'>
             <Autocomplete
             variant="bordered"
             isRequired
@@ -196,11 +198,9 @@ const MesDemandes = () => {
             placeholder="Selectionnez type..."
             className="w-full font-semibold auto max-w-[250px]"
             items={type}
-            {...register('typeId', { required: 'Champ requis' })}
+            {...register('typeId', { required: 'Type conge requis' })}
             selectedKey={type?.value}
             onSelectionChange={handleTypeSelect}
-            isInvalid={!!errors.typeId}
-            errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.typeId ? errors.typeId.message : ''}</span>}
             >
             {(item) => (
                 <AutocompleteItem key={item.value} value={item.value}>
@@ -233,10 +233,10 @@ const MesDemandes = () => {
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     <div className="mb-4">
-                        <label className={`block dark:text-white ${errors.dateDebut ? 'text-[#f31260]' : 'text-black'} text-sm mb-1 font-semibold`}>
+                        <label className='block dark:text-white text-black text-sm mb-1 font-semibold'>
                             Date de debut <span className="text-red-500 text-sm">*</span>
                         </label>
-                        <div className={`group relative border-2 p-2 rounded-xl ${errors.dateDebut ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300/50'}`}>
+                        <div className='group relative border-2 p-2 rounded-xl focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300/50'>
                             <input 
                             type="date" 
                             value={formattedStartDate} 
@@ -248,14 +248,13 @@ const MesDemandes = () => {
                             })}
                             />
                         </div>
-                        <span className="flex justify-start text-[#f31260] text-xs text-right">{errors.dateDebut ? errors.dateDebut.message : ''}</span>
                     </div>
 
                     <div>
-                        <label className={`block dark:text-white ${errors.dateFin ? 'text-[#f31260]' : 'text-black'} text-sm mb-1 font-semibold`}>
+                        <label className='block dark:text-white text-black text-sm mb-1 font-semibold'>
                             Date de fin <span className="text-red-500 text-sm">*</span>
                         </label>
-                        <div className={`group relative border-2 p-2 rounded-xl ${errors.dateFin ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300/50'}`}>
+                        <div className='group relative border-2 p-2 rounded-xl focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300/50'>
                             <input 
                             type="date" 
                             value={formattedEndDate}
@@ -267,7 +266,6 @@ const MesDemandes = () => {
                             })}
                             />
                         </div>
-                        <span className="flex justify-start text-[#f31260] text-xs text-right">{errors.dateFin ? errors.dateFin.message : ''}</span>
                     </div>
                 </div>
             </div>
@@ -314,17 +312,20 @@ const MesDemandes = () => {
                 <ModalHeader className='flex gap-2 bg-bleuspat text-white justify-center'>Demande de congé</ModalHeader>
                 <ModalBody>
                     <div className="grid py-2 grid-flow-col grid-rows-3 justify-between md:justify-normal lg:grid-rows-1 md:grid-rows-2 gap-8 px-8">
-                        <div className="flex flex-col gap-2">
+                        <div className={`flex flex-col gap-2 ${errors.typeId ? 'text-[#f31260]' : ''}`}>
                             <p className='font-semibold'>Congé</p>
-                            <p className='font-medium text-gray-500'>{label ? label : '-/-'}</p>
+                            <p className={`font-medium ${errors.typeId ? '' : 'text-gray-500'}`}>{label ? label : '-/-'}</p>
+                            <span className="flex justify-start text-[#f31260] text-xs text-right">{errors.typeId ? errors.typeId.message : ''}</span>
                         </div>
-                        <div className="flex flex-col gap-2">
+                        <div className={`flex flex-col gap-2 ${errors.dateDebut ? 'text-[#f31260]' : ''}`}>
                             <p className='font-semibold'>Debut</p>
-                            <p className='text-gray-500 font-medium'>{startDate ? moment(startDate).format('DD MMMM YYYY') : '-/-'}</p>
+                            <p className={`font-medium ${errors.dateDebut ? '' : 'text-gray-500'}`}>{startDate ? moment(startDate).format('DD MMMM YYYY') : '-/-'}</p>
+                            <span className="flex justify-start text-[#f31260] text-xs text-right">{errors.dateDebut ? errors.dateDebut.message : ''}</span>
                         </div>
-                        <div className="flex flex-col gap-2">
+                        <div className={`flex flex-col gap-2 ${errors.dateFin ? 'text-[#f31260]' : ''}`}>
                             <p className='font-semibold'>Fin</p>
-                            <p className='text-gray-500 font-medium'>{endDate ? moment(endDate).format('DD MMMM YYYY') : '-/-'}</p>
+                            <p className={`font-medium ${errors.dateFin ? '' : 'text-gray-500'}`}>{endDate ? moment(endDate).format('DD MMMM YYYY') : '-/-'}</p>
+                            <span className="flex justify-start text-[#f31260] text-xs text-right">{errors.dateFin ? errors.dateFin.message : ''}</span>
                         </div>
                         <div className="flex flex-col gap-2">
                             <p className='font-semibold'>Total</p>

@@ -340,4 +340,24 @@ export class DemandeController {
         }
     }
 
+    @Patch('annulee')
+    @Roles(Role.EMPLOYE) //Employe
+    async annuleDM(@Body() body){
+        try {
+            const idDemande = parseInt(body.idDemande)
+            const userId = parseInt(body.userId)
+            await this.demandeService.annulerDemande(idDemande, userId);
+            return {
+                message: "Demande annulée avec succès",
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+
  }

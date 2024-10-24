@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Button } from '@nextui-org/react'
+import { Button, Modal, useDisclosure } from '@nextui-org/react'
 import axios from 'axios'
 import moment from 'moment';
 import 'moment/locale/fr';
+import AnnulModal from '../modals/annulModal'
 
 moment.locale('fr');
 
@@ -10,6 +11,18 @@ const InfoFoot = () => {
 
     const [info, setInfo] = useState(null);
     const [showImage, setShowImage] = useState(false);
+    const [openModal, setOpenModal] = useState(null);
+    const [id, setId] = useState(null)
+
+    // Ouvertur modal
+    const onOpen = (modalId) => {
+        setOpenModal(modalId);
+    };
+
+    //Fermeture modal
+    const onClose = () => {
+        setOpenModal(null);
+    };
 
     useEffect(()=>{
         const timer = setTimeout(() => {
@@ -17,7 +30,10 @@ const InfoFoot = () => {
         }, 500);
 
         const id = localStorage.getItem('id')
-        getInfo(id)
+        if(id){
+            setId(id)
+            getInfo(id)
+        }
 
         return () => clearTimeout(timer);
     }, [])
@@ -48,7 +64,7 @@ const InfoFoot = () => {
                     <div className="flex gap-8 items-center">
                         <p className={`hidden md:flex text-medium h-fit text-gray-900 justify-center items-center ${info.statuts.designStatut == 'En attente' ? 'bg-gray-300' : info.statuts.designStatut == 'Approuvee' ? 'bg-[#40c057] text-white': 'bg-[#fa5252] text-white'} px-3 py-1 rounded-full`}>{info.statuts.designStatut}</p>
                         {info.statuts.designStatut == 'En attente' && <div className="flex items-center gap-4">
-                            <Button color='default' variant='flat' className='px-4 rounded-xl' size='lg'>Annuler</Button>
+                            <Button color='default' variant='flat' className='px-4 rounded-xl' size='lg' onPress={()=>onOpen('annulModal')}>Annuler</Button>
                             <Button color='primary' className='px-4 rounded-xl' size='lg'>Modifier</Button>
                         </div>}
                     </div>
@@ -100,6 +116,10 @@ const InfoFoot = () => {
                 </div>
             </>
         )}
+
+        {info && <Modal isOpen={openModal == "annulModal"} onClose={onClose}>
+            <AnnulModal onClose={onClose} reload={getInfo} id={info.idDemande}/>
+        </Modal>}
     </div>
   )
 }
