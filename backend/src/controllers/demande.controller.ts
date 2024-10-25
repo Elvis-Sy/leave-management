@@ -359,5 +359,23 @@ export class DemandeController {
         }
     }
 
+    @Get('soldeEmploye/:id')
+    @Roles(Role.EMPLOYE) //Employe
+    async soldeEmp(@Param('id') id: string){
+        try {
+            const solde = await this.demandeService.showSolde(parseInt(id));
+            return {
+                message: "Solde avec succès",
+                demande: solde
+            }
+        } catch (error) {
+            console.error('Erreur de solde:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
 
  }

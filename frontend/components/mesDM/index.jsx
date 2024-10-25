@@ -30,6 +30,7 @@ const MesDemandes = () => {
   const formRef = useRef();
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 5
+  const [solde, setSodle] = useState(0)
   const [id, setId] = useState(null)
   
 
@@ -38,6 +39,7 @@ const MesDemandes = () => {
     if(id){
         setId(id)
         allDM(id)
+        SoldeEmploye(id)
     }
     getType();
     
@@ -57,6 +59,24 @@ const MesDemandes = () => {
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
         setRow([])
+    }
+  };
+
+  //Prendre les donnees
+  const SoldeEmploye = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/demandes/soldeEmploye/${id}`, {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
+
+      const paye = response.data.demande;
+      setSodle(parseFloat(paye))
+
+    } catch (error) {
+        console.error('Erreur lors de la requête:', error.response?.data || error.message);
+        setSodle(0)
     }
   };
 
@@ -84,7 +104,6 @@ const MesDemandes = () => {
           draggable: true,
           progress: undefined,
         });
-
         onClose()
       } else {
         toast.success(`${response.data.message}`, {
@@ -98,6 +117,7 @@ const MesDemandes = () => {
         });
 
         allDM(id)
+        handleButtonResetClick()
         onClose()          
       }
   
@@ -182,6 +202,11 @@ const MesDemandes = () => {
     if (formRef.current) {
       formRef.current.dispatchEvent(new Event('submit', { bubbles: true }));
     }
+  };
+  const handleButtonResetClick = () => {
+    setStartDate(''); 
+    setEndDate(''); 
+    setDayDifference('')
   };
 
   return (
@@ -282,7 +307,7 @@ const MesDemandes = () => {
             <div className="h-full mt-4 flex items-center">
                 <div className="flex gap-4">
                     <Button variant='flat' color='primary' onPress={onOpen}>Envoyer</Button>
-                    <Button variant='light' color='danger' type='reset' onPress={()=>{setStartDate(''); setEndDate(''); setDayDifference('')}}>Reset</Button>
+                    <Button variant='light' color='danger' type='reset' onPress={handleButtonResetClick}>Reset</Button>
                 </div>
             </div>
         </form>
@@ -338,11 +363,11 @@ const MesDemandes = () => {
                             <div className="flex flex-col gap-2 my-2">
                                 <div className="flex justify-between items-center gap-2">
                                     <p className='text-gray-500'>Solde congé actuel:</p>
-                                    <p className='text-bleuspat'>56 jours</p>
+                                    <p className='text-bleuspat'>{solde} jours</p>
                                 </div>
                                 <div className="flex justify-between items-center gap-2">
                                     <p className='text-gray-500'>Après validation:</p>
-                                    <p className='text-bleuspat'>36 jours</p>
+                                    <p className={parseFloat(dayDifference) > solde ? 'text-[#f31260]' : 'text-bleuspat'}>{dayDifference ? solde - parseFloat(dayDifference) : '-/-'} jours</p>
                                 </div>
                             </div>
                         </>

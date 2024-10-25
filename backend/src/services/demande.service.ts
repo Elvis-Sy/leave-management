@@ -3,6 +3,7 @@ https://docs.nestjs.com/providers#services
 */
 
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Decimal } from '@prisma/client/runtime/library';
 import { AddDemandeDto } from 'src/dto/demandeDto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -120,7 +121,7 @@ export class DemandeService {
             dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
             name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
             photo: demande.employe.photoProfile || 'avatar.png',
-            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
+            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : `Direct. ${demande.employe.etablissement.designEtablissement}`,
             type: demande.type.designType,
             nbrJrs: nbrJours,  // Nombre de jours
             dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
@@ -200,7 +201,7 @@ export class DemandeService {
             name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
             photo: demande.employe.photoProfile ? demande.employe.photoProfile : 'avatar.png',
             photoManager: demande.employe.manager ? demande.employe.manager.photoProfile ? demande.employe.manager.photoProfile : 'avatar.png' : 'avatar.png',
-            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
+            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : `Direct. ${demande.employe.etablissement.designEtablissement}`,
             manager: demande.employe.manager ? demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim() : null,
             type: demande.type.designType,
             statut: demande.statuts.designStatut,
@@ -743,6 +744,13 @@ export class DemandeService {
 
       //Accepter demande
       async acceptDM(idDemande: number, idEmploye?: string){
+
+        // Récupération de la demande de congé
+        const demande = await this.prisma.demandesConges.findUnique({
+          where: { idDemande },
+          include: { type: true } // Inclut les détails du type de congé
+        });
+
         await this.prisma.demandesConges.update({
             where: { idDemande },
             data: {
@@ -750,6 +758,40 @@ export class DemandeService {
                 dateConfirmation: new Date(),
             },
         });
+
+        // Vérifie le type de congé et met à jour le solde si nécessaire
+        if (demande.type.designType === 'Paye') {
+          
+          const solde = await this.prisma.soldesConges.findUnique({
+              where: { 
+                idEmp_idType: {
+                  idEmp:demande.employeId, 
+                  idType: demande.typeId 
+                }
+              }
+          });
+
+          if (solde) {
+
+            const dateDebut = new Date(demande.dateDebut);
+            const dateFin = new Date(demande.dateFin);
+            const nombreJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+              await this.prisma.soldesConges.update({
+                  where: { 
+                    idEmp_idType: {
+                      idEmp:demande.employeId, 
+                      idType: demande.typeId 
+                    }
+                  },
+                  data: {
+                    soldeTotal: parseFloat(solde.soldeTotal.toString()) - nombreJours
+                  }
+              });
+          } else {
+              throw new Error("Solde non trouvé pour cet employé et ce type de congé");
+          }
+      }
 
         if(idEmploye != 'null'){   
             await this.prisma.historiquesActions.create({
@@ -943,9 +985,7 @@ export class DemandeService {
           where: {
             employeId,
             statuts: {
-              designStatut: {
-                not: "Annulee"
-              }
+              designStatut: "En attente"
             }
           },
           orderBy: {
@@ -1083,6 +1123,29 @@ export class DemandeService {
                 userId, 
               },
             })
+      }
+
+      //Solde de employe specifique
+      async showSolde (idEmp: number){
+        const solde = await this.prisma.soldesConges.findFirst({
+          where: {
+            idEmp,
+            type: {
+              designType: "Paye"
+            }
+          },
+          select: {
+            soldeTotal: true
+          }
+        })
+
+        let total = new Decimal('0')
+        if(solde){
+          total = solde.soldeTotal;
+        }
+
+        return total
+
       }
 
 }

@@ -38,7 +38,7 @@ const AnnulModal = ({onClose, id, reload}) => {
                 </p>
             </ModalBody>
             <ModalFooter className='mt-0'>
-                <Button variant="light" onPress={onClose}>
+                <Button variant="light" color='danger' onPress={onClose}>
                     retour
                 </Button>
                 <Button color="primary" type='submit' onPress={()=>annuler(id)}>
