@@ -1,8 +1,9 @@
 import React from 'react'
+import SoldeEmploye from '@/components/employe/soldeEmploye'
 
 const mesSoldes = () => {
   return (
-    <div>mesSoldes</div>
+    <SoldeEmploye/>
   )
 }
 
