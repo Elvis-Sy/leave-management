@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Modal, useDisclosure } from '@nextui-org/react'
+import { Button, Modal } from '@nextui-org/react'
 import axios from 'axios'
 import moment from 'moment';
 import 'moment/locale/fr';
 import AnnulModal from '../modals/annulModal'
+import ModifDemande from '../modals/modifDemande'
 
 moment.locale('fr');
 
@@ -62,10 +63,10 @@ const InfoFoot = () => {
                 <div className="flex justify-between gap-10">
                     <h1 className='text-xl font-semibold'>Demande en attente</h1>
                     <div className="flex gap-8 items-center">
-                        {info.statuts.designStatut == 'En attente' && <div className="flex items-center gap-4">
-                            <Button color='default' variant='flat' className='px-2 rounded-xl' size='lg' onPress={()=>onOpen('annulModal')}>Annuler</Button>
-                            <Button color='primary' className='px-2 rounded-xl' size='lg'>Modifier</Button>
-                        </div>}
+                        <div className="flex items-center gap-4">
+                            <Button color='default' variant='flat' className='px-2 rounded-xl' onPress={()=>onOpen('annulModal')}>Annuler</Button>
+                            <Button color='primary' className='px-2 rounded-xl' onPress={()=>onOpen('modifDemande')}>Modifier</Button>
+                        </div>
                     </div>
                 </div>
                 <div className="flex-1 mt-14">
@@ -110,9 +111,16 @@ const InfoFoot = () => {
             </>
         )}
 
-        {info && <Modal isOpen={openModal == "annulModal"} onClose={onClose}>
-            <AnnulModal onClose={onClose} reload={getInfo} id={info.idDemande}/>
-        </Modal>}
+        {info && 
+            <>
+                <Modal isOpen={openModal == "annulModal"} onClose={onClose}>
+                    <AnnulModal onClose={onClose} reload={getInfo} id={info.idDemande}/>
+                </Modal>
+                <Modal isOpen={openModal == "modifDemande"} onClose={onClose}>
+                    <ModifDemande onClose={onClose} reload={getInfo} donnee={info}/>
+                </Modal>
+            </>
+        }
     </div>
   )
 }

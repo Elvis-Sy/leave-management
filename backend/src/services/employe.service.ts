@@ -982,18 +982,27 @@ export class EmployeService {
         }
       })
 
-      if(!seconde) throw new NotFoundException("Aucun solde retrouvé !")
+      let solde = '0';
+      if(seconde) {
+        solde = `${seconde.soldeTotal}`
+      }
+
+      let manager = null;
+      if(first.manager){
+        const temp = first.manager.split('-');
+        manager = temp[1];
+      }
 
       return {
         nom: first.nom,
         prenom: first.prenom,
         CIN: first.CIN,
         email: first.email,
-        manager: first.manager,
+        manager: manager,
         dateEmbauche: first.dateEmbauche,
         etablissement: first.etablissement,
         poste: first.poste,
-        solde: seconde.soldeTotal,
+        solde: solde,
         photo: first.photo
       }
     }

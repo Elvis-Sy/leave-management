@@ -377,5 +377,24 @@ export class DemandeController {
         }
     }
 
+    @Patch('update/:id')
+    @Roles(Role.EMPLOYE) //Employe
+    async updateDM(@Param('id') id: string, @Body() dates){
+        try {
+            const dateDebut = dates.dateDebut
+            const dateFin = dates.dateFin
+            await this.demandeService.modifDate(parseInt(id), dateDebut, dateFin);
+            return {
+                message: "Demande modifiee",
+            }
+        } catch (error) {
+            console.error('Erreur de solde:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
 
  }

@@ -748,7 +748,7 @@ export class DemandeService {
         // Récupération de la demande de congé
         const demande = await this.prisma.demandesConges.findUnique({
           where: { idDemande },
-          include: { type: true } // Inclut les détails du type de congé
+          include: { type: true }
         });
 
         await this.prisma.demandesConges.update({
@@ -759,39 +759,41 @@ export class DemandeService {
             },
         });
 
-        // Vérifie le type de congé et met à jour le solde si nécessaire
-        if (demande.type.designType === 'Paye') {
-          
+        const updateSoldeConges = async (employeId:number, typeId: number, adjustment) => {
           const solde = await this.prisma.soldesConges.findUnique({
-              where: { 
-                idEmp_idType: {
-                  idEmp:demande.employeId, 
-                  idType: demande.typeId 
-                }
+            where: { 
+              idEmp_idType: {
+                idEmp: employeId, 
+                idType: typeId 
               }
+            }
           });
-
-          if (solde) {
-
-            const dateDebut = new Date(demande.dateDebut);
-            const dateFin = new Date(demande.dateFin);
-            const nombreJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
-              await this.prisma.soldesConges.update({
-                  where: { 
-                    idEmp_idType: {
-                      idEmp:demande.employeId, 
-                      idType: demande.typeId 
-                    }
-                  },
-                  data: {
-                    soldeTotal: parseFloat(solde.soldeTotal.toString()) - nombreJours
-                  }
-              });
-          } else {
-              throw new Error("Solde non trouvé pour cet employé et ce type de congé");
+        
+          if (!solde) {
+            throw new Error("Solde non trouvé pour cet employé et ce type de congé");
           }
-      }
+        
+          await this.prisma.soldesConges.update({
+            where: { 
+              idEmp_idType: {
+                idEmp: employeId, 
+                idType: typeId 
+              }
+            },
+            data: {
+              soldeTotal: parseFloat(solde.soldeTotal.toString()) + adjustment
+            }
+          });
+        };
+        
+        // Vérifie le type de congé et met à jour le solde si nécessaire
+        const dateDebut = new Date(demande.dateDebut);
+        const dateFin = new Date(demande.dateFin);
+        const nombreJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        
+        const adjustment = demande.type.designType === 'Paye' ? -nombreJours : nombreJours;
+        
+        await updateSoldeConges(demande.employeId, demande.typeId, adjustment);
 
         if(idEmploye != 'null'){   
             await this.prisma.historiquesActions.create({
@@ -1146,6 +1148,19 @@ export class DemandeService {
 
         return total
 
+      }
+
+      //Modifier date demande
+      async modifDate(idDemande: number, dateDebut: string, dateFin: string){
+        await this.prisma.demandesConges.update({
+          where: {
+            idDemande
+          },
+          data: {
+            dateDebut,
+            dateFin
+          }
+        })
       }
 
 }
