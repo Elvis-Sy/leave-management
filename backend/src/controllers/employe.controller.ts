@@ -80,6 +80,24 @@ export class EmployeController {
         }
     }
 
+    @Get('all/:id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.MANAGER) //Admin
+    async listEmployeSpecified(@Param('id') id: string){
+        try {
+            const Employes = await this.employeService.allEmployeSpecified(parseInt(id));
+            return{
+                message: 'Employés listés avec succès.',
+                employe: Employes,
+            }
+        } catch (error) {
+            console.error('Erreur lors du listage:', error);
+            return{
+                message: "erreur lors du listage des employes"
+            }
+        }
+    }
+
     @Delete(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN) //Admin
@@ -280,7 +298,7 @@ export class EmployeController {
 
     @Get('modif/:id')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN) //Admin
+    @Roles(Role.ADMIN, Role.MANAGER) //Admin
     async modifInfo(@Param('id') id: string){
         try {
             const modif = await this.employeService.info(parseInt(id))
@@ -402,7 +420,7 @@ export class EmployeController {
 
     @Get('collegue/:id')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
+    @Roles(Role.EMPLOYE) //Employe
     async Collegue(@Param('id') id: string){
         try {
             const memb = await this.employeService.listeCollegue(parseInt(id))

@@ -1,7 +1,6 @@
 "use client";
-import { Modal, Popover, PopoverTrigger, PopoverContent, User, Tooltip, Pagination, Chip, Avatar, Button, Autocomplete, AutocompleteItem } from '@nextui-org/react';
+import { Modal, Popover, PopoverTrigger, PopoverContent, Pagination, Button, Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import React, { useEffect, useState } from "react";
-import { ExportIcon } from "@/components/icons/accounts/export-icon";
 import { TableWrapper } from "@/components/table/table";
 import { colAttente } from "../table/data";
 import { RenderCell } from "../table/render-attente";
@@ -12,14 +11,12 @@ import AccepModal from '@/components/modals/acceptModal'
 import RefuseModal from '@/components/modals/refuseModal'
 import { addDays } from 'date-fns';
 
-
-export const Attentes = () => {
+export const DMAttente = () => {
 
     const [type, setType] = useState([]);
     const [row, setRow] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const rowsPerPage = 5 // Nombre de lignes par page
-    const [selectedSort, setSelectedSort] = useState("ASC"); // Pour suivre le tri actuel
     const [dateDebut, setDateDebut] = useState('');
     const [dateFin, setDateFin] = useState('');
     const [typeConge, setTypeConge] = useState()
@@ -60,7 +57,9 @@ export const Attentes = () => {
           }
       });
 
-      setRow(response.data.demande)
+      const temp = response.data.demande;
+      const data = temp.filter((item)=>item.idManager == localStorage.getItem('id'));
+      setRow(data)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -70,19 +69,8 @@ export const Attentes = () => {
 
   //Recherche par nom
   const searchAttente = async (val) => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/demandes/searchAttente/${val}`, {
-          headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-      });
-
-      setRow(response.data.demande || []);
-
-    } catch (error) {
-        console.error('Erreur lors de la requête:', error.response?.data || error.message);
-        setRow([])
-    }
+    const temp = row.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
+    setRow(temp)
   }; 
 
   //Filtrage des donnees
@@ -121,7 +109,9 @@ export const Attentes = () => {
         }
       });
 
-      setRow(response.data.demande || []);
+      const temp = response.data.demande;
+      const data = temp.filter((item)=>item.idManager == localStorage.getItem('id'));
+      setRow(data)
   
       
     } catch (error) {
@@ -144,22 +134,6 @@ export const Attentes = () => {
     setCurrentPage(page)
   }
 
-  //Trier les donners ASC ou DESC
-  const handleSortClick = (order) => {
-    const sortedData = [...row].sort((a, b) => {
-      const aValue = a.DateEmb;
-      const bValue = b.DateEmb;
-
-      if (order === 'ASC') {
-        return aValue > bValue ? 1 : -1; // Pour l'ordre croissant
-      } else {
-        return aValue < bValue ? 1 : -1; // Pour l'ordre décroissant
-      }
-    });
-
-    setRow(sortedData);
-    setSelectedSort(order); // Mettez à jour le tri sélectionné
-  };
 
   //Type Conge
   const getType = async ()=> {
@@ -189,8 +163,9 @@ export const Attentes = () => {
             {/* FILTER */}
             <Popover placement="left" showArrow={true} className="filter2">
               <PopoverTrigger>
-                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                  <img src="/filter.png" alt="" width={20} height={20}/>
+                <button type="button" className="flex items-center px-4 py-1 bg-[#0070f0] gap-4 rounded-lg">
+                    <img src="/filter.png" alt="" width={20} height={20}/>
+                    <span className='text-lg text-white font-semibold'>Filtrer</span>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="p-4 flex flex-col gap-3">
@@ -245,24 +220,8 @@ export const Attentes = () => {
               </PopoverContent>
             </Popover>
 
-            {/* SORT */}
-            <Popover placement="bottom" showArrow={true} className="sort">
-              <PopoverTrigger>
-                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                  <img src="/sort.png" alt="" width={24} height={24}/>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="p-2 flex flex-col gap-2 w-[150px]">
-                <Button variant="flat" onClick={() => handleSortClick('ASC')} className="w-full" color={selectedSort === 'ASC' ? 'primary' : 'default'}>ASC</Button>
-                <Button variant="flat" onClick={() => handleSortClick('DESC')} className="w-full" color={selectedSort === 'DESC' ? 'primary' : 'default'}>DESC</Button>
-              </PopoverContent>
-            </Popover>
-
           </div>
 
-          <Button color="primary" startContent={<ExportIcon />}>
-            Export to CSV
-          </Button>
         </div>
       </div>
       <div className="max-w-[95rem] mx-auto w-full">

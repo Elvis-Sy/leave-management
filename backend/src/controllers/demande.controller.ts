@@ -33,7 +33,7 @@ export class DemandeController {
     }
 
     @Get('attente')
-    @Roles(Role.ADMIN) //Admin
+    @Roles(Role.ADMIN, Role.MANAGER)
     async attenteDemande(){
         try {
             const demandes = await this.demandeService.listDemandeAttente();
@@ -50,7 +50,7 @@ export class DemandeController {
     }
 
     @Get('valid')
-    @Roles(Role.ADMIN) //Admin
+    @Roles(Role.ADMIN, Role.MANAGER)
     async validDemande(){
         try {
             const demandes = await this.demandeService.validDemande();
@@ -152,7 +152,7 @@ export class DemandeController {
     }
 
     @Get('validFiltre')
-    @Roles(Role.ADMIN)
+    @Roles(Role.ADMIN, Role.MANAGER)
     async filtreValid(
         @Query('type') type?: string,
         @Query('dateDebut') dateDebut?: string,
@@ -174,7 +174,7 @@ export class DemandeController {
     }
 
     @Get('attenteFiltre')
-    @Roles(Role.ADMIN)
+    @Roles(Role.ADMIN, Role.MANAGER)
     async filtreAttente(
         @Query('type') type?: string,
         @Query('dateDebut') dateDebut?: string,
@@ -249,7 +249,7 @@ export class DemandeController {
     }
 
     @Get('event/:id')
-    @Roles(Role.ADMIN)
+    @Roles(Role.ADMIN, Role.MANAGER)
     async actifSub(@Param('id') id: string){
         try {
             const demande = await this.demandeService.CongeEventSub(parseInt(id));
@@ -267,7 +267,7 @@ export class DemandeController {
     }
 
     @Get('event/:id/employe')
-    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
+    @Roles(Role.EMPLOYE) //Employe
     async actifSubEmp(@Param('id') id: string){
         try {
             const demande = await this.demandeService.CongeEventEmp(parseInt(id));
@@ -305,7 +305,7 @@ export class DemandeController {
     }
 
     @Get('lastDemande/:id')
-    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
+    @Roles(Role.EMPLOYE) //Employe
     async derniereDemande(@Param('id') id: string) {
         try {
             const conge = await this.demandeService.lastDemande(parseInt(id));
@@ -323,7 +323,7 @@ export class DemandeController {
     }
 
     @Get('employeDM/:id')
-    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
+    @Roles(Role.EMPLOYE) //Employe
     async dmEmploye(@Param('id') id: string) {
         try {
             const dm = await this.demandeService.employeDM(parseInt(id));
@@ -341,7 +341,7 @@ export class DemandeController {
     }
 
     @Patch('annulee')
-    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
+    @Roles(Role.EMPLOYE) //Employe
     async annuleDM(@Body() body){
         try {
             const idDemande = parseInt(body.idDemande)
@@ -360,7 +360,7 @@ export class DemandeController {
     }
 
     @Get('soldeEmploye/:id')
-    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
+    @Roles(Role.EMPLOYE) //Employe
     async soldeEmp(@Param('id') id: string){
         try {
             const solde = await this.demandeService.showSolde(parseInt(id));
@@ -378,7 +378,7 @@ export class DemandeController {
     }
 
     @Patch('update/:id')
-    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
+    @Roles(Role.EMPLOYE) //Employe
     async updateDM(@Param('id') id: string, @Body() dates){
         try {
             const dateDebut = dates.dateDebut

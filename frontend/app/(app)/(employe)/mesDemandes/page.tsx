@@ -1,5 +1,5 @@
 import React from 'react'
-import MesDemandes from '@/components/mesDM'
+import MesDemandes from '@/components/demandes/mesDM'
 
 const mesDemandes = () => {
   return (

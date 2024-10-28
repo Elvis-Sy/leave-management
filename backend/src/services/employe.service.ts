@@ -112,6 +112,58 @@ export class EmployeService {
       return rows;
     }
 
+    //Affichage tout les employes
+    async allEmployeSpecified(idManager: number){
+      const employes = await this.prisma.employes.findMany({
+        where: {
+          NOT: {
+            compte: null, // Filtrer seulement les employés qui ont un compte utilisateur
+          },
+          idManager
+        },
+        include: {
+          manager: {
+            select: {
+              nom: true,
+              photoProfile: true
+            },
+          },
+          poste: {
+            select: {
+              designPoste: true,
+            },
+          },
+          compte: {
+            select: {
+              email: true
+            }
+          },
+          etablissement: {
+            select: {
+              designEtablissement: true
+            }
+          }
+        },
+      });
+
+      const rows = employes.map((data)=>{
+        return {
+          id: data.idEmploye,
+          employeId: data.CIN,
+          name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
+          email: data.compte.email,
+          manager: data.manager ?  `${data.manager.nom}` : null,
+          photo: data.photoProfile ? data.photoProfile : "avatar.png",
+          photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
+          DateEmb: data.dateEmbauche,
+          Etablissement: data.etablissement.designEtablissement,
+          poste: data.poste.designPoste,
+        }
+      })
+
+      return rows;
+    }
+
     //Tout les employes mais seulement le nom
     async Supperieur(){
       const noms = await this.prisma.employes.findMany({

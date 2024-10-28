@@ -86,6 +86,7 @@ export class DemandeService {
                     nom: true,
                     prenom: true,
                     photoProfile: true,
+                    idManager: true,
                     etablissement: {
                         select: {
                             designEtablissement: true,
@@ -107,26 +108,23 @@ export class DemandeService {
             }
         })
 
-        let nbrJours = 0;
+        const dm = demande.map((demande, index) => {
+          const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        demande.forEach(dm =>{
-            const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            nbrJours = diffDays;
-        })
-
-        const dm = demande.map((demande, index) => ({
+          return {
             id: demande.idDemande,
             dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
             name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
             photo: demande.employe.photoProfile || 'avatar.png',
             etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : `Direct. ${demande.employe.etablissement.designEtablissement}`,
             type: demande.type.designType,
-            nbrJrs: nbrJours,  // Nombre de jours
+            nbrJrs: diffDays,  // Nombre de jours
             dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
-            dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR')  // Formater la date de fin
-        }));
+            dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR'),
+            idManager: demande.employe.idManager  // Formater la date de fin
+          }
+        });
 
 
         return dm;
@@ -145,6 +143,7 @@ export class DemandeService {
                   select: {
                     nom: true,
                     prenom: true,
+                    idManager: true,
                     photoProfile: true,
                     etablissement: {
                         select: {
@@ -156,7 +155,7 @@ export class DemandeService {
                         select: {
                             nom: true,
                             prenom: true,
-                            photoProfile: true
+                            photoProfile: true,
                         }
                     }
                   }
@@ -183,18 +182,11 @@ export class DemandeService {
             }
         })
 
-        let nbrJours = 0;
+        const dm = demande.map((demande) => {
+          const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        demande.forEach(dm =>{
-            const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            nbrJours = diffDays;
-
-            delete dm.dateDebut;
-            delete dm.dateFin;
-        })
-
-        const dm = demande.map((demande) => ({
+          return {
             id: demande.idDemande,
             dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
             dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
@@ -205,8 +197,10 @@ export class DemandeService {
             manager: demande.employe.manager ? demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim() : null,
             type: demande.type.designType,
             statut: demande.statuts.designStatut,
-            nbrJrs: nbrJours,
-        }));
+            nbrJrs: diffDays,
+            idManager: demande.employe.idManager
+          }
+        });
 
         return dm;
 
@@ -438,22 +432,13 @@ export class DemandeService {
                     }
                 }
             }
-        })
+        })      
 
-        
+        const dm = demande.map((demande) => {
+          const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        let nbrJours = 0;
-
-        demande.forEach(dm =>{
-            const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            nbrJours = diffDays;
-
-            delete dm.dateDebut;
-            delete dm.dateFin;
-        })
-
-        const dm = demande.map((demande) => ({
+          return {
             id: demande.idDemande,
             dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
             dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
@@ -464,8 +449,9 @@ export class DemandeService {
             manager: demande.employe.manager ? demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim() : null,
             type: demande.type.designType,
             statut: demande.statuts.designStatut,
-            nbrJrs: nbrJours,
-        }));
+            nbrJrs: diffDays,
+          }
+        });
 
         return dm;
     }
@@ -509,26 +495,22 @@ export class DemandeService {
             }
         })
 
-        let nbrJours = 0;
+        const dm = demande.map((demande, index) => {
+          const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        demande.forEach(dm =>{
-            const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            nbrJours = diffDays;
-        })
-
-        const dm = demande.map((demande, index) => ({
+          return {
             id: demande.idDemande,
             dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
             name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
             photo: demande.employe.photoProfile || 'avatar.png',
             etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
             type: demande.type.designType,
-            nbrJrs: nbrJours,  // Nombre de jours
+            nbrJrs: diffDays,  // Nombre de jours
             dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
             dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR')  // Formater la date de fin
-        }));
+          }
+        });
 
 
         return dm;
@@ -537,7 +519,6 @@ export class DemandeService {
     //Fitrage des donnees
     async filtreValid(type: string | undefined, dateDebut: string | undefined, dateFin: string | undefined){
         try {
-          
           const whereClause: any = {};
 
           whereClause.statuts = {
@@ -589,6 +570,7 @@ export class DemandeService {
                     nom: true,
                     prenom: true,
                     photoProfile: true,
+                    idManager: true,
                     etablissement: {
                         select: {
                             designEtablissement: true,
@@ -616,19 +598,13 @@ export class DemandeService {
                 }
             },
           });
-  
-          let nbrJours = 0;
 
-          demande.forEach(dm =>{
-              const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              nbrJours = diffDays;
   
-              delete dm.dateDebut;
-              delete dm.dateFin;
-          })
-  
-          const dm = demande.map((demande) => ({
+          const dm = demande.map((demande) => {
+            const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            return {
               id: demande.idDemande,
               dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
               dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
@@ -639,8 +615,10 @@ export class DemandeService {
               manager: demande.employe.manager ? demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim() : null,
               type: demande.type.designType,
               statut: demande.statuts.designStatut,
-              nbrJrs: nbrJours,
-          }));
+              nbrJrs: diffDays,
+              idManager: demande.employe.idManager
+            }
+          });
       
           return dm;
         } catch (error) {
@@ -698,6 +676,7 @@ export class DemandeService {
                     nom: true,
                     prenom: true,
                     photoProfile: true,
+                    idManager: true,
                     etablissement: {
                         select: {
                             designEtablissement: true,
@@ -713,27 +692,25 @@ export class DemandeService {
                 }
             },
           });
-  
-          let nbrJours = 0;
 
-        demande.forEach(dm =>{
-            const diffTime = Math.abs(new Date(dm.dateFin).getTime() - new Date(dm.dateDebut).getTime() + 1);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            nbrJours = diffDays;
-        })
+        const dm = demande.map((demande, index) => {
+          const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        const dm = demande.map((demande, index) => ({
+          return {
             id: demande.idDemande,
             dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
             name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
             photo: demande.employe.photoProfile || 'avatar.png',
             etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
             type: demande.type.designType,
-            nbrJrs: nbrJours,  // Nombre de jours
+            nbrJrs: diffDays,  // Nombre de jours
             dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
-            dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR')  // Formater la date de fin
-        }));
+            dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR'),
+            idManager: demande.employe.idManager  // Formater la date de fin
+          }
+        });
       
           return dm;
         } catch (error) {

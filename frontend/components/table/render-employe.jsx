@@ -85,20 +85,24 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
                     {/* </Link> */}
                 </Tooltip>
            </div>
-            <div>
-                <Tooltip content="Modifier" color="primary">
-                <button onClick={()=>{ setId(user.id); onOpen("modifModal")}}>
-                    <EditIcon size={20} fill="#1d71b8" />
-                </button>
-                </Tooltip>
-            </div>
-            <div>
-                <Tooltip content="Supprimer" color="danger">
-                <button onClick={()=>{ setId(user.id); onOpen("suppModal") }}>
-                    <DeleteIcon size={20} fill="#FF0080" />
-                </button>
-                </Tooltip>
-            </div>
+           {localStorage.getItem('role') == 'Admin' && (
+            <>
+              <div>
+                  <Tooltip content="Modifier" color="primary">
+                  <button onClick={()=>{ setId(user.id); onOpen("modifModal")}}>
+                      <EditIcon size={20} fill="#1d71b8" />
+                  </button>
+                  </Tooltip>
+              </div>
+              <div>
+                  <Tooltip content="Supprimer" color="danger">
+                  <button onClick={()=>{ setId(user.id); onOpen("suppModal") }}>
+                      <DeleteIcon size={20} fill="#FF0080" />
+                  </button>
+                  </Tooltip>
+              </div>
+            </>
+          )}
         </div>
       );
     default:

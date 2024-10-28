@@ -272,9 +272,9 @@ export const EmployePage = () => {
 
           </div>
 
-          {localStorage.getItem('role') == 'Admin' && <Button color="primary" onPress={()=> onOpen("ajoutModal")} startContent={<AddIcon />}>
+          <Button color="primary" onPress={()=> onOpen("ajoutModal")} startContent={<AddIcon />}>
             Ajouter
-          </Button>}
+          </Button>
           <Button color="primary" startContent={<ExportIcon />}>
             Export to CSV
           </Button>

@@ -1,30 +1,24 @@
 "use client";
-import { Modal, Popover, PopoverTrigger, PopoverContent, User, Tooltip, Pagination, Chip, Avatar, Button, Autocomplete, AutocompleteItem } from '@nextui-org/react';
+import { Popover, PopoverTrigger, PopoverContent, Pagination, Button, Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import React, { useEffect, useState } from "react";
-import { ExportIcon } from "@/components/icons/accounts/export-icon";
 import { TableWrapper } from "@/components/table/table";
-import { colAttente } from "../table/data";
-import { RenderCell } from "../table/render-attente";
+import { colValide } from "../table/data";
+import { RenderCell } from "../table/render-valide";
 import TableSearch from "../table/tableSearch" 
 import axios from "axios";
 import { ToastContainer } from 'react-toastify';
-import AccepModal from '@/components/modals/acceptModal'
-import RefuseModal from '@/components/modals/refuseModal'
 import { addDays } from 'date-fns';
 
 
-export const Attentes = () => {
+export const DMValides = () => {
 
     const [type, setType] = useState([]);
     const [row, setRow] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const rowsPerPage = 5 // Nombre de lignes par page
-    const [selectedSort, setSelectedSort] = useState("ASC"); // Pour suivre le tri actuel
     const [dateDebut, setDateDebut] = useState('');
     const [dateFin, setDateFin] = useState('');
     const [typeConge, setTypeConge] = useState()
-    const [openModal, setOpenModal] = useState(null);
-    const [idSupp, setId] = useState(null);
 
     // Fonction pour gérer la sélection du type de conge
     const handleTypeSelect = (item) => {
@@ -36,31 +30,23 @@ export const Attentes = () => {
     filtreEmploye(typeConge, dateDebut, dateFin);
   };
 
-  //Ouvertur modal
-  const onOpen = (modalId) => {
-    setOpenModal(modalId);
-  };
-
-  //Fermeture modal
-  const onClose = () => {
-    setOpenModal(null);
-  };
-
   useEffect(()=>{
-    allAttente()
+    allValid()
     getType()
   }, [])
 
   //Prendre les donnees
-  const allAttente = async () => {
+  const allValid = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/demandes/attente', {
+      const response = await axios.get('http://localhost:5000/api/demandes/valid', {
           headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
           }
       });
 
-      setRow(response.data.demande)
+      const temp = response.data.demande;
+      const data = temp.filter((item)=>item.idManager == localStorage.getItem('id'));
+      setRow(data)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -69,34 +55,24 @@ export const Attentes = () => {
   };
 
   //Recherche par nom
-  const searchAttente = async (val) => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/demandes/searchAttente/${val}`, {
-          headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-      });
-
-      setRow(response.data.demande || []);
-
-    } catch (error) {
-        console.error('Erreur lors de la requête:', error.response?.data || error.message);
-        setRow([])
-    }
-  }; 
+  const searchValid = async (val) => {
+    const temp = row.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
+    setRow(temp)
+  };
 
   //Filtrage des donnees
   const filtreEmploye = async (type = '', dateDebut = '', dateFin = '') => {
     try {
+
       
       if (!type && !dateDebut && !dateFin) {
-        allAttente()
+        allValid()
         return;
       }
   
       // Construire la requête en fonction des filtres fournis
       let query = ''
-      query = `http://localhost:5000/api/demandes/attenteFiltre?`;
+      query = `http://localhost:5000/api/demandes/validFiltre?`;
       
       
   
@@ -111,7 +87,7 @@ export const Attentes = () => {
       } else if (dateFin){
         query += `dateDebut=${encodeURIComponent(addDays(dateFin, 1))}&dateFin=${encodeURIComponent(dateFin)}&`;
       }
-  
+      
       // Retirer le dernier "&" inutile
       query = query.slice(0, -1);
   
@@ -121,7 +97,9 @@ export const Attentes = () => {
         }
       });
 
-      setRow(response.data.demande || []);
+      const temp = response.data.demande;
+      const data = temp.filter((item)=>item.idManager == localStorage.getItem('id'));
+      setRow(data)
   
       
     } catch (error) {
@@ -144,23 +122,6 @@ export const Attentes = () => {
     setCurrentPage(page)
   }
 
-  //Trier les donners ASC ou DESC
-  const handleSortClick = (order) => {
-    const sortedData = [...row].sort((a, b) => {
-      const aValue = a.DateEmb;
-      const bValue = b.DateEmb;
-
-      if (order === 'ASC') {
-        return aValue > bValue ? 1 : -1; // Pour l'ordre croissant
-      } else {
-        return aValue < bValue ? 1 : -1; // Pour l'ordre décroissant
-      }
-    });
-
-    setRow(sortedData);
-    setSelectedSort(order); // Mettez à jour le tri sélectionné
-  };
-
   //Type Conge
   const getType = async ()=> {
     try {
@@ -181,7 +142,7 @@ export const Attentes = () => {
 
       <div className="flex justify-between flex-wrap gap-4 items-center">
         <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
-          <TableSearch search={searchAttente} all={allAttente}/>
+          <TableSearch search={searchValid} all={allValid}/>
         </div>
         <div className="flex flex-row gap-3.5 flex-wrap">
           <div className="flex items-center gap-4 self-end">
@@ -189,8 +150,9 @@ export const Attentes = () => {
             {/* FILTER */}
             <Popover placement="left" showArrow={true} className="filter2">
               <PopoverTrigger>
-                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                  <img src="/filter.png" alt="" width={20} height={20}/>
+                <button type="button" className="flex items-center px-4 py-1 bg-[#0070f0] gap-4 rounded-lg">
+                    <img src="/filter.png" alt="" width={20} height={20}/>
+                    <span className='text-lg text-white font-semibold'>Filtrer</span>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="p-4 flex flex-col gap-3">
@@ -245,28 +207,12 @@ export const Attentes = () => {
               </PopoverContent>
             </Popover>
 
-            {/* SORT */}
-            <Popover placement="bottom" showArrow={true} className="sort">
-              <PopoverTrigger>
-                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                  <img src="/sort.png" alt="" width={24} height={24}/>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="p-2 flex flex-col gap-2 w-[150px]">
-                <Button variant="flat" onClick={() => handleSortClick('ASC')} className="w-full" color={selectedSort === 'ASC' ? 'primary' : 'default'}>ASC</Button>
-                <Button variant="flat" onClick={() => handleSortClick('DESC')} className="w-full" color={selectedSort === 'DESC' ? 'primary' : 'default'}>DESC</Button>
-              </PopoverContent>
-            </Popover>
-
           </div>
 
-          <Button color="primary" startContent={<ExportIcon />}>
-            Export to CSV
-          </Button>
         </div>
       </div>
       <div className="max-w-[95rem] mx-auto w-full">
-      <TableWrapper RenderCell={(props) => <RenderCell {...props} onOpen={onOpen} setId={setId}/>} columns={colAttente} users={paginatedData}/>
+        <TableWrapper RenderCell={RenderCell} columns={colValide} users={paginatedData}/>
       </div>
       {/* PAGINATION */}
       <div className="mt-4 flex justify-center">
@@ -278,14 +224,6 @@ export const Attentes = () => {
           variant="faded" 
           className="rounded-md"/>
       </div>
-
-      <Modal isOpen={openModal == "AcceptModal"} onClose={onClose} size="sm">
-        <AccepModal onClose={onClose} id={idSupp} reload={allAttente}/>
-      </Modal>
-      
-      <Modal isOpen={openModal == "RefuseModal"} onClose={onClose} size="sm">
-        <RefuseModal onClose={onClose} id={idSupp} reload={allAttente}/>
-      </Modal>
 
     </div>
   )

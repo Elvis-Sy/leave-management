@@ -8,6 +8,7 @@ import { RenderCell } from "../table/render-valide";
 import TableSearch from "../table/tableSearch" 
 import axios from "axios";
 import { ToastContainer } from 'react-toastify';
+import { addDays } from 'date-fns';
 
 
 export const Valides = () => {
@@ -92,9 +93,9 @@ export const Valides = () => {
       if (dateDebut && dateFin) {
         query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(dateFin)}&`;
       } else if (dateDebut) {
-        query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(dateDebut)}&`;
+        query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(addDays(dateDebut, 1))}&`;
       } else if (dateFin){
-        query += `dateDebut=${encodeURIComponent(dateFin)}&dateFin=${encodeURIComponent(dateFin)}&`;
+        query += `dateDebut=${encodeURIComponent(addDays(dateFin, 1))}&dateFin=${encodeURIComponent(dateFin)}&`;
       }
   
       // Retirer le dernier "&" inutile

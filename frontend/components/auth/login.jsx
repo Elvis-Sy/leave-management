@@ -36,12 +36,13 @@ const Login =()=> {
       progress: undefined,
       style: {fontWeight: 500, color: "green"}
     });
-    router.push('/');
+    router.push('/home');
 
   }
 
   const goEmploye = ()=>{
 
+    localStorage.setItem('role', 'Employe')
     toast.success("Connexion...", {
       position: "top-left",
       autoClose: 1000,
@@ -219,7 +220,7 @@ const Login =()=> {
                 <ModalBody>
                     <div className="flex gap-8 items-center justify-between px-10 py-4">
                         <Button color='primary' variant='flat' className='font-medium' onPress={goEmploye}><CustomersIcon bgFill='fill-blue-500'/> Employe</Button>
-                        <Button color='primary' variant='flat' className='font-medium'><AccountsIcon bgFill='fill-blue-500'/> Manager</Button> 
+                        <Button color='primary' variant='flat' className='font-medium' onPress={goManager}><AccountsIcon bgFill='fill-blue-500'/> Manager</Button> 
                     </div>
                 </ModalBody>
             </>

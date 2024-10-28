@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { UsersIcon } from "@/components/icons/breadcrumb/users-icon";
 import Link from "next/link";
-import { useRouter } from 'next/navigation'
 import { Card, CardBody, Progress } from '@nextui-org/react';
 
 const SimpleEmploye = () => {
@@ -65,7 +64,7 @@ const SimpleEmploye = () => {
           <span> / </span>{" "}
         </li>
         <li className="flex gap-2">
-          <Link href={"/employes"}>
+          <Link href={ localStorage.getItem('role') == 'Admin' ? "/employes" : "/subordonnes"}>
             {" "}
             <span>Liste</span>
           </Link>
@@ -121,7 +120,7 @@ const SimpleEmploye = () => {
                 <CardBody className="p-4 flex flex-row gap-4 items-center">
                     <div className="flex-1 w-full">
                       <h2 className='text-sm font-semibold'>{leave.type}</h2>
-                      <Progress value={(leave.accumulated / leave.total) * 100} className="mt-2 w-full" />
+                      <Progress aria-label='solde' value={(leave.accumulated / leave.total) * 100} className="mt-2 w-full" />
                       <p className='text-xs text-muted-foreground mt-1'>
                           {leave.accumulated} sur {leave.total} jours
                       </p>

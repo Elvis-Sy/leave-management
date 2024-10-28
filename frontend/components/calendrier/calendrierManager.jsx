@@ -11,7 +11,7 @@ import axios from 'axios';
 moment.locale('fr'); // Changer la langue en français
 const localizer = momentLocalizer(moment);
 
-const CalendrierEmploye = () => {
+const CalendrierManager = () => {
 
     const [actif, setActif] = useState([])
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -29,7 +29,7 @@ const CalendrierEmploye = () => {
     //Prendre les donnees
     const allConge = async (id) => {
         try {
-          const response = await axios.get(`http://localhost:5000/api/demandes/event/${id}/employe`, {
+          const response = await axios.get(`http://localhost:5000/api/demandes/event/${id}`, {
               headers: {
                   Authorization: `Bearer ${localStorage.getItem('token')}`
               }
@@ -162,4 +162,4 @@ const CalendrierEmploye = () => {
   )
 }
 
-export default CalendrierEmploye
+export default CalendrierManager
