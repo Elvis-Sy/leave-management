@@ -38,7 +38,7 @@ export class EmployeService {
       const token = this.jwtService.sign({ email }, { secret: "congeSPAT", expiresIn: '48h' });
   
       // Envoyer le mail
-      // await this.mailer.sendSignupConfirmation(email, nom, token); //DE-COMMENTER LORS DU REEL
+      await this.mailer.sendSignupConfirmation(email, nom, token); //DE-COMMENTER LORS DU REEL
   
       await this.prisma.employes.create({
         data: {
@@ -144,7 +144,7 @@ export class EmployeService {
 
     //Affichage tout les Manager
     async allManager(){
-      const manager = await this.prisma.employes.findMany({
+      const managers = await this.prisma.employes.findMany({
         where:{
           subordonne: {
             some: {}, 
@@ -177,7 +177,12 @@ export class EmployeService {
         }
       });
 
-      const rows = manager.map((data)=>{
+      //A supprimer si necessaire
+      for (const manager of managers) {
+        await this.updateRoleIfNeeded(manager.idEmploye);
+      }
+
+      const rows = managers.map((data)=>{
         return {
           id: data.idEmploye,
           managerId: data.CIN,
@@ -878,70 +883,27 @@ export class EmployeService {
 
     //Recuperation des soldes de conges
     async SoldesConges(employeId: number) {
-
-      const currentDate = new Date();
       
-      const leaveData = await this.prisma.typesConges.findMany({
+      const leaveData = await this.prisma.soldesConges.findMany({
         where: {
-          solde: {
-            some: {
-              idEmp: employeId,
-            },
-          },
+          idEmp: employeId
         },
         select: {
-          designType: true,
-          solde: {
-            where: {
-              idEmp: employeId, // Filtrer les soldes pour cet employé
-            },
+          soldeTotal: true,
+          type: {
             select: {
-              soldeTotal: true,
-              soldeUtilise: true,
-            },
-          },
-          demandes: {
-            where: {
-              employeId, // Filtrer par l'ID de l'employé
-              dateDebut: {
-                lte: currentDate, // Date de début <= jour actuel
-              },
-              dateFin: {
-                gte: currentDate, // Date de fin >= jour actuel
-              },
-            },
-            select: {
-              dateDebut: true,
-              dateFin: true,
-            },
-          },
-        },
+              designType: true,
+              nbJours: true
+            }
+          }
+        }
       });
       
-      const formattedLeaveData = leaveData.map(leave => {
-        // Calculer le nombre total de jours de congé (dateFin - dateDebut)
-        const totalDays = leave.demandes.reduce((total, conge) => {
-          const dateDebutTime = new Date(conge.dateDebut).getTime();
-          const dateFinTime = new Date(conge.dateFin).getTime();
-          const daysDiff = Math.ceil((dateFinTime - dateDebutTime + 76400) / (1000 * 60 * 60 * 24)); // Différence en jours
-          return total + daysDiff;
-        }, 0);
-      
-        // Calculer le nombre de jours utilisés jusqu'à aujourd'hui
-        const usedDays = leave.demandes.reduce((total, conge) => {
-          const dateDebutTime = new Date(conge.dateDebut).getTime();
-          const currentTime = currentDate.getTime();
-          const dateFinTime = new Date(conge.dateFin).getTime();
-      
-          const daysDiff = Math.ceil((Math.min(currentTime, dateFinTime) - dateDebutTime) / (1000 * 60 * 60 * 24)); // Différence en jours
-          return total + Math.max(0, daysDiff); // Éviter les valeurs négatives si congé pas encore commencé
-        }, 0);
-      
+      const formattedLeaveData = leaveData.map((leaveData)=>{
         return {
-          type: leave.designType, // Le type de congé (Payés, Maladie, etc.)
-          total: totalDays, // Le total de jours pour ce type de congé
-          accumulated: leave.solde[0]?.soldeTotal || 0, // Nombre total de jours accumulés
-          used: usedDays, // Nombre de jours utilisés
+          type: leaveData.type.designType, // Le type de congé (Payés, Maladie, etc.)
+          total: leaveData.type.nbJours, // Le total de jours accumulee
+          accumulated: leaveData.soldeTotal || 0, // Nombre total de jours accumulés
         };
       });
 
@@ -1025,13 +987,7 @@ export class EmployeService {
             NOT: {
               compte: null,
             },
-            OR: [
-              {idManager: pers.idManager},
-              {idManager: {not: null} }
-            ],
-            idEmploye: {
-              not: idEmploye
-            }
+            idManager: pers.idManager,
           },
           include: {
             poste: {
@@ -1127,6 +1083,28 @@ export class EmployeService {
       this.reinitialisation()
         .then(() => console.log('Soldes de congé payé réinitialisés'))
         .catch((error) => console.error('Erreur lors de la réinitialisation des soldes :', error));
+    }
+
+    async updateRoleIfNeeded(employeId: number) {
+      // Vérifier le nombre de subordonnés
+      const subordinatesCount = await this.prisma.employes.count({
+        where: {
+          idManager: employeId
+        }
+      });
+    
+      // Si le compte utilisateur de l'employé existe, met à jour son rôle
+      if (subordinatesCount > 0) {
+        await this.prisma.compte_Utilisateur.update({
+          where: { employeId },
+          data: { role: 'Manager' }
+        });
+      } else {
+        await this.prisma.compte_Utilisateur.update({
+          where: { employeId },
+          data: { role: 'Employe' }
+        });
+      }
     }
 
  }

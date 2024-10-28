@@ -39,7 +39,7 @@ export const SidebarWrapper = () => {
               icon={<HomeIcon />}
               isActive={pathname === "/"}
               href="/"
-              role={'Admin'}
+              role={['Admin']}
             />
 
             <SidebarItem
@@ -47,7 +47,7 @@ export const SidebarWrapper = () => {
               icon={<HomeIcon />}
               isActive={pathname === "/accueil"}
               href="/accueil"
-              role={'Employe'}
+              role={['Employe', 'Manager']}
             />
             <SidebarMenu title="Pages principales">
               <SidebarItem
@@ -55,14 +55,14 @@ export const SidebarWrapper = () => {
                 title="Managers"
                 icon={<AccountsIcon />}
                 href="/managers"
-                role={'Admin'}
+                role={['Admin']}
               />
               <SidebarItem
                 isActive={pathname.startsWith("/employes")}
                 title="Employes"
                 icon={<CustomersIcon />}
                 href="/employes"
-                role={'Admin'}
+                role={['Admin']}
               />
               <CollapseItems
                 icon={<ReportsIcon />}
@@ -75,28 +75,28 @@ export const SidebarWrapper = () => {
                 isActive={pathname === "/reports"}
                 title="Historiques"
                 icon={<HistoryIcon />}
-                role={'Admin'}
+                role={['Admin']}
               />
               <SidebarItem
                 isActive={pathname === "/mesDemandes"}
                 title="Mes demandes"
                 icon={<ReportsIcon />}
                 href="/mesDemandes"
-                role={'Employe'}
+                role={['Employe', 'Manager']}
               />
               <SidebarItem
                 isActive={pathname === "/monEquipe"}
                 title="Mon equipe"
                 icon={<CustomersIcon />}
                 href="/monEquipe"
-                role={'Employe'}
+                role={['Employe', 'Manager']}
               />
               <SidebarItem
                 isActive={pathname === "/mesSoldes"}
                 title="Mes soldes"
                 icon={<SoldeIcon />}
                 href="/mesSoldes"
-                role={'Employe'}
+                role={['Employe', 'Manager']}
               />
             </SidebarMenu>
 
@@ -106,14 +106,14 @@ export const SidebarWrapper = () => {
                 title="Jours ferries"
                 icon={<CalendarIcon />}
                 href="/calendrier/ferries"
-                role={'Admin'}
+                role={['Admin']}
               />
               <SidebarItem
                 isActive={pathname === "/calendrier/conges"}
                 title="Congés actifs"
                 icon={<ActiveLeaveIcon />}
                 href="/calendrier/conges"
-                role={'Admin'}
+                role={['Admin']}
               />
 
               <SidebarItem
@@ -121,7 +121,7 @@ export const SidebarWrapper = () => {
                 title="Congés de l'équipe"
                 icon={<ActiveLeaveIcon />}
                 href="/calendrier/equipe"
-                role={'Employe'}
+                role={['Employe', 'Manager']}
               />
             </SidebarMenu>
           </div>

@@ -9,7 +9,6 @@ import { Card, CardBody, Progress } from '@nextui-org/react';
 
 const SimpleEmploye = () => {
 
-    const router = useRouter();
     const [info, setInfo] = useState({});
     const [id, setId] = useState(null);
     const [leaveTypes, setLeave] = useState([]);
@@ -62,7 +61,7 @@ const SimpleEmploye = () => {
       <ul className="flex gap-2">
         <li className="flex gap-2">
           <UsersIcon />
-          <span>Managers</span>
+          <span>Employés</span>
           <span> / </span>{" "}
         </li>
         <li className="flex gap-2">
@@ -116,20 +115,20 @@ const SimpleEmploye = () => {
             
 
             <div className="mt-4 flex flex-col justify-center space-y-4 flex-1">
-                <h1 className='text-xl font-bold text-bleuspat font-mono'>Congés en cours</h1>
+                <h1 className='text-xl font-bold text-bleuspat font-mono'>Solde congé</h1>
             {leaveTypes.map((leave, index) => (
                 <Card key={index} className="shadow-md">
                 <CardBody className="p-4 flex flex-row gap-4 items-center">
                     <div className="flex-1 w-full">
                       <h2 className='text-sm font-semibold'>{leave.type}</h2>
-                      <Progress value={(leave.used / leave.total) * 100} className="mt-2 w-full" />
+                      <Progress value={(leave.accumulated / leave.total) * 100} className="mt-2 w-full" />
                       <p className='text-xs text-muted-foreground mt-1'>
-                          {leave.used} sur {leave.total} jours
+                          {leave.accumulated} sur {leave.total} jours
                       </p>
                     </div>
                     <div className="text-right">
                       <p className='text-xs text-muted-foreground'>Solde actuel</p>
-                      <span className='text-xl font-semibold'>{leave.accumulated - leave.used}</span>
+                      <span className='text-xl font-semibold'>{leave.accumulated}</span>
                     </div>
                 </CardBody>
                 </Card>

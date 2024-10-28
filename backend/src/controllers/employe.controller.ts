@@ -366,7 +366,7 @@ export class EmployeController {
 
     @Get('employe/:id')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.EMPLOYE) //Employe
+    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
     async personal(@Param('id') id: string){
         try {
             const info = await this.employeService.EmployeInfo(parseInt(id))
@@ -384,7 +384,7 @@ export class EmployeController {
 
     @Post('employeSearch/:id')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.EMPLOYE) //Employe
+    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
     async searchPersonal(@Param('id') id: string, @Body() val){
         try {
             const info = await this.employeService.EmployeInfo(parseInt(id))
@@ -402,7 +402,7 @@ export class EmployeController {
 
     @Get('collegue/:id')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.EMPLOYE) //Employe
+    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
     async Collegue(@Param('id') id: string){
         try {
             const memb = await this.employeService.listeCollegue(parseInt(id))

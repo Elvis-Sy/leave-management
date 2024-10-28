@@ -75,7 +75,7 @@ export const UserDropdown = () => {
       </NavbarItem>
       <PopoverContent aria-label='Popover user'>
         <div className="flex flex-col gap-4 p-2">
-          <div className="flex items-center justify-between w-[250px]">
+          <div className="flex items-center gap-2 justify-between w-[250px] flex-wrap">
             <User   
               name={infoUser.name ? infoUser.name : "Utilisateur"}
               description={infoUser.email ? infoUser.email : ""}

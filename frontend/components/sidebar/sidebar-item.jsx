@@ -5,7 +5,7 @@ import clsx from "clsx";
 
 
 
-export const SidebarItem = ({ icon, title, isActive, href = "", role }) => {
+export const SidebarItem = ({ icon, title, isActive, href = "", role = [] }) => {
   const { collapsed, setCollapsed } = useSidebarContext();
 
   const handleClick = () => {
@@ -13,11 +13,16 @@ export const SidebarItem = ({ icon, title, isActive, href = "", role }) => {
       setCollapsed();
     }
   };
+
+  const userRole = localStorage.getItem('role');
+
+  const isRoleAllowed = role.includes(userRole);
+
   return (
     <NextLink
       href={href}
       className="text-default-900 active:bg-none max-w-full"
-      hidden={localStorage.getItem('role') != role}
+      hidden={!isRoleAllowed}
     >
       <div
         className={clsx(
