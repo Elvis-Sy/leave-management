@@ -30,7 +30,11 @@ export class DemandeService {
         const existingDemande = await this.prisma.demandesConges.findFirst({
             where: {
                 employeId: employeId,
-                statuts: { designStatut: 'En attente' },
+                statuts: { 
+                  designStatut: {
+                    in: ['En attente', 'En revision'] 
+                  },
+                }
             },
         });
 
@@ -73,8 +77,8 @@ export class DemandeService {
         });
     }
 
-    //Listage des demandes en attente
-    async listDemandeAttente(){
+    //Listage des demandes en revision
+    async listDemandeRevision(){
         const demande = await this.prisma.demandesConges.findMany({
             select: {
                 idDemande: true,
@@ -86,7 +90,6 @@ export class DemandeService {
                     nom: true,
                     prenom: true,
                     photoProfile: true,
-                    idManager: true,
                     etablissement: {
                         select: {
                             designEtablissement: true,
@@ -102,10 +105,22 @@ export class DemandeService {
                 }
             },
             where: {
-                statuts: {
-                    designStatut: 'En attente'  // Filtre les demandes avec le statut "En attente"
-                }
-            }
+              OR: [
+                  {
+                      statuts: {
+                          designStatut: 'En revision' // Filtre les demandes avec le statut "En révision"
+                      }
+                  },
+                  {
+                      employe: {
+                          idManager: null, // Inclure les employés sans manager
+                      },
+                      statuts: {
+                          designStatut: 'En attente' // Filtre les demandes avec le statut "En attente"
+                      }
+                  }
+              ]
+          }
         })
 
         const dm = demande.map((demande, index) => {
@@ -122,13 +137,70 @@ export class DemandeService {
             nbrJrs: diffDays,  // Nombre de jours
             dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
             dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR'),
-            idManager: demande.employe.idManager  // Formater la date de fin
           }
         });
 
 
         return dm;
     }
+
+    //Listage des demandes en attente
+    async listDemandeAttente(idManager: number){
+      const demande = await this.prisma.demandesConges.findMany({
+          select: {
+              idDemande: true,
+              dateDebut: true,
+              dateFin: true,
+              dateEnvoie: true,
+              employe: {
+                select: {
+                  nom: true,
+                  prenom: true,
+                  photoProfile: true,
+                  etablissement: {
+                      select: {
+                          designEtablissement: true,
+                          section: true
+                      }
+                  }
+                }
+              },
+              type: {
+                  select: {
+                      designType: true
+                  }
+              }
+          },
+          where: {
+              statuts: {
+                  designStatut: 'En attente'  // Filtre les demandes avec le statut "En attente"
+              },
+              employe: {
+                idManager
+              }
+          }
+      })
+
+      const dm = demande.map((demande, index) => {
+        const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        return {
+          id: demande.idDemande,
+          dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+          name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
+          photo: demande.employe.photoProfile || 'avatar.png',
+          etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : `Direct. ${demande.employe.etablissement.designEtablissement}`,
+          type: demande.type.designType,
+          nbrJrs: diffDays,  // Nombre de jours
+          dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
+          dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR'),
+        }
+      });
+
+
+      return dm;
+  }
 
     //Listage des demandes validées
     async validDemande(){
@@ -143,7 +215,6 @@ export class DemandeService {
                   select: {
                     nom: true,
                     prenom: true,
-                    idManager: true,
                     photoProfile: true,
                     etablissement: {
                         select: {
@@ -174,9 +245,7 @@ export class DemandeService {
             where: {
                 statuts: {
                     designStatut: {
-                        not: {
-                          in: ["En attente", "Annulee"]
-                        }
+                        in: ["Approuvee", "Refusee"]
                     }
                 }
             }
@@ -198,13 +267,87 @@ export class DemandeService {
             type: demande.type.designType,
             statut: demande.statuts.designStatut,
             nbrJrs: diffDays,
-            idManager: demande.employe.idManager
           }
         });
 
         return dm;
 
     }
+
+    //Listage des demandes validées pour le manager
+    async validDemandeManager(idManager: number){
+      const demande = await this.prisma.demandesConges.findMany({
+          select: {
+              idDemande: true,
+              dateDebut: true,
+              dateFin: true,
+              dateConfirmation: true,
+              dateEnvoie: true,
+              employe: {
+                select: {
+                  nom: true,
+                  prenom: true,
+                  photoProfile: true,
+                  etablissement: {
+                      select: {
+                          designEtablissement: true,
+                          section: true
+                      }
+                  },
+                  manager: {
+                      select: {
+                          nom: true,
+                          prenom: true,
+                          photoProfile: true,
+                      }
+                  }
+                }
+              },
+              statuts: {
+                  select: {
+                      designStatut: true
+                  }
+              },
+              type: {
+                  select: {
+                      designType: true
+                  }
+              }
+          },
+          where: {
+              statuts: {
+                  designStatut: {
+                      in: ["Approuvee", "Refusee", "En revision"]
+                  }
+              },
+              employe: {
+                idManager
+              }
+          }
+      })
+
+      const dm = demande.map((demande) => {
+        const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        return {
+          id: demande.idDemande,
+          dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+          dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
+          name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
+          photo: demande.employe.photoProfile ? demande.employe.photoProfile : 'avatar.png',
+          photoManager: demande.employe.manager ? demande.employe.manager.photoProfile ? demande.employe.manager.photoProfile : 'avatar.png' : 'avatar.png',
+          etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : `Direct. ${demande.employe.etablissement.designEtablissement}`,
+          manager: demande.employe.manager ? demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim() : null,
+          type: demande.type.designType,
+          statut: demande.statuts.designStatut,
+          nbrJrs: diffDays,
+        }
+      });
+
+      return dm;
+
+  }
 
     //Statistiques donnees (approuvee, en attente, etc...)
     async statutDemande(){
@@ -236,6 +379,8 @@ export class DemandeService {
         (await Count).forEach(curr => {
             total[`count${curr.statutId}`] = curr._count.statutId;
         });
+
+        console.log(total)
 
         return total;
     }
@@ -308,11 +453,6 @@ export class DemandeService {
                 dateEnvoie: {
                     not: null,
                 },
-                statuts: {
-                  designStatut: {
-                    not: "Annulee"
-                  }
-                }
             },
             orderBy: {
                 dateEnvoie: 'asc',
@@ -426,9 +566,7 @@ export class DemandeService {
                 },
                 statuts: {
                     designStatut: {
-                        not: {
-                          in: ["En attente", "Annulee"]
-                        }
+                      in: ["Approuvee", "Refusee"]
                     }
                 }
             }
@@ -490,7 +628,7 @@ export class DemandeService {
                     ]
                 },
                 statuts: {
-                    designStatut: 'En attente'  // Filtre les demandes avec le statut "En attente"
+                    designStatut: 'En revision'  // Filtre les demandes avec le statut "En attente"
                 }
             }
         })
@@ -523,9 +661,7 @@ export class DemandeService {
 
           whereClause.statuts = {
             designStatut: {
-                not: {
-                  in: ["En attente", "Annulee"]
-                }
+              in: ["Approuvee", "Refusee"]
             }
           }
       
@@ -570,7 +706,6 @@ export class DemandeService {
                     nom: true,
                     prenom: true,
                     photoProfile: true,
-                    idManager: true,
                     etablissement: {
                         select: {
                             designEtablissement: true,
@@ -616,7 +751,6 @@ export class DemandeService {
               type: demande.type.designType,
               statut: demande.statuts.designStatut,
               nbrJrs: diffDays,
-              idManager: demande.employe.idManager
             }
           });
       
@@ -627,13 +761,124 @@ export class DemandeService {
         }
       }
 
+      //Fitrage des donnees pour le manager
+    async filtreValidManager(idManager: number, type: string | undefined, dateDebut: string | undefined, dateFin: string | undefined){
+      try {
+        const whereClause: any = {};
+
+        whereClause.statuts = {
+          designStatut: {
+            in: ["Approuvee", "Refusee", "En revision"]
+          }
+        }
+
+        whereClause.employe = {
+          idManager
+        }
+    
+        // Filtrer par type
+        if (type) {
+          whereClause.type = {
+            idType : parseInt(type)
+          };
+        }
+    
+        // Vérification et inversion si la dateDebut est après la dateFin
+        if (dateDebut && dateFin) {
+          const startDate = new Date(dateDebut);
+          const endDate = new Date(dateFin);
+    
+          if (startDate > endDate) {
+            // Inverser les dates si dateDebut est après dateFin
+            whereClause.dateEnvoie = {
+              gte: endDate,  
+              lte: startDate,
+            };
+          } else {
+            // Dates correctes, pas besoin d'inverser
+            whereClause.dateEnvoie = {
+              gte: startDate,
+              lte: endDate,
+            };
+          }
+        }
+    
+        // Requête Prisma avec les conditions dynamiques
+        const demande = await this.prisma.demandesConges.findMany({
+          where: whereClause,
+          select: {
+              idDemande: true,
+              dateDebut: true,
+              dateFin: true,
+              dateConfirmation: true,
+              dateEnvoie: true,
+              employe: {
+                select: {
+                  nom: true,
+                  prenom: true,
+                  photoProfile: true,
+                  etablissement: {
+                      select: {
+                          designEtablissement: true,
+                          section: true
+                      }
+                  },
+                  manager: {
+                      select: {
+                          nom: true,
+                          prenom: true,
+                          photoProfile: true
+                      }
+                  }
+                }
+              },
+              statuts: {
+                  select: {
+                      designStatut: true
+                  }
+              },
+              type: {
+                  select: {
+                      designType: true
+                  }
+              }
+          },
+        });
+
+
+        const dm = demande.map((demande) => {
+          const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          return {
+            id: demande.idDemande,
+            dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+            dateConf: new Date(demande.dateConfirmation).toLocaleDateString('fr-FR'),
+            name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
+            photo: demande.employe.photoProfile ? demande.employe.photoProfile : 'avatar.png',
+            photoManager: demande.employe.manager ? demande.employe.manager.photoProfile ? demande.employe.manager.photoProfile : 'avatar.png' : 'avatar.png',
+            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
+            manager: demande.employe.manager ? demande.employe.manager.prenom ? `${demande.employe.manager.prenom}` : `${demande.employe.manager.nom}`.trim() : null,
+            type: demande.type.designType,
+            statut: demande.statuts.designStatut,
+            nbrJrs: diffDays,
+          }
+        });
+    
+        return dm;
+      } catch (error) {
+        console.error('Erreur lors de la requête Prisma:', error);
+        throw error;
+      }
+    }
+
       async filtreAttente(type: string | undefined, dateDebut: string | undefined, dateFin: string | undefined){
         try {
           
           const whereClause: any = {};
 
           whereClause.statuts = {
-            designStatut: 'En attente'
+            designStatut: 'En revision'
           }
       
           // Filtrer par type
@@ -676,7 +921,6 @@ export class DemandeService {
                     nom: true,
                     prenom: true,
                     photoProfile: true,
-                    idManager: true,
                     etablissement: {
                         select: {
                             designEtablissement: true,
@@ -708,7 +952,101 @@ export class DemandeService {
             nbrJrs: diffDays,  // Nombre de jours
             dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
             dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR'),
-            idManager: demande.employe.idManager  // Formater la date de fin
+          }
+        });
+      
+          return dm;
+        } catch (error) {
+          console.error('Erreur lors de la requête Prisma:', error);
+          throw error;
+        }
+      }
+
+      //Filtre attente pour le manager
+      async filtreAttenteManager(idManager: number, type: string | undefined, dateDebut: string | undefined, dateFin: string | undefined){
+        try {
+          
+          const whereClause: any = {};
+
+          whereClause.statuts = {
+            designStatut: 'En attente'
+          }
+
+          whereClause.employe = {
+            idManager
+          }
+      
+          // Filtrer par type
+          if (type) {
+            whereClause.type = {
+              idType : parseInt(type)
+            };
+          }
+      
+          // Vérification et inversion si la dateDebut est après la dateFin
+          if (dateDebut && dateFin) {
+            const startDate = new Date(dateDebut);
+            const endDate = new Date(dateFin);
+      
+            if (startDate > endDate) {
+              // Inverser les dates si dateDebut est après dateFin
+              whereClause.dateDebut = {
+                gte: endDate,  
+                lte: startDate,
+              };
+            } else {
+              // Dates correctes, pas besoin d'inverser
+              whereClause.dateDebut = {
+                gte: startDate,
+                lte: endDate,
+              };
+            }
+          }
+      
+          // Requête Prisma avec les conditions dynamiques
+          const demande = await this.prisma.demandesConges.findMany({
+            where: whereClause,
+            select: {
+                idDemande: true,
+                dateDebut: true,
+                dateFin: true,
+                dateEnvoie: true,
+                employe: {
+                  select: {
+                    nom: true,
+                    prenom: true,
+                    photoProfile: true,
+                    etablissement: {
+                        select: {
+                            designEtablissement: true,
+                            section: true
+                        }
+                    }
+                  }
+                },
+                type: {
+                    select: {
+                        designType: true
+                    }
+                }
+            },
+          });
+
+
+        const dm = demande.map((demande, index) => {
+          const diffTime = Math.abs(new Date(demande.dateFin).getTime() - new Date(demande.dateDebut).getTime() + 1);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          return {
+            id: demande.idDemande,
+            dateEnvoi: new Date(demande.dateEnvoie).toLocaleDateString('fr-FR'),
+            name: demande.employe.prenom ? `${demande.employe.prenom}`.trim() : `${demande.employe.nom}`.trim(),
+            photo: demande.employe.photoProfile || 'avatar.png',
+            etablissement: demande.employe.etablissement.section == "Departement" ? `Dpt ${demande.employe.etablissement.designEtablissement}` : demande.employe.etablissement.designEtablissement,
+            type: demande.type.designType,
+            nbrJrs: diffDays,  // Nombre de jours
+            dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
+            dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR'),
           }
         });
       
@@ -721,20 +1059,6 @@ export class DemandeService {
 
       //Accepter demande
       async acceptDM(idDemande: number, idEmploye?: string){
-
-        // Récupération de la demande de congé
-        const demande = await this.prisma.demandesConges.findUnique({
-          where: { idDemande },
-          include: { type: true }
-        });
-
-        await this.prisma.demandesConges.update({
-            where: { idDemande },
-            data: {
-                statutId: 2,
-                dateConfirmation: new Date(),
-            },
-        });
 
         const updateSoldeConges = async (employeId:number, typeId: number, adjustment) => {
           const solde = await this.prisma.soldesConges.findUnique({
@@ -762,37 +1086,73 @@ export class DemandeService {
             }
           });
         };
-        
-        // Vérifie le type de congé et met à jour le solde si nécessaire
-        const dateDebut = new Date(demande.dateDebut);
-        const dateFin = new Date(demande.dateFin);
-        const nombreJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        
-        const adjustment = demande.type.designType === 'Paye' ? -nombreJours : nombreJours;
-        
-        await updateSoldeConges(demande.employeId, demande.typeId, adjustment);
 
         if(idEmploye != 'null'){   
-            await this.prisma.historiquesActions.create({
-                data: {
-                ancienneValeur: 'En attente',
-                nouvelleValeur: 'Approuvée',
-                dateAction: new Date(),
-                niveau: 'Manager',
-                typeAction: 'Approbation', // Assuming "approve" is a valid enum value
-                userId: parseInt(idEmploye),
-                },
-            });
+
+          const statut = await this.prisma.statutDemande.findFirst({
+            where: {
+              designStatut: "En revision"
+            }
+          });
+
+          await this.prisma.demandesConges.update({
+            where: { idDemande },
+            data: {
+                statutId: statut.idStatut,
+                dateConfirmation: new Date(),
+            },
+          });
+
+          await this.prisma.historiquesActions.create({
+              data: {
+              ancienneValeur: 'En attente',
+              nouvelleValeur: 'En revision',
+              dateAction: new Date(),
+              niveau: 'Manager',
+              typeAction: 'Approbation', // Assuming "approve" is a valid enum value
+              userId: parseInt(idEmploye),
+              },
+          });
         } else {
-            await this.prisma.historiquesActions.create({
-                data: {
-                ancienneValeur: 'En attente',
-                nouvelleValeur: 'Approuvée',
-                dateAction: new Date(),
-                niveau: 'Admin',
-                typeAction: 'Approbation',
-                },
-            });
+
+          const statut = await this.prisma.statutDemande.findFirst({
+            where: {
+              designStatut: "Approuvee"
+            }
+          });
+
+          await this.prisma.demandesConges.update({
+            where: { idDemande },
+            data: {
+                statutId: statut.idStatut,
+                dateConfirmation: new Date(),
+            },
+          });
+
+          // Récupération de la demande de congé
+          const demande = await this.prisma.demandesConges.findUnique({
+            where: { idDemande },
+            include: { type: true }
+          });
+
+          // Vérifie le type de congé et met à jour le solde si nécessaire
+          const dateDebut = new Date(demande.dateDebut);
+          const dateFin = new Date(demande.dateFin);
+          const nombreJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+          
+          const adjustment = demande.type.designType === 'Paye' ? -nombreJours : nombreJours;
+          
+          await updateSoldeConges(demande.employeId, demande.typeId, adjustment);
+
+          await this.prisma.historiquesActions.create({
+              data: {
+              ancienneValeur: 'En revision',
+              nouvelleValeur: 'Approuvée',
+              dateAction: new Date(),
+              niveau: 'Admin',
+              typeAction: 'Approbation',
+              },
+          });
         }
       }
 
@@ -802,10 +1162,16 @@ export class DemandeService {
             throw new Error('Le refus doit avoir une raison');
         }
 
+        const statut = await this.prisma.statutDemande.findFirst({
+          where: {
+            designStatut: "Refusee"
+          }
+        });
+
         await this.prisma.demandesConges.update({
             where: { idDemande },
             data: {
-            statutId: 3, 
+            statutId: statut.idStatut, 
             dateConfirmation: new Date(),
             motifRefus: motif
             },
@@ -825,7 +1191,7 @@ export class DemandeService {
         } else {
             await this.prisma.historiquesActions.create({
                 data: {
-                ancienneValeur: 'En attente',
+                ancienneValeur: 'En revision',
                 nouvelleValeur: `Refusée - ${motif}`,
                 dateAction: new Date(),
                 niveau: 'Admin',
@@ -964,7 +1330,9 @@ export class DemandeService {
           where: {
             employeId,
             statuts: {
-              designStatut: "En attente"
+              designStatut: {
+                in: ["En attente", "En revision"]
+              }
             }
           },
           orderBy: {
@@ -999,6 +1367,8 @@ export class DemandeService {
           };
 
         }
+
+        console.log(demandeAvecNombreJours)
 
         return demandeAvecNombreJours
       }

@@ -33,10 +33,27 @@ export class DemandeController {
     }
 
     @Get('attente')
-    @Roles(Role.ADMIN, Role.MANAGER)
-    async attenteDemande(){
+    @Roles(Role.ADMIN)
+    async revisionDemande(){
         try {
-            const demandes = await this.demandeService.listDemandeAttente();
+            const demandes = await this.demandeService.listDemandeRevision();
+            return {
+                message: 'Demandes en revision listés avec succès.',
+                demande: demandes
+            };
+        } catch (error) {
+            console.error("Erreur lors du listage:", error);
+            return{
+                message: "Erreur lors du listage"
+            }
+        }
+    }
+
+    @Get('attente/:id')
+    @Roles(Role.MANAGER)
+    async attenteDemande(@Param('id') id: string){
+        try {
+            const demandes = await this.demandeService.listDemandeAttente(parseInt(id));
             return {
                 message: 'Demandes en attente listés avec succès.',
                 demande: demandes
@@ -50,10 +67,27 @@ export class DemandeController {
     }
 
     @Get('valid')
-    @Roles(Role.ADMIN, Role.MANAGER)
+    @Roles(Role.ADMIN)
     async validDemande(){
         try {
             const demandes = await this.demandeService.validDemande();
+            return {
+                message: 'Demandes avec reponses listés avec succès.',
+                demande: demandes
+            };
+        } catch (error) {
+            console.error("Erreur lors du listage:", error);
+            return{
+                message: "Erreur lors du listage"
+            }
+        }
+    }
+
+    @Get('valid/:id')
+    @Roles(Role.MANAGER)
+    async validDemandeManager(@Param('id') id: string){
+        try {
+            const demandes = await this.demandeService.validDemandeManager(parseInt(id));
             return {
                 message: 'Demandes avec reponses listés avec succès.',
                 demande: demandes
@@ -152,7 +186,7 @@ export class DemandeController {
     }
 
     @Get('validFiltre')
-    @Roles(Role.ADMIN, Role.MANAGER)
+    @Roles(Role.ADMIN)
     async filtreValid(
         @Query('type') type?: string,
         @Query('dateDebut') dateDebut?: string,
@@ -173,8 +207,31 @@ export class DemandeController {
         }
     }
 
+    @Get('validFiltre/:id')
+    @Roles(Role.MANAGER)
+    async filtreValidManager(
+        @Param('id') id: string,
+        @Query('type') type?: string,
+        @Query('dateDebut') dateDebut?: string,
+        @Query('dateFin') dateFin?: string,
+    ) {
+        try {
+            const demande = await this.demandeService.filtreValidManager(parseInt(id), type, dateDebut, dateFin);
+            return {
+                message: "Confirmation réalisée avec succès",
+                demande: demande
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
     @Get('attenteFiltre')
-    @Roles(Role.ADMIN, Role.MANAGER)
+    @Roles(Role.ADMIN)
     async filtreAttente(
         @Query('type') type?: string,
         @Query('dateDebut') dateDebut?: string,
@@ -182,6 +239,29 @@ export class DemandeController {
     ) {
         try {
             const demande = await this.demandeService.filtreAttente(type, dateDebut, dateFin);
+            return {
+                message: "Confirmation réalisée avec succès",
+                demande: demande
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
+    @Get('attenteFiltre/:id')
+    @Roles(Role.MANAGER)
+    async filtreAttenteManager(
+        @Param('id') id: string,
+        @Query('type') type?: string,
+        @Query('dateDebut') dateDebut?: string,
+        @Query('dateFin') dateFin?: string,
+    ) {
+        try {
+            const demande = await this.demandeService.filtreAttenteManager(parseInt(id), type, dateDebut, dateFin);
             return {
                 message: "Confirmation réalisée avec succès",
                 demande: demande
@@ -267,7 +347,7 @@ export class DemandeController {
     }
 
     @Get('event/:id/employe')
-    @Roles(Role.EMPLOYE) //Employe
+    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
     async actifSubEmp(@Param('id') id: string){
         try {
             const demande = await this.demandeService.CongeEventEmp(parseInt(id));
@@ -305,7 +385,7 @@ export class DemandeController {
     }
 
     @Get('lastDemande/:id')
-    @Roles(Role.EMPLOYE) //Employe
+    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
     async derniereDemande(@Param('id') id: string) {
         try {
             const conge = await this.demandeService.lastDemande(parseInt(id));
@@ -323,7 +403,7 @@ export class DemandeController {
     }
 
     @Get('employeDM/:id')
-    @Roles(Role.EMPLOYE) //Employe
+    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
     async dmEmploye(@Param('id') id: string) {
         try {
             const dm = await this.demandeService.employeDM(parseInt(id));
@@ -341,7 +421,7 @@ export class DemandeController {
     }
 
     @Patch('annulee')
-    @Roles(Role.EMPLOYE) //Employe
+    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
     async annuleDM(@Body() body){
         try {
             const idDemande = parseInt(body.idDemande)
@@ -360,7 +440,7 @@ export class DemandeController {
     }
 
     @Get('soldeEmploye/:id')
-    @Roles(Role.EMPLOYE) //Employe
+    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
     async soldeEmp(@Param('id') id: string){
         try {
             const solde = await this.demandeService.showSolde(parseInt(id));
@@ -378,7 +458,7 @@ export class DemandeController {
     }
 
     @Patch('update/:id')
-    @Roles(Role.EMPLOYE) //Employe
+    @Roles(Role.EMPLOYE, Role.MANAGER) //Employe
     async updateDM(@Param('id') id: string, @Body() dates){
         try {
             const dateDebut = dates.dateDebut

@@ -58,10 +58,13 @@ const InfoFoot = () => {
 
   return (
     <div className="h-[315px] bg-default-50 rounded-lg m-8 p-8">
-        {info ? (
+        {info != null ? (
             <>
                 <div className="flex justify-between gap-10">
-                    <h1 className='text-xl font-semibold'>Demande en attente</h1>
+                    <div className="flex items-center gap-2">
+                        <h1 className='text-xl font-semibold'>Demande en cours</h1>
+                        <span className='font-medium text-gray-500'>({info.statuts.designStatut})</span>
+                    </div>
                     <div className="flex gap-8 items-center">
                         <div className="flex items-center gap-4">
                             <Button color='default' variant='flat' className='px-2 rounded-xl' onPress={()=>onOpen('annulModal')}>Annuler</Button>
@@ -75,8 +78,7 @@ const InfoFoot = () => {
                             <img src={
                                 info.type.designType === "Paye" ? '/paye.png' :
                                 info.type.designType === "Maternite" ? '/maternite.png' :
-                                info.type.designType === "Paternite" ? '/paternite.png' :
-                                "/maladie.png"
+                                info.type.designType === "Paternite" ? '/paternite.png' : "/maladie.png"
                             } alt="" width={40} height={40} className="w-14 h-14 rounded-full object-cover"/>
                             <div className="flex flex-col text-lg">
                                 <h3 className="font-semibold">Congé</h3>
@@ -113,10 +115,10 @@ const InfoFoot = () => {
 
         {info && 
             <>
-                <Modal isOpen={openModal == "annulModal"} onClose={onClose}>
+                <Modal isOpen={openModal === "annulModal"} onClose={onClose}>
                     <AnnulModal onClose={onClose} reload={getInfo} id={info.idDemande}/>
                 </Modal>
-                <Modal isOpen={openModal == "modifDemande"} onClose={onClose}>
+                <Modal isOpen={openModal === "modifDemande"} onClose={onClose}>
                     <ModifDemande onClose={onClose} reload={getInfo} donnee={info}/>
                 </Modal>
             </>

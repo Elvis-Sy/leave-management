@@ -59,7 +59,7 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
     case "statut":
     return (
         <div className={`flex items-center gap-1 ${user.statut == "Refusee" ? "text-[#fa5252]" : user.statut == "Approuvee" ? "text-[#40c057]" : "text-gray-500"}`}>
-            <span>{user.statut == "Refusee" ? "Refusee" : user.statut == "Approuvee" ? "Approuvee" : "En attente"}</span>
+            <span>{user.statut}</span>
             <img src={`${user.statut == "Refusee" ? "/invalid.png" : user.statut == "Approuvee" ? "/valid.png" : "/wait.png"}`} alt="" width={20} height={20}/>
         </div>
     );

@@ -31,22 +31,23 @@ export const DMValides = () => {
   };
 
   useEffect(()=>{
-    allValid()
+    const id = localStorage.getItem('id')
+    if(id){
+      allValid(id)
+    }
     getType()
   }, [])
 
   //Prendre les donnees
-  const allValid = async () => {
+  const allValid = async (id) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/demandes/valid', {
+      const response = await axios.get(`http://localhost:5000/api/demandes/valid/${id}`, {
           headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
           }
       });
 
-      const temp = response.data.demande;
-      const data = temp.filter((item)=>item.idManager == localStorage.getItem('id'));
-      setRow(data)
+      setRow(response.data.demande)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -66,13 +67,13 @@ export const DMValides = () => {
 
       
       if (!type && !dateDebut && !dateFin) {
-        allValid()
+        allValid(localStorage.getItem('id'))
         return;
       }
   
       // Construire la requête en fonction des filtres fournis
       let query = ''
-      query = `http://localhost:5000/api/demandes/validFiltre?`;
+      query = `http://localhost:5000/api/demandes/validFiltre/${localStorage.getItem('id')}?`;
       
       
   
@@ -85,7 +86,7 @@ export const DMValides = () => {
       } else if (dateDebut) {
         query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(addDays(dateDebut, 1))}&`;
       } else if (dateFin){
-        query += `dateDebut=${encodeURIComponent(addDays(dateFin, 1))}&dateFin=${encodeURIComponent(dateFin)}&`;
+        query += `dateDebut=${encodeURIComponent(addDays(dateFin, -1))}&dateFin=${encodeURIComponent(dateFin)}&`;
       }
       
       // Retirer le dernier "&" inutile
@@ -97,9 +98,7 @@ export const DMValides = () => {
         }
       });
 
-      const temp = response.data.demande;
-      const data = temp.filter((item)=>item.idManager == localStorage.getItem('id'));
-      setRow(data)
+      setRow(response.data.demande)
   
       
     } catch (error) {
@@ -142,7 +141,7 @@ export const DMValides = () => {
 
       <div className="flex justify-between flex-wrap gap-4 items-center">
         <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
-          <TableSearch search={searchValid} all={allValid}/>
+          <TableSearch search={searchValid} all={()=>allValid(localStorage.getItem('id'))}/>
         </div>
         <div className="flex flex-row gap-3.5 flex-wrap">
           <div className="flex items-center gap-4 self-end">
