@@ -104,6 +104,9 @@ export class DemandeService {
                     }
                 }
             },
+            orderBy: {
+              dateEnvoie: 'desc'
+            },
             where: {
               OR: [
                   {
@@ -170,6 +173,9 @@ export class DemandeService {
                       designType: true
                   }
               }
+          },
+          orderBy: {
+            dateEnvoie: 'desc'
           },
           where: {
               statuts: {
@@ -242,6 +248,9 @@ export class DemandeService {
                     }
                 }
             },
+            orderBy: {
+              dateConfirmation: 'desc'
+            },
             where: {
                 statuts: {
                     designStatut: {
@@ -313,6 +322,9 @@ export class DemandeService {
                       designType: true
                   }
               }
+          },
+          orderBy: {
+            idDemande: 'desc'
           },
           where: {
               statuts: {
@@ -555,6 +567,9 @@ export class DemandeService {
                     }
                 }
             },
+            orderBy: {
+              dateConfirmation: 'desc'
+            },
             where: {
                 employe: {
                     OR: [
@@ -617,6 +632,9 @@ export class DemandeService {
                         designType: true
                     }
                 }
+            },
+            orderBy: {
+              dateEnvoie: 'desc'
             },
             where: {
                 employe: {
@@ -693,6 +711,9 @@ export class DemandeService {
           // Requête Prisma avec les conditions dynamiques
           const demande = await this.prisma.demandesConges.findMany({
             where: whereClause,
+            orderBy: {
+              dateConfirmation: 'desc'
+            },
             select: {
                 idDemande: true,
                 dateDebut: true,
@@ -804,6 +825,9 @@ export class DemandeService {
         // Requête Prisma avec les conditions dynamiques
         const demande = await this.prisma.demandesConges.findMany({
           where: whereClause,
+          orderBy: {
+            idDemande: 'desc'
+          },
           select: {
               idDemande: true,
               dateDebut: true,
@@ -909,6 +933,9 @@ export class DemandeService {
           // Requête Prisma avec les conditions dynamiques
           const demande = await this.prisma.demandesConges.findMany({
             where: whereClause,
+            orderBy: {
+              dateEnvoie: 'desc'
+            },
             select: {
                 idDemande: true,
                 dateDebut: true,
@@ -1004,6 +1031,9 @@ export class DemandeService {
           // Requête Prisma avec les conditions dynamiques
           const demande = await this.prisma.demandesConges.findMany({
             where: whereClause,
+            orderBy: {
+              dateEnvoie: 'desc'
+            },
             select: {
                 idDemande: true,
                 dateDebut: true,

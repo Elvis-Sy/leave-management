@@ -7,6 +7,7 @@ import { RenderCell } from "../table/render-history";
 import TableSearch from "../table/tableSearch" 
 import axios from "axios";
 import {Popover, PopoverTrigger, PopoverContent, Pagination, Autocomplete ,AutocompleteItem, Button } from "@nextui-org/react";
+import { addDays } from "date-fns";
 
 const History = () => {
 
@@ -54,27 +55,27 @@ const History = () => {
   };  
 
   //Filtrage des donnees
-  const filtreEmploye = async (etablissement = '', dateDebut = '', dateFin = '') => {
+  const filtreEmploye = async (typeAction = '', dateDebut = '', dateFin = '') => {
     try {
       
-      if (!etablissement && !dateDebut && !dateFin) {
-        allEmploye()
+      if (!typeAction && !dateDebut && !dateFin) {
+        allHistory()
         return;
       }
   
       // Construire la requête en fonction des filtres fournis
-      let query = `http://localhost:5000/api/employes/filtre?`;
+      let query = `http://localhost:5000/api/details/filtre?`;
   
-      if (etablissement) {
-        query += `etablissement=${encodeURIComponent(etablissement)}&`;
+      if (typeAction) {
+        query += `typeAction=${encodeURIComponent(typeAction)}&`;
       }
   
       if (dateDebut && dateFin) {
         query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(dateFin)}&`;
       } else if (dateDebut) {
-        query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(dateDebut)}&`;
+        query += `dateDebut=${encodeURIComponent(dateDebut)}&dateFin=${encodeURIComponent(addDays(dateDebut, 1))}&`;
       } else if (dateFin){
-        query += `dateDebut=${encodeURIComponent(dateFin)}&dateFin=${encodeURIComponent(dateFin)}&`;
+        query += `dateDebut=${encodeURIComponent(addDays(dateFin, 1))}&dateFin=${encodeURIComponent(dateFin)}&`;
       }
   
       // Retirer le dernier "&" inutile
@@ -86,7 +87,7 @@ const History = () => {
         }
       });
   
-      setRow(response.data.employe || []);
+      setRow(response.data.type || []);
     } catch (error) {
       console.error('Erreur lors de la requête:', error.response?.data || error.message);
       setRow([]);
@@ -169,7 +170,7 @@ const History = () => {
                         aria-hidden={false}
                         variant="bordered"
                         label="Action"
-                        placeholder="Recherche de poste"
+                        placeholder="Choisir l'action"
                         className="w-full font-semibold auto"
                         defaultItems={action}
                         defaultSelectedKey={selectedAction}

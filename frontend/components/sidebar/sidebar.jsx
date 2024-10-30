@@ -108,13 +108,6 @@ export const SidebarWrapper = () => {
                 href="/historiques"
               />
               <SidebarItem
-                isActive={pathname === "/historiquesDM"}
-                title="Historiques"
-                icon={<HistoryIcon />}
-                role={'Manager'}
-                href="/historiquesDM"
-              />
-              <SidebarItem
                 isActive={pathname === "/mesDemandes"}
                 title="Mes demandes"
                 icon={<ReportsIcon />}

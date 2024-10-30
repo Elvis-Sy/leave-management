@@ -65,8 +65,9 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
                     src={`http://localhost:5000/${user.photoManager}`}
                 />
                 }
+                className="bg-transparent"
             >
-                {user.manager}
+                {user.genre == "M" ? `Mr ${user.manager}` : `Mme ${user.manager}`}
             </Chip> ) : (
                 <Chip variant="flat" size="lg">-/-</Chip>
             )}

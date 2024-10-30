@@ -2,7 +2,7 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { OtherService } from './other.service';
 import { JwtAuthGuard } from 'src/auth/authorization/auth.guard';
 import { RolesGuard } from 'src/auth/authorization/authorization.guard';
@@ -76,6 +76,28 @@ export class OtherController {
                 message: "Erreur lors du listage des historiques",
                 cause: error
             }
+        }
+    }
+
+    @Roles(Role.ADMIN)
+    @Get('filtre')
+    async filtreEmp(
+        @Query('typeAction') typeAction?: string,
+        @Query('dateDebut') dateDebut?: string,
+        @Query('dateFin') dateFin?: string,
+    ) {
+        try {
+            const employe = await this.otherService.filtreHistory(typeAction, dateDebut, dateFin);
+            return {
+                message: "Historiques filtres",
+                type: employe
+            }
+        } catch (error) {
+            console.error('Erreur de filtre:', error);
+            return{
+                message: error.message
+            }
+            
         }
     }
  }

@@ -76,7 +76,10 @@ export class OtherService {
                         sexe: true
                     }
                 }
-            }
+            },
+            orderBy: {
+                dateAction: 'desc'
+            },
         })
 
         const audit = historiques.map((item)=>{
@@ -94,4 +97,71 @@ export class OtherService {
 
         return audit
     }
+
+    async filtreHistory(typeAction: string | undefined, dateDebut: string | undefined, dateFin: string | undefined){
+        try {
+          
+          const whereClause: any = {};
+      
+          // Filtrer par établissement si fourni
+          if (typeAction) {
+            whereClause.typeAction = typeAction;
+          }
+      
+          // Vérification et inversion si la dateDebut est après la dateFin
+          if (dateDebut && dateFin) {
+            const startDate = new Date(dateDebut);
+            const endDate = new Date(dateFin);
+      
+            if (startDate > endDate) {
+              // Inverser les dates si dateDebut est après dateFin
+              whereClause.dateAction = {
+                gte: endDate,  
+                lte: startDate,
+              };
+            } else {
+              // Dates correctes, pas besoin d'inverser
+              whereClause.dateAction = {
+                gte: startDate,
+                lte: endDate,
+              };
+            }
+          }
+      
+          // Requête Prisma avec les conditions dynamiques
+          const historiques = await this.prisma.historiquesActions.findMany({
+            where: whereClause,
+            orderBy: {
+                dateAction: 'desc'
+            },
+            include: {
+                user: {
+                    select: {
+                        nom: true,
+                        prenom: true,
+                        sexe: true
+                    }
+                }
+            }
+        })
+  
+        const audit = historiques.map((item)=>{
+            return {
+                id: item.idHistorique,
+                action: item.typeAction,
+                niveau: item.niveau,
+                date: item.dateAction,
+                responsable: item.user ? item.user.prenom ? item.user.prenom : item.user.nom : null,
+                genre: item.user ? item.user.sexe : null,
+                ancienne: item.ancienneValeur,
+                nouvelle: item.nouvelleValeur
+            }
+        })
+
+        return audit
+        } catch (error) {
+          console.error('Erreur lors de la requête Prisma:', error);
+          throw error;
+        }
+      }
  }

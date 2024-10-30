@@ -73,7 +73,9 @@ export class EmployeService {
           manager: {
             select: {
               nom: true,
-              photoProfile: true
+              prenom: true,
+              photoProfile: true,
+              sexe: true
             },
           },
           poste: {
@@ -100,7 +102,8 @@ export class EmployeService {
           employeId: data.CIN,
           name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
           email: data.compte.email,
-          manager: data.manager ?  `${data.manager.nom}` : null,
+          manager: data.manager ? data.manager.prenom ? `${data.manager.prenom}` : `${data.manager.nom}` : null,
+          genre: data.manager ? data.manager.sexe : null,
           photo: data.photoProfile ? data.photoProfile : "avatar.png",
           photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
           DateEmb: data.dateEmbauche,
