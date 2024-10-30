@@ -65,4 +65,33 @@ export class OtherService {
 
         return type
     }
+
+    async history(){
+        const historiques = await this.prisma.historiquesActions.findMany({
+            include: {
+                user: {
+                    select: {
+                        nom: true,
+                        prenom: true,
+                        sexe: true
+                    }
+                }
+            }
+        })
+
+        const audit = historiques.map((item)=>{
+            return {
+                id: item.idHistorique,
+                action: item.typeAction,
+                niveau: item.niveau,
+                date: item.dateAction,
+                responsable: item.user ? item.user.prenom ? item.user.prenom : item.user.nom : null,
+                genre: item.user ? item.user.sexe : null,
+                ancienne: item.ancienneValeur,
+                nouvelle: item.nouvelleValeur
+            }
+        })
+
+        return audit
+    }
  }

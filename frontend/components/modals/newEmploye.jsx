@@ -2,7 +2,7 @@
 
 import React, {useRef, useState, useEffect} from 'react'
 import { useForm } from 'react-hook-form';
-import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Autocomplete, AutocompleteItem, RadioGroup, Radio, Checkbox} from '@nextui-org/react'
+import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Autocomplete, AutocompleteItem, Checkbox} from '@nextui-org/react'
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

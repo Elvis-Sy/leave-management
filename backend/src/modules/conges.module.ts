@@ -1,5 +1,5 @@
-import { OtherService } from './other.service';
-import { OtherController } from './other.controller';
+import { CongesController } from './../controllers/conges.controller';
+import { CongesService } from './../services/conges.service';
 /*
 https://docs.nestjs.com/modules
 */
@@ -11,8 +11,8 @@ import { RolesGuard } from 'src/auth/authorization/authorization.guard';
 @Module({
     imports: [],
     controllers: [
-        OtherController, ],
+        CongesController, ],
     providers: [
-        OtherService, JwtAuthGuard, RolesGuard],
+        CongesService, JwtAuthGuard, RolesGuard],
 })
-export class OtherModule {}
+export class CongesModule { }

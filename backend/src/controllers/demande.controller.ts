@@ -16,7 +16,7 @@ export class DemandeController {
     constructor(private readonly demandeService: DemandeService){}
 
     @Post('ajout')
-    @Roles(Role.EMPLOYE)
+    @Roles(Role.EMPLOYE, Role.MANAGER)
     async ajoutDemande(@Body() demandeDto: AddDemandeDto){
         try {
             await this.demandeService.addDemande(demandeDto);

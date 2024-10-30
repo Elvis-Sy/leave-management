@@ -1,8 +1,9 @@
 import React from 'react'
+import History from '@/components/equipe/history'
 
 const history = () => {
   return (
-    <div>history</div>
+    <History/>
   )
 }
 

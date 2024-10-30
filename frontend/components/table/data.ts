@@ -152,3 +152,49 @@ export const colCollegue = [
     uid: "poste", 
   },
 ]
+
+export const colType = [
+  {
+    name: "Label",
+    uid: "label"
+  },
+  {
+    name: "Total jours",
+    uid: "total"
+  },
+  {
+    name: "Actions",
+    uid: "actions"
+  }
+]
+
+export const colHistory =[
+  {
+    name: "Responsable",
+    uid: "responsable"
+  },
+  {
+    name: "Niveau",
+    uid: "niveau", 
+    className: "hidden lg:table-cell"
+  },
+  {
+    name: "Date",
+    uid: "date", 
+    className: "hidden xl:table-cell"
+  },
+  {
+    name: "Ancien statut",
+    uid: "ancien", 
+    className: "hidden xl:table-cell"
+  },
+  {
+    name: "Nouveau statut",
+    uid: "nouveau", 
+    className: "hidden xl:table-cell"
+  },
+  {
+    name: "Action",
+    uid: "statut", 
+  },
+]

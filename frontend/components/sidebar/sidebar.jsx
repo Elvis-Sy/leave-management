@@ -14,6 +14,7 @@ import { CalendarIcon } from '../icons/calendar-icon'
 import { HistoryIcon } from '../icons/historique'
 import { ActiveLeaveIcon } from '../icons/actif-conge'
 import { SoldeIcon } from "../icons/solde-icon";
+import { MagicIcon } from "../icons/magic-icon";
 
 export const SidebarWrapper = () => {
   const pathname = usePathname();
@@ -91,6 +92,13 @@ export const SidebarWrapper = () => {
                 title="Demandes"
                 isActive={pathname.startsWith("/employeDM")}
                 role={'Manager'}
+              />
+              <SidebarItem
+                isActive={pathname === "/typeConge"}
+                title="Types de conge"
+                icon={<MagicIcon />}
+                role={'Admin'}
+                href="/typeConge"
               />
               <SidebarItem
                 isActive={pathname === "/historiques"}

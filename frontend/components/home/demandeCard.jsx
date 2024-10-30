@@ -8,7 +8,7 @@ const DemandeCard = ({type, color, count}) => {
         <div className="flex items-center gap-2">
           <ReportsIcon /> <span className='text-medium text-gray-600 font-medium'>Demandes</span>
         </div>
-        <h1 className='text-4xl font-semibold my-4'>{count}</h1>
+        <h1 className='text-4xl font-semibold my-4'>{count ? count : 0}</h1>
       </div>
         <div className=''>
           <h2 className={`capitalize mb-4 ml-20 text-sm font-medium text-white px-2 py-1 rounded-l-full ${color}`}>{type}</h2>

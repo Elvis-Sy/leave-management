@@ -380,8 +380,6 @@ export class DemandeService {
             total[`count${curr.statutId}`] = curr._count.statutId;
         });
 
-        console.log(total)
-
         return total;
     }
 
@@ -1367,8 +1365,6 @@ export class DemandeService {
           };
 
         }
-
-        console.log(demandeAvecNombreJours)
 
         return demandeAvecNombreJours
       }
