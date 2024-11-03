@@ -13,6 +13,7 @@ import axios from "axios";
 export const Accounts = () => {
 
   const [row, setRow] = useState([])
+  const [tempRow, setTempRow] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 6 // Nombre de lignes par page
   const [selectedSort, setSelectedSort] = useState('ASC');
@@ -44,6 +45,7 @@ export const Accounts = () => {
         });
 
         setRow(response.data.employe)
+        setTempRow(response.data.employe)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -52,19 +54,8 @@ export const Accounts = () => {
 
   //Recherche par nom
   const searchManager = async (val) => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/employes/manager/search/${val}`, {
-          headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-      });
-
-      setRow(response.data.employe || []);
-
-    } catch (error) {
-        console.error('Erreur lors de la requête:', error.response?.data || error.message);
-        setRow([])
-    }
+    const temp = tempRow.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
+    setRow(temp)
   };
 
   //Trier les donners ASC ou DESC
@@ -134,7 +125,11 @@ export const Accounts = () => {
   const getEtab = async ()=> {
     try {
 
-      const response = await axios.get('http://localhost:5000/api/details/etablissement');
+      const response = await axios.get('http://localhost:5000/api/details/etablissement', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
 
       setEtab(response.data.etabi)
 

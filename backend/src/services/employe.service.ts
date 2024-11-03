@@ -10,7 +10,7 @@ import { MailerService } from 'src/utils/mailer/mailer.service';
 import { JwtService } from '@nestjs/jwt';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class EmployeService { 
@@ -285,58 +285,6 @@ export class EmployeService {
       });
     }
 
-    //Recherche d'employe
-    async searchEmploye(value: string){
-      const employes = await this.prisma.employes.findMany({
-        where: {
-          OR: [
-            { nom: {contains: value} },
-            { prenom: {contains: value} }
-          ]
-        },
-        include: {
-          manager: {
-            select: {
-              nom: true,
-              photoProfile: true
-            },
-          },
-          poste: {
-            select: {
-              designPoste: true,
-            },
-          },
-          compte: {
-            select: {
-              email: true
-            }
-          },
-          etablissement: {
-            select: {
-              designEtablissement: true
-            }
-          }
-        },
-      });
-
-      const rows = employes.map((data)=>{
-        return {
-          id: data.idEmploye,
-          employeId: data.CIN,
-          name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
-          email: data.compte.email,
-          manager: data.manager ? `${data.manager.nom}` : null,
-          photo: data.photoProfile ? data.photoProfile : "avatar.png",
-          photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
-          DateEmb: data.dateEmbauche,
-          Etablissement: data.etablissement.designEtablissement,
-          poste: data.poste.designPoste,
-        }
-      })
-
-      return rows;
-    }
-
     //Fitrage des donnees
     async filtreEmploye(etablissement: string | undefined, dateDebut: string | undefined, dateFin: string | undefined){
       try {
@@ -483,61 +431,6 @@ export class EmployeService {
         console.error('Erreur lors de la requête Prisma:', error);
         throw error;
       }
-    }
-
-    //Recherche de Manager
-    async searchManager(value: string){
-      const manager = await this.prisma.employes.findMany({
-        where:{
-          subordonne: {
-            some: {},
-          },
-          OR: [
-            { nom: {contains: value} },
-            { prenom: {contains: value} }
-          ]
-        },
-        select: {
-          idEmploye: true,
-          nom: true,
-          prenom: true,
-          CIN: true,
-          photoProfile: true,
-          _count: {
-            select: {subordonne: true}
-          },
-          poste: {
-            select: {
-              designPoste: true,
-            },
-          },
-          compte: {
-            select: {
-              email: true
-            }
-          },
-          etablissement: {
-            select: {
-              designEtablissement: true
-            }
-          }
-        }
-      });
-
-      const rows = manager.map((data)=>{
-        return {
-          id: data.idEmploye,
-          managerId: data.CIN,
-          name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
-          email: data.compte.email,
-          photo: data.photoProfile ? data.photoProfile : "avatar.png",
-          etablissement: data.etablissement.designEtablissement,
-          nbrSub: data._count.subordonne,
-          poste: data.poste.designPoste,
-        }
-      })
-
-      return rows;
     }
 
     //Modification information employe
@@ -698,7 +591,6 @@ export class EmployeService {
           return this.prisma.soldesConges.create({
             data: {
               soldeTotal: 0,
-              soldeUtilise: 0,
               idEmp: employeeAccount.employeId,
               idType: type.idType,
             },
@@ -930,7 +822,6 @@ export class EmployeService {
               },
               data: {
                   soldeTotal: 0,
-                  soldeUtilise: 0,
               },
           });
       }
@@ -1070,58 +961,6 @@ export class EmployeService {
       }
 
       
-
-      return rows;
-    }
-
-    //recherche des collegue
-    async searchCollegue(idEmploye: number, val: string){
-
-      const pers = await this.prisma.employes.findUnique({
-        where: {
-          idEmploye
-        }
-      })
-
-      if(!pers) throw new NotFoundException("Aucun utilisateur")
-
-      const employes = await this.prisma.employes.findMany({
-        where: {
-          NOT: {
-            compte: null,
-          },
-          idManager: pers.idManager,
-          idEmploye: {
-            not: idEmploye
-          },
-          OR: [
-            { nom: {contains: val} },
-            { prenom: {contains: val} }
-          ]
-        },
-        include: {
-          poste: {
-            select: {
-              designPoste: true,
-            },
-          },
-          etablissement: {
-            select: {
-              designEtablissement: true
-            }
-          }
-        },
-      });
-
-      const rows = employes.map((data)=>{
-        return {
-          id: data.idEmploye,
-          name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
-          photo: data.photoProfile ? data.photoProfile : "avatar.png",
-          Etablissement: data.etablissement.designEtablissement,
-          poste: data.poste.designPoste,
-        }
-      })
 
       return rows;
     }

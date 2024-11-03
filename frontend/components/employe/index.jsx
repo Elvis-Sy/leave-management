@@ -18,8 +18,8 @@ import ModifEmploye from '../modals/modifEmploye'
 
 export const EmployePage = () => {
 
-    // const [roles, setRole] = useState(null);
     const [row, setRow] = useState([])
+    const [tempRow, setTempRow] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const rowsPerPage = 6 // Nombre de lignes par page
     const [selectedSort, setSelectedSort] = useState("ASC"); // Pour suivre le tri actuel
@@ -67,6 +67,7 @@ export const EmployePage = () => {
       });
 
       setRow(response.data.employe)
+      setTempRow(response.data.employe)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -75,19 +76,8 @@ export const EmployePage = () => {
 
   //Recherche par nom
   const searchEmploye = async (val) => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/employes/search/${val}`, {
-          headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-      });
-
-      setRow(response.data.employe || []);
-
-    } catch (error) {
-        console.error('Erreur lors de la requête:', error.response?.data || error.message);
-        setRow([])
-    }
+    const temp = tempRow.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
+    setRow(temp)
   }; 
 
   //Filtrage des donnees
@@ -165,7 +155,11 @@ export const EmployePage = () => {
   const getEtab = async ()=> {
     try {
 
-      const response = await axios.get('http://localhost:5000/api/details/etablissement');
+      const response = await axios.get('http://localhost:5000/api/details/etablissement', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
 
       setEtab(response.data.etabi)
 

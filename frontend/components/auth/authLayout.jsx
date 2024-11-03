@@ -14,9 +14,9 @@ export const AuthLayoutWrapper = ({ children }) => {
 
       <div className='hidden md:flex flex-1 relative flex justify-center p-6'>
 
-        <div className='z-10 flex flex-col gap-6'>
+        <div className='z-10 flex flex-col justify-center gap-6'>
+          <img src="/cover.jpg" alt="" width={500} height={500} className="self-center rounded-lg"/>
           <h1 className='font-bold text-[30px] text-center text-bleuspat'>Société du Port à gestion Autonome de Toamasina</h1>
-          <img src="/couverture.png" alt="" width={500} height={500}/>
         </div>
       </div>
     </div>

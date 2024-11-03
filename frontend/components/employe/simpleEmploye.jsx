@@ -5,6 +5,7 @@ import axios from 'axios'
 import { UsersIcon } from "@/components/icons/breadcrumb/users-icon";
 import Link from "next/link";
 import { Card, CardBody, Progress } from '@nextui-org/react';
+import SoldeEmploye from './soldeEmploye';
 
 const SimpleEmploye = () => {
 
@@ -76,7 +77,7 @@ const SimpleEmploye = () => {
       </ul>
 
       <div className='h-full flex items-center'>   
-        <div className="flex-1 p-4 flex flex-col lg:flex-row gap-4 w-full">      
+        <div className="flex-1 min-w-48 p-4 flex flex-col lg:flex-row gap-4 w-full">      
             {/* USER INFO CARD */}
             <div className="bg-default-50 max-w-sm shadow-md py-6 px-4 rounded-md flex-1 flex flex-col items-center gap-4">
 
@@ -112,27 +113,31 @@ const SimpleEmploye = () => {
                 </div>
             </div>
             
+            <div className="flex-1 p-4 flex flex-col lg:flex-row gap-4 w-full">      
 
-            <div className="mt-4 flex flex-col justify-center space-y-4 flex-1">
-                <h1 className='text-xl font-bold text-bleuspat font-mono'>Solde congé</h1>
-            {leaveTypes.map((leave, index) => (
-                <Card key={index} className="shadow-md">
-                <CardBody className="p-4 flex flex-row gap-4 items-center">
-                    <div className="flex-1 w-full">
-                      <h2 className='text-sm font-semibold'>{leave.type}</h2>
-                      <Progress aria-label='solde' value={(leave.accumulated / leave.total) * 100} className="mt-2 w-full" />
-                      <p className='text-xs text-muted-foreground mt-1'>
-                          {leave.accumulated} sur {leave.total} jours
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className='text-xs text-muted-foreground'>Solde actuel</p>
-                      <span className='text-xl font-semibold'>{leave.accumulated}</span>
-                    </div>
-                </CardBody>
-                </Card>
-            ))}
+                <div className="mt-4 flex flex-col space-y-4 flex-1">
+                    <h1 className='text-xl font-bold text-bleuspat font-mono'>Soldes</h1>
+                {leaveTypes.map((leave, index) => (
+                    <Card key={index} className="shadow-md">
+                    <CardBody className="p-4 flex flex-row gap-4 items-center">
+                        <div className="flex-1 w-full">
+                        <h2 className='text-sm font-semibold'>{leave.type}</h2>
+                        <Progress color={leave.accumulated > leave.total ? 'warning' : 'primary'} value={(leave.accumulated / leave.total) * 100} className="mt-2 w-full" aria-label={`Progression des jours de congé pour ${leave.type}`}/>
+                        <p className='text-xs text-muted-foreground mt-1'>
+                            {leave.accumulated} sur {leave.total} jours
+                        </p>
+                        </div>
+                        <div className="text-right">
+                        <p className='text-xs text-muted-foreground'>Solde actuel</p>
+                        <span className='text-xl font-semibold'>{leave.accumulated > leave.total ? '-' : ''}{leave.accumulated}</span>
+                        </div>
+                    </CardBody>
+                    </Card>
+                ))}
+                </div>
+
             </div>
+            
         </div>
        </div>
     </div>

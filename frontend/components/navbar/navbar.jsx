@@ -19,16 +19,7 @@ export const NavbarWrapper = ({ children }) => {
           <BurguerButton />
         </NavbarContent>
         <NavbarContent className="w-full max-md:hidden">
-          <Input
-            startContent={<SearchIcon />}
-            isClearable
-            className="w-3/4"
-            classNames={{
-              input: "w-3/4",
-              mainWrapper: "w-3/4",
-            }}
-            placeholder="Search..."
-          />
+
         </NavbarContent>
         <NavbarContent
           justify="end"

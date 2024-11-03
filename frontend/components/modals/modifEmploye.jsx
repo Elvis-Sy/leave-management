@@ -4,7 +4,7 @@ import React, {useRef, useState, useEffect} from 'react'
 import { useForm } from 'react-hook-form';
 import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Autocomplete, AutocompleteItem, RadioGroup, Radio, Checkbox} from '@nextui-org/react'
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 const ModifEmploye = ({onClose, all, idEmploye}) => {
 
@@ -71,7 +71,11 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
     const getEtab = async ()=> {
     try {
 
-        const response = await axios.get('http://localhost:5000/api/details/etablissement');
+        const response = await axios.get('http://localhost:5000/api/details/etablissement', {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
 
         setEtab(response.data.etabi)
 
@@ -84,7 +88,11 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
     const getPoste = async ()=> {
         try {
 
-            const response = await axios.get('http://localhost:5000/api/details/postes');
+            const response = await axios.get('http://localhost:5000/api/details/postes', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
 
             setPostes(response.data.poste)
 
@@ -97,8 +105,11 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
     const getSupp = async ()=> {
         try {
 
-            const response = await axios.get('http://localhost:5000/api/employes/supperieur');
-            const supp = response.data.supp;
+            const response = await axios.get('http://localhost:5000/api/employes/supperieur', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             
             setManager(response.data.supp)
 
@@ -199,6 +210,7 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
             })
 
             const info = response.data.info
+            console.log(info)
             setNom(info.nom || '');
             setPrenom(info.prenom || '');
             setCin(info.CIN || '');
@@ -419,7 +431,7 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
 
                 <div className="flex items-center gap-8 mt-1">
                 <div className="w-1/2">
-                    <div className={`${periodeEssai ? 'bg-gray-100' : ''} group relative border-2 p-2 rounded-xl ${errors.dateEmbauche ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300'}`}>
+                    <div className={`${periodeEssai ? 'dark: bg-gray-100/10 bg-gray-100' : ''} group relative border-2 p-2 rounded-xl ${errors.dateEmbauche ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300'}`}>
                     <label className={`block dark:text-white ${errors.dateEmbauche ? 'text-[#f31260]' : 'text-gray-700'}  text-xs font-semibold`}>
                         Date d'embauche <span className="text-red-500 text-sm">*</span>
                     </label>

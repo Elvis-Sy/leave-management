@@ -17,6 +17,7 @@ export const Attentes = () => {
 
     const [type, setType] = useState([]);
     const [row, setRow] = useState([])
+    const [tempRow, setTempRow] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const rowsPerPage = 5 // Nombre de lignes par page
     const [selectedSort, setSelectedSort] = useState("ASC"); // Pour suivre le tri actuel
@@ -61,6 +62,7 @@ export const Attentes = () => {
       });
 
       setRow(response.data.demande)
+      setTempRow(response.data.demande)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -70,19 +72,8 @@ export const Attentes = () => {
 
   //Recherche par nom
   const searchAttente = async (val) => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/demandes/searchAttente/${val}`, {
-          headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-      });
-
-      setRow(response.data.demande || []);
-
-    } catch (error) {
-        console.error('Erreur lors de la requête:', error.response?.data || error.message);
-        setRow([])
-    }
+    const temp = tempRow.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
+    setRow(temp)
   }; 
 
   //Filtrage des donnees
@@ -165,7 +156,11 @@ export const Attentes = () => {
   const getType = async ()=> {
     try {
 
-      const response = await axios.get('http://localhost:5000/api/details/types');
+      const response = await axios.get('http://localhost:5000/api/details/types', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
 
       setType(response.data.type)
 

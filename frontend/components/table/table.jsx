@@ -30,7 +30,7 @@ export const TableWrapper = ({RenderCell, columns, users}) => {
             <TableRow className="hover:bg-default-100">
               {(columnKey) => (
                 <TableCell>
-                  {RenderCell({ user: item, columnKey: columnKey })}
+                  <RenderCell user={item} columnKey={columnKey} />
                 </TableCell>
               )}
             </TableRow>

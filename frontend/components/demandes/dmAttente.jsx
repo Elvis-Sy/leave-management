@@ -15,6 +15,7 @@ export const DMAttente = () => {
 
     const [type, setType] = useState([]);
     const [row, setRow] = useState([])
+    const [tempRow, setTempRow] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const rowsPerPage = 5 // Nombre de lignes par page
     const [dateDebut, setDateDebut] = useState('');
@@ -61,6 +62,7 @@ export const DMAttente = () => {
       });
 
       setRow(response.data.demande)
+      setTempRow(response.data.demande)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -70,7 +72,7 @@ export const DMAttente = () => {
 
   //Recherche par nom
   const searchAttente = async (val) => {
-    const temp = row.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
+    const temp = tempRow.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
     setRow(temp)
   }; 
 
@@ -138,7 +140,11 @@ export const DMAttente = () => {
   const getType = async ()=> {
     try {
 
-      const response = await axios.get('http://localhost:5000/api/details/types');
+      const response = await axios.get('http://localhost:5000/api/details/types', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
 
       setType(response.data.type)
 

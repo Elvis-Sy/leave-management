@@ -11,6 +11,7 @@ import { Pagination } from "@nextui-org/react";
 const Equipe = () => {
 
   const [row, setRow] = useState([])
+  const [tempRow, setTempRow] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [id, setId] = useState('')
   const rowsPerPage = 6 // Nombre de lignes par page
@@ -34,6 +35,7 @@ const Equipe = () => {
         });
 
         setRow(response.data.employe)
+        setTempRow(response.data.employe)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -43,7 +45,7 @@ const Equipe = () => {
 
   //Recherche par nom
   const searchMembre = async (val) => {
-    const temp = row.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
+    const temp = tempRow.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
     setRow(temp)
   };
 

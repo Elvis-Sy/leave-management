@@ -151,40 +151,6 @@ export class DemandeController {
         }
     }
 
-    @Get('searchValid/:val')
-    @Roles(Role.ADMIN)
-    async validSearch(@Param('val') val: string){
-        try {
-            const demandes = await this.demandeService.searchValid(val);
-            return {
-                message: `Demandes listés avec succès avec ${val}.`,
-                demande: demandes
-            };
-        } catch (error) {
-            console.error("Erreur lors du listage:", error);
-            return{
-                message: "Erreur lors du listage"
-            }
-        }
-    }
-
-    @Get('searchAttente/:val')
-    @Roles(Role.ADMIN)
-    async AttenteSearch(@Param('val') val: string){
-        try {
-            const demandes = await this.demandeService.searchAttente(val);
-            return {
-                message: `Demandes listés avec succès avec ${val}.`,
-                demande: demandes
-            };
-        } catch (error) {
-            console.error("Erreur lors du listage:", error);
-            return{
-                message: "Erreur lors du listage"
-            }
-        }
-    }
-
     @Get('validFiltre')
     @Roles(Role.ADMIN)
     async filtreValid(

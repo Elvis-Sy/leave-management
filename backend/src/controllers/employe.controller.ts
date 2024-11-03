@@ -134,42 +134,6 @@ export class EmployeController {
         }
     }
 
-    @Get('search/:value')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN) //Admin
-    async searchEmploye(@Param('value') val: string){
-        try {
-            const Employe = await this.employeService.searchEmploye(val);
-            return{
-                message: 'Employes listés avec succès, contenant: '+val+'.',
-                employe: Employe,
-            }
-        } catch (error) {
-            console.error('Erreur lors du listage:', error);
-            return{
-                message: "erreur lors de la recherche des employes"
-            }
-        }
-    }
-
-    @Get('manager/search/:value')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN) //Admin
-    async searchManager(@Param('value') val: string){
-        try {
-            const Manager = await this.employeService.searchManager(val);
-            return{
-                message: 'Managers listés avec succès, contenant: '+val+'.',
-                employe: Manager,
-            }
-        } catch (error) {
-            console.error('Erreur lors du listage:', error);
-            return{
-                message: "erreur lors de la recherche des managers"
-            }
-        }
-    }
-
     @Patch(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UseInterceptors(FileInterceptor('photoProfile', storage))

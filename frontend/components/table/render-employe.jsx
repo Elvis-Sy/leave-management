@@ -1,7 +1,6 @@
 import { User, Tooltip, Chip, Avatar } from "@nextui-org/react";
 import React from "react";
 import { EyeIcon } from "../icons/table/eye-icon";
-import { Link } from "@nextui-org/react";
 import { format } from "date-fns";
 import {fr} from 'date-fns/locale'
 import { EditIcon } from "../icons/table/edit-icon";
@@ -53,24 +52,25 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
         </div>
       );
     case "manager":
-      return (
+      return localStorage.getItem('role') === 'Manager' ? null : (
         <div className="hidden lg:table-cell">
-            {user.manager ? (
+          {user.manager ? (
             <Chip
-                variant="flat"
-                size="lg"
-                avatar={
+              variant="flat"
+              size="lg"
+              avatar={
                 <Avatar
-                    name={user.manager}
-                    src={`http://localhost:5000/${user.photoManager}`}
+                  name={user.manager}
+                  src={`http://localhost:5000/${user.photoManager}`}
                 />
-                }
-                className="bg-transparent"
+              }
+              className="bg-transparent"
             >
-                {user.genre == "M" ? `Mr ${user.manager}` : `Mme ${user.manager}`}
-            </Chip> ) : (
-                <Chip variant="flat" size="lg">-/-</Chip>
-            )}
+              {user.genre === "M" ? `Mr ${user.manager}` : `Mme ${user.manager}`}
+            </Chip>
+          ) : (
+            <Chip variant="flat" size="lg">-/-</Chip>
+          )}
         </div>
       );
 

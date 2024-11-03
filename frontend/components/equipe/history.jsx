@@ -12,6 +12,7 @@ import { addDays } from "date-fns";
 const History = () => {
 
   const [row, setRow] = useState([])
+  const [tempRow, setTempRow] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 7 // Nombre de lignes par page
   const [dateDebut, setDateDebut] = useState('');
@@ -47,6 +48,7 @@ const History = () => {
         });
 
         setRow(response.data.type)
+        setTempRow(response.data.type)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -96,7 +98,7 @@ const History = () => {
 
   //Recherche par nom
   const searchHistory = async (val) => {
-    const temp = row.filter((item)=>item.responsable != null && item.responsable.toLowerCase().includes(val.toLowerCase()))
+    const temp = tempRow.filter((item)=>item.responsable != null && item.responsable.toLowerCase().includes(val.toLowerCase()))
     setRow(temp)
   };
 

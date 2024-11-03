@@ -62,8 +62,8 @@ model Employes {
   etablId Int
   etablissement Etablissement @relation("SectionTravail", fields: [etablId], references: [idEtablissement])
 
-  @@index([nom]) //si milagy
-  @@index([idManager]) //si milagy
+  @@index([nom])
+  @@index([idManager])
 }
 
 //COMPTE UTILISATEUR////////////////////////////
@@ -74,7 +74,7 @@ model Compte_Utilisateur {
   role              Role      @default(Employe)
   derniereConnexion DateTime?
 
-  employeId         Int? @unique //a supprimer les ?
+  employeId         Int? @unique
   utilisateur Employes? @relation("UserAccount", fields: [employeId], references: [idEmploye], onDelete: Cascade)
 }
 
@@ -107,7 +107,7 @@ model DemandesConges {
   ferries JourFerries[] @relation("DemandeJourFerie")
 
   @@map("demandes_conges")
-  @@index([dateDebut, dateFin]) //si milagy
+  @@index([dateDebut, dateFin])
 }
 
 //Type de conge//////////////////////////
@@ -164,7 +164,6 @@ model JourFerries {
 //Solde de conge/////////////////////
 model SoldesConges {
   soldeTotal   Decimal @db.Decimal(10, 1)
-  soldeUtilise Int
 
   idEmp   Int
   employe Employes @relation("Soldes", fields: [idEmp], references: [idEmploye])
@@ -173,7 +172,7 @@ model SoldesConges {
   type   TypesConges @relation("Type", fields: [idType], references: [idType])
 
   @@id([idEmp, idType])
-  @@unique([idEmp, idType]) //A supprimer si milagy
+  @@unique([idEmp, idType])
   @@map("soldes_conges")
 }
 

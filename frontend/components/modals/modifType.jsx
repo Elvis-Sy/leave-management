@@ -23,7 +23,7 @@ const ModifType = ({onClose, id, reload, opt}) => {
     const Modifier = async (data, id) => {
         try {
         
-            const response = await axios.patch(`http://localhost:5000/api/conges/modif/${id}`, data, {
+            await axios.patch(`http://localhost:5000/api/conges/modif/${id}`, data, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }

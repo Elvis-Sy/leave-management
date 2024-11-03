@@ -11,7 +11,7 @@ export const SoldeIcon = () => {
     >
       <path
         d="M3 3 H21 V21 H3 V3 Z"
-        fill="#969696"
+        fill="#71717a"
         rx="4"
       />
       

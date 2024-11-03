@@ -11,12 +11,12 @@ export const RenderCell = ({ user, columnKey }) => {
       return (
         <div className="p-2">
             <div className="flex items-center gap-4">
-              <img src={
+              {/* <img src={
                   user.type === "Paye" ? '/paye.png' :
                   user.type === "Maternite" ? '/maternite.png' :
                   user.type === "Paternite" ? '/paternite.png' :
                   "/maladie.png"
-              } alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/>
+              } alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/> */}
               <div className="flex flex-col">
                   <h3 className="font-semibold text-md">{user.type}</h3>
                   <p className="text-xs text-gray-500"><span className="text-sm text-gray-500 font-medium">{user.nbrJrs}</span> jours</p>

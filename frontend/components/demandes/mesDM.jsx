@@ -168,7 +168,11 @@ const MesDemandes = () => {
   const getType = async ()=> {
     try {
 
-      const response = await axios.get('http://localhost:5000/api/details/types');
+      const response = await axios.get('http://localhost:5000/api/details/types', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
 
       setType(response.data.type)
 

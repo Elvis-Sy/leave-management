@@ -12,7 +12,7 @@ const AnnulModal = ({onClose, id, reload}) => {
                 userId: employeId
             }
         
-            const response = await axios.patch('http://localhost:5000/api/demandes/annulee', data, {
+            await axios.patch('http://localhost:5000/api/demandes/annulee', data, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }

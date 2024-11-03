@@ -4,7 +4,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { UsersIcon } from "@/components/icons/breadcrumb/users-icon";
 import { TableWrapper } from "@/components/table/table";
-import { colEmploye } from "../table/data";
+import { colEmployeManage } from "../table/data";
 import { RenderCell } from "../table/render-employe";
 import TableSearch from "../table/tableSearch" 
 import axios from "axios";
@@ -15,6 +15,7 @@ export const Subordinate = () => {
 
     // const [roles, setRole] = useState(null);
     const [row, setRow] = useState([])
+    const [tempRow, setTempRow] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const rowsPerPage = 6 // Nombre de lignes par page
     const [id, setId] = useState()
@@ -22,11 +23,6 @@ export const Subordinate = () => {
   //Ouvertur modal
   const onOpen = (modalId) => {
     return null
-  };
-
-  //Fermeture modal
-  const onClose = () => {
-    setOpenModal(null);
   };
 
   useEffect(() => {
@@ -46,6 +42,7 @@ export const Subordinate = () => {
       });
 
       setRow(response.data.employe)
+      setTempRow(response.data.employe)
 
     } catch (error) {
         console.error('Erreur lors de la requête:', error.response?.data || error.message);
@@ -54,7 +51,7 @@ export const Subordinate = () => {
 
   //Recherche par nom
   const searchEmploye = async (val) => {
-    const temp = row.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
+    const temp = tempRow.filter((item)=>item.name.toLowerCase().includes(val.toLowerCase()))
     setRow(temp)
   }; 
 
@@ -95,7 +92,7 @@ export const Subordinate = () => {
         </div>
       </div>
       <div className="max-w-[95rem] mx-auto w-full">
-        <TableWrapper RenderCell={(props) => <RenderCell {...props} onOpen={onOpen} setId={setId}/>} columns={colEmploye} users={paginatedData}/>
+        <TableWrapper RenderCell={(props) => <RenderCell {...props} onOpen={onOpen} setId={setId}/>} columns={colEmployeManage} users={paginatedData}/>
       </div>
       {/* PAGINATION */}
       <div className="mt-4 flex justify-center">

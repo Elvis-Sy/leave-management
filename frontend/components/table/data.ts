@@ -45,6 +45,27 @@ export const colEmploye =[
    },
  ]
 
+ export const colEmployeManage =[
+  {
+    name: "Info",
+    uid: "info"
+  },
+  {
+    name: "Date Embauche",
+    uid: "DateEmb", 
+    className:"hidden md:table-cell"
+  },
+  {
+    name: "Poste",
+    uid: "poste", 
+    className:"hidden lg:table-cell"
+  },
+  {
+    name: "Actions",
+    uid: "actions"
+  },
+]
+
 export const colValide =[
   {
     name: "Info demande",
@@ -66,7 +87,7 @@ export const colValide =[
     className: "hidden lg:table-cell"
   },
   {
-    name: "Responsable reponse",
+    name: "Responsable",
     uid: "respConfirmation", 
     className: "hidden xl:table-cell"
   },

@@ -46,7 +46,7 @@ const Login =()=> {
     toast.success("Connexion...", {
       position: "top-left",
       autoClose: 1000,
-      hideProgressBar: true,
+      hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,

@@ -159,7 +159,11 @@ const Conges = () => {
   const getEtab = async ()=> {
     try {
 
-      const response = await axios.get('http://localhost:5000/api/details/etablissement');
+      const response = await axios.get('http://localhost:5000/api/details/etablissement', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
 
       setEtab(response.data.etabi)
 

@@ -43,8 +43,8 @@ export const Content = () => {
           <div className="flex gap-4 flex-wrap">
             <DemandeCard type={"Approuvees"} color={"bg-[#40c057]"} count={stat.count2 || 0}/>
             <DemandeCard type={"Refusees"} color={"bg-[#fa5252]"} count={stat.count3 || 0}/>
-            <DemandeCard type={"En attente/revision"} color={"bg-gray-400"} count={stat.count1 + stat.count5}/>
-            <DemandeCard type={"Total demandes"} color={"bg-bleuspat"} count={etat ? stat.count1 + stat.count2 + stat.count3 + stat.count5 : 0}/>
+            <DemandeCard type={"En attente"} color={"bg-gray-400"} count={stat.count1 + stat.count5}/>
+            <DemandeCard type={"Total"} color={"bg-bleuspat"} count={etat ? stat.count1 + stat.count2 + stat.count3 + stat.count5 : 0}/>
           </div>
         </div>
 

@@ -142,7 +142,11 @@ const NewEmploye = ({onClose, reload}) => {
     const getEtab = async ()=> {
       try {
 
-        const response = await axios.get('http://localhost:5000/api/details/etablissement');
+        const response = await axios.get('http://localhost:5000/api/details/etablissement', {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
 
         setEtab(response.data.etabi)
 
@@ -155,7 +159,11 @@ const NewEmploye = ({onClose, reload}) => {
     const getPoste = async ()=> {
       try {
 
-        const response = await axios.get('http://localhost:5000/api/details/postes');
+        const response = await axios.get('http://localhost:5000/api/details/postes', {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
 
         setPostes(response.data.poste)
 
@@ -168,7 +176,11 @@ const NewEmploye = ({onClose, reload}) => {
     const getSupp = async ()=> {
       try {
 
-        const response = await axios.get('http://localhost:5000/api/employes/supperieur');
+        const response = await axios.get('http://localhost:5000/api/employes/supperieur', {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
 
         setManager(response.data.supp)
 

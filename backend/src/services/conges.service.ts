@@ -36,7 +36,6 @@ export class CongesService {
                     idEmp: employe.idEmploye,
                     idType: newType.idType,
                     soldeTotal: 0,
-                    soldeUtilise: 0,
                 },
             })
         ));
