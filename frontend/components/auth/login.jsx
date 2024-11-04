@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { Input, Modal, ModalContent, ModalHeader, ModalFooter, useDisclosure, ModalBody, Button } from '@nextui-org/react'
-import {getAttributesToken} from '../../helpers/attributesToken'
+import { Input, Modal, ModalContent, ModalHeader, ModalFooter, useDisclosure, ModalBody, Button } from '@nextui-org/react';
+import { getAttributesToken } from '../../helpers/attributesToken';
 import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,224 +12,158 @@ import Image from 'next/image';
 import { CustomersIcon } from '../icons/sidebar/customers-icon';
 import { AccountsIcon } from '../icons/sidebar/accounts-icon';
 
-const Login =()=> {
-
+const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [errorMessage, setErrorMessage] = useState({});
-
-  const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
-
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const formRef = useRef(null);
   const router = useRouter();
-
+  
   axios.defaults.withCredentials = true;
 
-  const goManager = ()=>{
+  const toastConfig = {
+    position: "top-left",
+    autoClose: 1000,
+    hideProgressBar: true,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    style: { fontWeight: 500, color: "green" }
+  };
 
-    toast.success("Connexion...", {
-      position: "top-left",
-      autoClose: 1000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      style: {fontWeight: 500, color: "green"}
-    });
+  const goManager = useCallback(() => {
+    toast.success("Connexion...", toastConfig);
     router.push('/home');
+  }, [router]);
 
-  }
-
-  const goEmploye = ()=>{
-
-    localStorage.setItem('role', 'Employe')
-    toast.success("Connexion...", {
-      position: "top-left",
-      autoClose: 1000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      style: {fontWeight: 500, color: "green"}
-    });
+  const goEmploye = useCallback(() => {
+    localStorage.setItem('role', 'Employe');
+    toast.success("Connexion...", toastConfig);
     router.push('/accueil');
+  }, [router]);
 
-  }
-
-  //Connection
   const onLogin = async (data) => {
     try {
-      
-      const response = await axios.post('http://localhost:5000/api/auth/login', data); 
+      const response = await axios.post('http://localhost:5000/api/auth/login', data);
 
-      if(response.data.state == "ok"){
-
-        const attributes = getAttributesToken(response.data.result.token);
-        const role = attributes.role;
-        const idEmploye = attributes.employeId
+      if (response.data.state === "ok") {
+        const { token } = response.data.result;
+        const attributes = getAttributesToken(token);
+        const { role, employeId } = attributes;
 
         // Stocker le token et le rôle
-        localStorage.setItem('token', response.data.result.token);
+        localStorage.setItem('token', token);
         localStorage.setItem('role', role);
-        localStorage.setItem('id', idEmploye)
+        localStorage.setItem('id', employeId);
 
         // Redirection selon le rôle
-        if (role === 'Admin') {
-
-          toast.success("Connexion...", {
-            position: "top-left",
-            autoClose: 1000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            style: {fontWeight: 500, color: "green"}
-          });
-          router.push('/');
-
-        } else if (role === 'Employe') {
-
-          toast.success("Connexion...", {
-            position: "top-left",
-            autoClose: 1000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            style: {fontWeight: 500, color: "green"}
-          });
-          router.push('/accueil'); // Redirection vers la page utilisateur
-
-        }  else if (role === 'Manager') {
-          onOpen()
+        switch (role) {
+          case 'Admin':
+            toast.success("Connexion...", toastConfig);
+            router.push('/');
+            break;
+          case 'Employe':
+            goEmploye();
+            break;
+          case 'Manager':
+            onOpen();
+            break;
+          default:
+            break;
         }
-
       } else {
-
-        if(response.data.message.includes("passe")){
-          setErrorMessage({
-            type: "password",
-            message: response.data.message
-          })
-        } else {
-          setErrorMessage({
-            type: "email",
-            message: response.data.message
-          })
-        }
-
+        const type = response.data.message.includes("passe") ? "password" : "email";
+        setErrorMessage({ type, message: response.data.message });
       }
-      
     } catch (error) {
-      console.log(error)
+      console.error("Login error:", error);
+      toast.error("Une erreur s'est produite. Veuillez réessayer.", { ...toastConfig, autoClose: 3000 });
     }
   };
 
   const handleButtonClick = () => {
-    if (formRef.current) {
-      formRef.current.dispatchEvent(new Event('submit', { bubbles: true }));
-    }
+    formRef.current?.dispatchEvent(new Event('submit', { bubbles: true }));
   };
-
-  const handleKeyDown = (e) => {
-    if (formRef.current) {
-      if (e.key === 'Enter') {
-        formRef.current.dispatchEvent(new Event('submit', { bubbles: true }));
-      }
-    }
-  };
-
 
   return (
     <div className='w-full'>
-      <ToastContainer/>
+      <ToastContainer />
       <div className="w-full">
-
-        <div className="w-full">
-          <div className="flex flex-col justify-center items-center mb-2">
-            <h2 className='text-xl font-bold text-bleuspat mb-2'>LOGIN</h2>
-            <div className='border-2 w-10 border-bleuspat inline-block mb-2'></div>
-          </div>
-          <form ref={formRef} onKeyDown={handleKeyDown} onSubmit={handleSubmit(onLogin)} className='flex items-center flex-col w-full flex-wrap gap-4'>
-
-            <div className='flex flex-col w-full items-center'>
-              <Input
-                isRequired
-                label="Email"
-                variant="bordered"
-                className="max-w-md font-semibold login"
-                {...register('email', { 
-                  required: 'Email requis', 
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                    message: 'Entrer un email valide'
-                  }
-                })}
-                endContent={
-                  <div className='flex h-full items-center'>
-                    <Image src='/maillog.png' alt='mail-icon' width={20} height={20} className='pointer-events-none'/>
-                  </div>
+        <div className="flex flex-col justify-center items-center mb-2">
+          <h2 className='text-xl font-bold text-bleuspat mb-2'>LOGIN</h2>
+          <div className='border-2 w-10 border-bleuspat inline-block mb-2'></div>
+        </div>
+        <form ref={formRef} onKeyDown={(e) => e.key === 'Enter' && handleButtonClick()} onSubmit={handleSubmit(onLogin)} className='flex items-center flex-col w-full flex-wrap gap-4'>
+          <div className='flex flex-col w-full items-center'>
+            <Input
+              isRequired
+              label="Email"
+              variant="bordered"
+              className="max-w-md font-semibold login"
+              {...register('email', { 
+                required: 'Email requis', 
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                  message: 'Entrer un email valide'
                 }
-                onChange={()=>setErrorMessage({})}
-                isInvalid={!!errors.email}
-                errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.email ? errors.email.message : ''}</span>} 
-              />  
-              {errorMessage.type == "email" && <span className="flex justify-start text-[#f31260] text-xs text-right">{errorMessage.message}</span>} 
-            </div>
-              
-            <div className='flex flex-col w-full items-center'>
-              <Input
-                isRequired
-                type='password'
-                label="Mot de passe"
-                variant="bordered"
-                className="max-w-md font-semibold login group"
-                {...register('password', { 
-                  required: 'Mot de passe requis', 
-                })}
-                endContent={
-                  <div className='flex h-full items-center group-focus-within:hidden'>
-                    <Image src='/password.png' alt='password-icon' width={20} height={20} className='pointer-events-none'/>
-                  </div>
-                }
-                onChange={()=>setErrorMessage({})}
-                isInvalid={!!errors.password}
-                errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.password ? errors.password.message : ''}</span>}
-              />
-              {errorMessage.type == "password" && <span className="flex justify-start text-[#f31260] text-xs text-right">{errorMessage.message}</span>} 
-            </div>
-
-          </form>
-          <div className="flex flex-col w-full px-24">
-            <div className='flex my-4 mr-1 justify-end'>
-              <span className='text-xs text-gray-500 hover:text-bleuspat/80 font-medium'>Mot de passe oublié ? Contactez le responsable informatique</span>
-            </div>
-            <button type="submit" onClick={handleButtonClick} className='w-fit transition-all duration-200 mt-2 border-2 border-bleuspat bg-bleuspat text-white rounded-full px-12 py-2 inline-block font-semibold hover:bg-default-50 hover:text-bleuspat'>Se connecter</button>
+              })}
+              endContent={
+                <div className='flex h-full items-center'>
+                  <Image src='/maillog.png' alt='mail-icon' width={20} height={20} className='pointer-events-none' />
+                </div>
+              }
+              onChange={() => setErrorMessage({})}
+              isInvalid={!!errors.email}
+              errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.email ? errors.email.message : ''}</span>}
+            />
+            {errorMessage.type === "email" && <span className="flex justify-start text-[#f31260] text-xs text-right">{errorMessage.message}</span>}
           </div>
+
+          <div className='flex flex-col w-full items-center'>
+            <Input
+              isRequired
+              type='password'
+              label="Mot de passe"
+              variant="bordered"
+              className="max-w-md font-semibold login group"
+              {...register('password', { required: 'Mot de passe requis' })}
+              endContent={
+                <div className='flex h-full items-center group-focus-within:hidden'>
+                  <Image src='/password.png' alt='password-icon' width={20} height={20} className='pointer-events-none' />
+                </div>
+              }
+              onChange={() => setErrorMessage({})}
+              isInvalid={!!errors.password}
+              errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.password ? errors.password.message : ''}</span>}
+            />
+            {errorMessage.type === "password" && <span className="flex justify-start text-[#f31260] text-xs text-right">{errorMessage.message}</span>}
+          </div>
+        </form>
+
+        <div className="flex flex-col w-full px-24">
+          <div className='flex my-4 mr-1 justify-end'>
+            <span className='text-xs text-gray-500 hover:text-bleuspat/80 font-medium'>Mot de passe oublié ? Contactez le responsable informatique</span>
+          </div>
+          <button type="button" onClick={handleButtonClick} className='w-fit transition-all duration-200 mt-2 border-2 border-bleuspat bg-bleuspat text-white rounded-full px-12 py-2 inline-block font-semibold hover:bg-default-50 hover:text-bleuspat'>
+            Se connecter
+          </button>
         </div>
       </div>
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='top'>
         <ModalContent>
-            {() => (
-            <>
-                <ModalHeader className='flex gap-2 bg-bleuspat text-white justify-center'>Se connecter en tant que:</ModalHeader>
-                <ModalBody>
-                    <div className="flex gap-8 items-center justify-between px-10 py-4">
-                        <Button color='primary' variant='flat' className='font-medium' onPress={goEmploye}><CustomersIcon bgFill='fill-blue-500'/> Employe</Button>
-                        <Button color='primary' variant='flat' className='font-medium' onPress={goManager}><AccountsIcon bgFill='fill-blue-500'/> Manager</Button> 
-                    </div>
-                </ModalBody>
-            </>
-            )}
+          <ModalHeader className='flex gap-2 bg-bleuspat text-white justify-center'>Se connecter en tant que:</ModalHeader>
+          <ModalBody>
+            <div className="flex gap-8 items-center justify-between px-10 py-4">
+              <Button color='primary' variant='flat' className='font-medium' onPress={goEmploye}><CustomersIcon bgFill='fill-blue-500'/> Employe</Button>
+              <Button color='primary' variant='flat' className='font-medium' onPress={goManager}><AccountsIcon bgFill='fill-blue-500'/> Manager</Button> 
+            </div>
+          </ModalBody>
         </ModalContent>
       </Modal>
-
     </div>
-  )
+  );
 }
 
-export default Login
+export default Login;

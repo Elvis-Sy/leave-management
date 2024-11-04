@@ -9,131 +9,104 @@ import { useForm } from "react-hook-form";
 import { Pagination, Button, Input, Modal } from "@nextui-org/react";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ModifType from '../modals/modifType'
-import SuppType from '../modals/suppType'
+import ModifType from '../modals/modifType';
+import SuppType from '../modals/suppType';
 
 const Type = () => {
-
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
-  const [row, setRow] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [id, setId] = useState('')
+  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const [rows, setRows] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedId, setSelectedId] = useState('');
   const [openModal, setOpenModal] = useState(null);
-  const rowsPerPage = 7 // Nombre de lignes par page
-  const formRef = useRef()
+  const rowsPerPage = 7; // Nombre de lignes par page
 
   useEffect(() => {
-    allMembre()
-    const id = localStorage.getItem('id');
-    if(id){
-        setId(id)
-    }
+    fetchTypes();
   }, []);
 
-  //Ouvertur modal
-  const onOpen = (modalId) => {
+  // Fonction pour ouvrir les modals
+  const openModalHandler = (modalId) => {
     setOpenModal(modalId);
   };
 
-  //Fermeture modal
-  const onClose = () => {
+  // Fonction pour fermer les modals
+  const closeModalHandler = () => {
     setOpenModal(null);
   };
 
-  //Prendre les donnees
-  const allMembre = async () => {
+  // Récupérer tous les types
+  const fetchTypes = async () => {
     try {
-        const response = await axios.get('http://localhost:5000/api/conges/list', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
-        setRow(response.data.type)
-
+      const response = await axios.get('http://localhost:5000/api/conges/list', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      setRows(response.data.type);
     } catch (error) {
-        console.error('Erreur lors de la requête:', error.response?.data || error.message);
-        setRow([])
+      console.error('Erreur lors de la récupération des types:', error);
+      setRows([]);
     }
-  };  
+  };
 
-  //Envoie form
-  const onSubmit = async (data)=>{
+  // Soumettre le formulaire
+  const onSubmit = async (data) => {
     try {
       const response = await axios.post('http://localhost:5000/api/conges/ajout', data, {
-          headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
       });
 
-      if(response.data.cause){
-        toast.warn(`${response.data.cause}`, {
+      if (response.data.cause) {
+        toast.warn(response.data.cause, {
           position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
+          autoClose: 3000
         });
       } else {
-        toast.success(`${response.data.message}`, {
+        toast.success(response.data.message, {
           position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
+          autoClose: 2000
         });
-
-        formRef.current.dispatchEvent(new Event('reset', { bubbles: true }));
-        allMembre()         
+        reset(); // Réinitialiser le formulaire après soumission
+        fetchTypes(); // Recharger les types
       }
+    } catch (error) {
+      console.error('Erreur lors de la soumission:', error);
+    }
+  };
 
-  } catch (error) {
-      console.error('Erreur lors de la requête:', error.response?.data || error.message);
-  }
-  }
-
-  //Gestion de la pagination et des pages
-    //Calcul des nombres de pages
-    const totalPages = Math.ceil(row.length / rowsPerPage)
-
-    //Diviser les donnes selon le nombre de page
-    const paginatedData = row.slice(
-      (currentPage - 1) * rowsPerPage, 
-      currentPage * rowsPerPage
-    ) 
+  // Pagination
+  const totalPages = Math.ceil(rows.length / rowsPerPage);
+  const paginatedData = rows.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   const handlePageChange = (page) => {
-    setCurrentPage(page)
-  }
-
+    setCurrentPage(page);
+  };
 
   return (
     <>
-      <ToastContainer/>
+      <ToastContainer />
       <div className="my-6 px-4 lg:px-6 max-w-[95rem] mx-auto w-full flex flex-col gap-5">
-        <h1 className="text-xl font-semibold">Type de congé disponible</h1>
+        <h1 className="text-xl font-semibold">Types de congé disponibles</h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} ref={formRef} className="bg-default-50 p-4 rounded-lg flex flex-col md:flex-row gap-4">
-
+        {/* Formulaire d'ajout */}
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-default-50 p-4 rounded-lg flex flex-col md:flex-row gap-4">
           <Input
             isRequired
             label="Design"
-            {...register('designType', { 
-              required: 'Le design est requis', 
-            })}
+            {...register('designType', { required: 'Le design est requis' })}
             isInvalid={!!errors.designType}
-            errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.designType ? errors.designType.message : ''}</span>}
+            errorMessage={errors.designType?.message && (
+              <span className="flex justify-start text-[#f31260] text-xs">{errors.designType.message}</span>
+            )}
           />
 
           <Input
             isRequired
             label="Plafond"
-            {...register('nbJours', { 
-              required: 'Le plafond est requis', 
+            {...register('nbJours', {
+              required: 'Le plafond est requis',
               pattern: {
                 value: /^[0-9]+$/,
                 message: 'Le champ doit contenir que des chiffres'
@@ -141,38 +114,49 @@ const Type = () => {
               setValueAs: (value) => Number(value)
             })}
             isInvalid={!!errors.nbJours}
-            errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.nbJours ? errors.nbJours.message : ''}</span>}
+            errorMessage={errors.nbJours?.message && (
+              <span className="flex justify-start text-[#f31260] text-xs">{errors.nbJours.message}</span>
+            )}
             placeholder="Nombre de jours"
           />
 
           <div className="flex items-center gap-2">
             <Button type="submit" color="primary">Ajouter</Button>
-            <Button type="reset" variant="light" color="danger">Reset</Button>
+            <Button type="reset" variant="light" color="danger" onClick={() => reset()}>Réinitialiser</Button>
           </div>
-
         </form>
 
+        {/* Tableau des types de congé */}
         <div className="max-w-[95rem] mx-auto w-full">
-          <TableWrapper RenderCell={(props) => <RenderCell {...props} onOpen={onOpen} setId={setId}/>} columns={colType} users={paginatedData}/>
+          <TableWrapper 
+            RenderCell={(props) => <RenderCell {...props} onOpen={openModalHandler} setId={setSelectedId} />}
+            columns={colType}
+            users={paginatedData}
+          />
         </div>
-        {/* PAGINATION */}
+
+        {/* Pagination */}
         <div className="mt-4 flex justify-center">
           <Pagination 
-            loop showControls
+            loop 
+            showControls
             total={totalPages} 
             page={currentPage} 
             onChange={handlePageChange} 
             variant="faded" 
-            className="rounded-md"/>
+            className="rounded-md" 
+          />
         </div>
       </div>
 
-      <Modal isOpen={openModal == "suppModal"} onClose={onClose} size="sm">
-        <SuppType onClose={onClose} id={id} all={allMembre}/>
+      {/* Modal pour supprimer un type */}
+      <Modal isOpen={openModal === "suppModal"} onClose={closeModalHandler} size="sm">
+        <SuppType onClose={closeModalHandler} id={selectedId} all={fetchTypes} />
       </Modal>
 
-      <Modal isOpen={openModal == "modifModal"} onClose={onClose} size="2xl">
-        <ModifType onClose={onClose} id={id} reload={allMembre} opt={row}/>
+      {/* Modal pour modifier un type */}
+      <Modal isOpen={openModal === "modifModal"} onClose={closeModalHandler} size="2xl">
+        <ModifType onClose={closeModalHandler} id={selectedId} reload={fetchTypes} opt={rows} />
       </Modal>
     </>
   );

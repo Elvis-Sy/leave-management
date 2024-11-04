@@ -15,8 +15,8 @@ export class DemandeService {
     async addDemande(demandeDto: AddDemandeDto){
         const { employeId, typeId, statutId, ...demande } = demandeDto;
 
-        const dateDebut = demande.dateDebut;
-        const dateFin = demande.dateFin;
+        const dateDebut = new Date(demande.dateDebut);
+        const dateFin = new Date(demande.dateFin);
 
         const essai = await this.prisma.employes.findFirst({
             where: {
@@ -548,7 +548,47 @@ export class DemandeService {
           // Vérification et inversion si la dateDebut est après la dateFin
           if (dateDebut && dateFin) {
             const startDate = new Date(dateDebut);
+            startDate.setUTCHours(0, 0, 0, 0);
             const endDate = new Date(dateFin);
+            endDate.setUTCHours(23, 59, 59, 999);
+      
+            if (startDate > endDate) {
+              // Inverser les dates si dateDebut est après dateFin
+              whereClause.dateEnvoie = {
+                gte: endDate,  
+                lte: startDate,
+              };
+            } else {
+              // Dates correctes, pas besoin d'inverser
+              whereClause.dateEnvoie = {
+                gte: startDate,
+                lte: endDate,
+              };
+            }
+          } else if (dateDebut && !dateFin){
+            const startDate = new Date(dateDebut);
+            startDate.setUTCHours(0, 0, 0, 0);
+            const endDate = new Date(dateDebut);
+            endDate.setUTCHours(23, 59, 59, 999);
+      
+            if (startDate > endDate) {
+              // Inverser les dates si dateDebut est après dateFin
+              whereClause.dateEnvoie = {
+                gte: endDate,  
+                lte: startDate,
+              };
+            } else {
+              // Dates correctes, pas besoin d'inverser
+              whereClause.dateEnvoie = {
+                gte: startDate,
+                lte: endDate,
+              };
+            }
+          } else if(!dateDebut && dateFin){
+            const startDate = new Date(dateFin);
+            startDate.setUTCHours(0, 0, 0, 0);
+            const endDate = new Date(dateFin);
+            endDate.setUTCHours(23, 59, 59, 999);
       
             if (startDate > endDate) {
               // Inverser les dates si dateDebut est après dateFin
@@ -662,7 +702,47 @@ export class DemandeService {
         // Vérification et inversion si la dateDebut est après la dateFin
         if (dateDebut && dateFin) {
           const startDate = new Date(dateDebut);
+          startDate.setUTCHours(0, 0, 0, 0);
           const endDate = new Date(dateFin);
+          endDate.setUTCHours(23, 59, 59, 999);
+    
+          if (startDate > endDate) {
+            // Inverser les dates si dateDebut est après dateFin
+            whereClause.dateEnvoie = {
+              gte: endDate,  
+              lte: startDate,
+            };
+          } else {
+            // Dates correctes, pas besoin d'inverser
+            whereClause.dateEnvoie = {
+              gte: startDate,
+              lte: endDate,
+            };
+          }
+        } else if (dateDebut && !dateFin){
+          const startDate = new Date(dateDebut);
+          startDate.setUTCHours(0, 0, 0, 0);
+          const endDate = new Date(dateDebut);
+          endDate.setUTCHours(23, 59, 59, 999);
+    
+          if (startDate > endDate) {
+            // Inverser les dates si dateDebut est après dateFin
+            whereClause.dateEnvoie = {
+              gte: endDate,  
+              lte: startDate,
+            };
+          } else {
+            // Dates correctes, pas besoin d'inverser
+            whereClause.dateEnvoie = {
+              gte: startDate,
+              lte: endDate,
+            };
+          }
+        } else if(!dateDebut && dateFin){
+          const startDate = new Date(dateFin);
+          startDate.setUTCHours(0, 0, 0, 0);
+          const endDate = new Date(dateFin);
+          endDate.setUTCHours(23, 59, 59, 999);
     
           if (startDate > endDate) {
             // Inverser les dates si dateDebut est après dateFin
@@ -756,9 +836,21 @@ export class DemandeService {
           
           const whereClause: any = {};
 
-          whereClause.statuts = {
-            designStatut: 'En revision'
-          }
+          whereClause.OR = [
+            {
+                statuts: {
+                    designStatut: 'En revision' // Filtre les demandes avec le statut "En révision"
+                }
+            },
+            {
+                employe: {
+                    idManager: null, // Inclure les employés sans manager
+                },
+                statuts: {
+                    designStatut: 'En attente' // Filtre les demandes avec le statut "En attente"
+                }
+            }
+        ]
       
           // Filtrer par type
           if (type) {
@@ -770,7 +862,47 @@ export class DemandeService {
           // Vérification et inversion si la dateDebut est après la dateFin
           if (dateDebut && dateFin) {
             const startDate = new Date(dateDebut);
+            startDate.setUTCHours(0, 0, 0, 0);
             const endDate = new Date(dateFin);
+            endDate.setUTCHours(23, 59, 59, 999);
+      
+            if (startDate > endDate) {
+              // Inverser les dates si dateDebut est après dateFin
+              whereClause.dateDebut = {
+                gte: endDate,  
+                lte: startDate,
+              };
+            } else {
+              // Dates correctes, pas besoin d'inverser
+              whereClause.dateDebut = {
+                gte: startDate,
+                lte: endDate,
+              };
+            }
+          } else if (dateDebut && !dateFin){
+            const startDate = new Date(dateDebut);
+            startDate.setUTCHours(0, 0, 0, 0);
+            const endDate = new Date(dateDebut);
+            endDate.setUTCHours(23, 59, 59, 999);
+      
+            if (startDate > endDate) {
+              // Inverser les dates si dateDebut est après dateFin
+              whereClause.dateDebut = {
+                gte: endDate,  
+                lte: startDate,
+              };
+            } else {
+              // Dates correctes, pas besoin d'inverser
+              whereClause.dateDebut = {
+                gte: startDate,
+                lte: endDate,
+              };
+            }
+          } else if(!dateDebut && dateFin){
+            const startDate = new Date(dateFin);
+            startDate.setUTCHours(0, 0, 0, 0);
+            const endDate = new Date(dateFin);
+            endDate.setUTCHours(23, 59, 59, 999);
       
             if (startDate > endDate) {
               // Inverser les dates si dateDebut est après dateFin
@@ -868,7 +1000,47 @@ export class DemandeService {
           // Vérification et inversion si la dateDebut est après la dateFin
           if (dateDebut && dateFin) {
             const startDate = new Date(dateDebut);
+            startDate.setUTCHours(0, 0, 0, 0);
             const endDate = new Date(dateFin);
+            endDate.setUTCHours(23, 59, 59, 999);
+      
+            if (startDate > endDate) {
+              // Inverser les dates si dateDebut est après dateFin
+              whereClause.dateDebut = {
+                gte: endDate,  
+                lte: startDate,
+              };
+            } else {
+              // Dates correctes, pas besoin d'inverser
+              whereClause.dateDebut = {
+                gte: startDate,
+                lte: endDate,
+              };
+            }
+          } else if (dateDebut && !dateFin){
+            const startDate = new Date(dateDebut);
+            startDate.setUTCHours(0, 0, 0, 0);
+            const endDate = new Date(dateDebut);
+            endDate.setUTCHours(23, 59, 59, 999);
+      
+            if (startDate > endDate) {
+              // Inverser les dates si dateDebut est après dateFin
+              whereClause.dateDebut = {
+                gte: endDate,  
+                lte: startDate,
+              };
+            } else {
+              // Dates correctes, pas besoin d'inverser
+              whereClause.dateDebut = {
+                gte: startDate,
+                lte: endDate,
+              };
+            }
+          } else if(!dateDebut && dateFin){
+            const startDate = new Date(dateFin);
+            startDate.setUTCHours(0, 0, 0, 0);
+            const endDate = new Date(dateFin);
+            endDate.setUTCHours(23, 59, 59, 999);
       
             if (startDate > endDate) {
               // Inverser les dates si dateDebut est après dateFin

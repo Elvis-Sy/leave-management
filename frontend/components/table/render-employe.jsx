@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
 
   const router = useRouter();
+  const role = localStorage.getItem('role')
 
     //Formater la date
     const formatDate = (date)=>{
@@ -86,7 +87,7 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
                     {/* </Link> */}
                 </Tooltip>
            </div>
-           {localStorage.getItem('role') == 'Admin' && (
+           {role == 'Admin' && (
             <>
               <div>
                   <Tooltip content="Modifier" color="primary">

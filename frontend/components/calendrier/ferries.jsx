@@ -1,89 +1,71 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-import {Popover, PopoverContent, PopoverTrigger, Modal } from '@nextui-org/react';
+import { Popover, PopoverContent, PopoverTrigger, Modal } from '@nextui-org/react';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'moment/locale/fr';
 import axios from 'axios';
-import FerrierModal from '../modals/ferrierModal'
-import ModifFerrier from '../modals/modifFerrier'
-import RetirerFerrier from '../modals/retirerFerrier'
+import FerrierModal from '../modals/ferrierModal';
+import ModifFerrier from '../modals/modifFerrier';
+import RetirerFerrier from '../modals/retirerFerrier';
 import { ToastContainer } from 'react-toastify';
 
-moment.locale('fr'); // Changer la langue en français
+moment.locale('fr');
 const localizer = momentLocalizer(moment);
 
 const Ferries = () => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [openModal, setOpenModal] = useState(null);
+  const [ferrier, setFerrier] = useState([]);
+  const [id, setId] = useState();
 
-    const [currentDate, setCurrentDate] = useState(new Date()); // Gestion de la date actuelle
-    const [selectedDate, setSelectedDate] = useState(null); // Date sélectionnée
-    const [openModal, setOpenModal] = useState(null);
-    const [ferrier, setFerrier] = useState([])
-    const [id, setId] = useState()
+  useEffect(() => {
+    fetchFerries();
+  }, []);
 
-    useEffect(()=>{
-        allFerrier()
-    }, [])
-
-    //Ouvertur modal
-    const onOpen = (modalId) => {
-        setOpenModal(modalId);
-    };
-
-    //Fermeture modal
-    const onClose = () => {
-        setOpenModal(null);
-    };
-
-    const handleNavigate = (date) => {
-        setCurrentDate(date);
-    };
-
-    //Prendre les donnees
-  const allFerrier = async () => {
+  const fetchFerries = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/ferrier/event', {
-          headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
       });
-
-      setFerrier(response.data.ferrie)
-
+      setFerrier(response.data.ferrie || []);
     } catch (error) {
-        setFerrier([])
-        console.error('Erreur lors de la requête:', error.response?.data || error.message);
+      console.error('Erreur lors de la requête:', error.response?.data || error.message);
+      setFerrier([]);
     }
   };
 
-  //Lors du clique de la date elle-meme
+  const handleModalOpen = (modalId, eventId = null) => {
+    setId(eventId);
+    setOpenModal(modalId);
+  };
+
   const handleSelectDate = (date) => {
     setSelectedDate(date);
-    onOpen('ferrierModal')
+    handleModalOpen('ferrierModal');
   };
 
-  const CustomToolbar = (props) => {
-    const { onNavigate, label } = props;
-
-    return (
-      <div className="rbc-toolbar">
-        <span className="rbc-btn-group font-semibold">
-          <button type="button" onClick={() =>{ onNavigate('PREV') }}>Précédent</button>
-          <button type="button" onClick={() =>{ onNavigate('TODAY') }}>Aujourd'hui</button>
-          <button type="button" onClick={() =>{ onNavigate('NEXT') }}>Suivant</button>
-        </span>
-        <span className="rbc-toolbar-label text-xl">{label}</span>
-      </div>
-    );
-  };
-
+  const CustomToolbar = ({ onNavigate, label }) => (
+    <div className="rbc-toolbar">
+      <span className="rbc-btn-group font-semibold">
+        <button type="button" onClick={() => onNavigate('PREV')}>Précédent</button>
+        <button type="button" onClick={() => onNavigate('TODAY')}>Aujourd'hui</button>
+        <button type="button" onClick={() => onNavigate('NEXT')}>Suivant</button>
+      </span>
+      <span className="rbc-toolbar-label text-xl">{label}</span>
+    </div>
+  );
 
   return (
     <div className="bg-default-50 shadow-md p-4 rounded-md m-4 my-10">
-      <ToastContainer/>
-      <Calendar className="calendrier z-20"
+      <ToastContainer />
+      <Calendar
+        className="calendrier z-20"
         localizer={localizer}
         events={ferrier}
         startAccessor="start"
@@ -91,18 +73,16 @@ const Ferries = () => {
         style={{ height: 500 }}
         views={['month']}
         view={'month'}
-        popup={true}
+        popup
         date={currentDate}
-        onNavigate={handleNavigate}
+        onNavigate={setCurrentDate}
         onSelectSlot={({ start }) => handleSelectDate(start)}
         selectable
         components={{
-          toolbar: (props) => CustomToolbar(props),
+          toolbar: CustomToolbar,
           eventWrapper: ({ event, children }) => (
-            <Popover placement='right' showArrow={true} className='sort'>
-              <PopoverTrigger>
-                {children}
-              </PopoverTrigger>
+            <Popover placement='right' showArrow className='sort'>
+              <PopoverTrigger>{children}</PopoverTrigger>
               <PopoverContent className='w-[200px] p-4 border border-[#228be6] z-50' onClick={(e) => e.stopPropagation()}>
                 <div className="flex w-full">
                   <p className='text-left font-semibold text-gray-500'>
@@ -111,38 +91,35 @@ const Ferries = () => {
                 </div>
                 <div className='mt-2 w-full'>
                   <p className='text-gray-500 font-semibold'>Description:</p>
-                  <p>{event.description ? event.description : '--/--'}</p>
+                  <p>{event.description || '--/--'}</p>
                 </div>
                 <div className="w-full flex items-center justify-end gap-1 mt-2 border-t border-[#228be6]">
-                  <button onClick={() => { setId(event.id); onOpen('modifModal') }} className="w-8 h-8 flex items-center justify-center rounded-full">
-                    <img src="/modif.png" alt="modify" width={20} height={20}/>
+                  <button onClick={() => handleModalOpen('modifModal', event.id)} className="w-8 h-8 flex items-center justify-center rounded-full">
+                    <img src="/modif.png" alt="modify" width={20} height={20} />
                   </button>
-                  <button onClick={() => { setId(event.id); onOpen('retirerModal'); }} className="w-8 h-8 flex items-center justify-center rounded-full">
-                    <img src="/retirer.png" alt="delete" width={20} height={20}/>
+                  <button onClick={() => handleModalOpen('retirerModal', event.id)} className="w-8 h-8 flex items-center justify-center rounded-full">
+                    <img src="/retirer.png" alt="delete" width={20} height={20} />
                   </button>
                 </div>
               </PopoverContent>
             </Popover>
           ),
-          
         }}
       />
 
-      <Modal isOpen={openModal == "ferrierModal"} onClose={onClose} size="sm">
-        <FerrierModal onClose={onClose} date={selectedDate} reload={allFerrier}/>
+      <Modal isOpen={openModal === "ferrierModal"} onClose={() => setOpenModal(null)} size="sm">
+        <FerrierModal onClose={() => setOpenModal(null)} date={selectedDate} reload={fetchFerries} />
       </Modal>
 
-      <Modal isOpen={openModal == "retirerModal"} onClose={onClose} size="sm">
-        <RetirerFerrier onClose={onClose} id={id} reload={allFerrier}/>
+      <Modal isOpen={openModal === "retirerModal"} onClose={() => setOpenModal(null)} size="sm">
+        <RetirerFerrier onClose={() => setOpenModal(null)} id={id} reload={fetchFerries} />
       </Modal>
 
-      <Modal isOpen={openModal == "modifModal"} onClose={onClose} size="sm">
-        <ModifFerrier onClose={onClose} id={id} reload={allFerrier}/>
+      <Modal isOpen={openModal === "modifModal"} onClose={() => setOpenModal(null)} size="sm">
+        <ModifFerrier onClose={() => setOpenModal(null)} id={id} reload={fetchFerries} />
       </Modal>
-
-
     </div>
-  )
-}
+  );
+};
 
-export default Ferries
+export default Ferries;

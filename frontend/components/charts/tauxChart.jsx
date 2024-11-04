@@ -14,7 +14,7 @@ const Taux = () => {
     useEffect(() => {
         
         setTimeout(() => {
-        setIsLoading(false);
+            setIsLoading(false);
         }, 1500);
 
         infoApprobation();
@@ -84,10 +84,6 @@ const Taux = () => {
             </>
         )}
 
-
-
-
-            
         </div>
         {/* Legend */}
         <div className="flex justify-center gap-16">
