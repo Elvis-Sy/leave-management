@@ -8,6 +8,7 @@ import axios from 'axios';
 import { UsersIcon } from "@/components/icons/breadcrumb/users-icon";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const SimpleManager = () => {
   const router = useRouter();
@@ -68,9 +69,9 @@ const SimpleManager = () => {
           <div className="flex items-center flex-col lg:flex-row gap-4">
             {/* USER INFO CARD */}
             <div className="bg-default-50 shadow-md py-6 px-4 rounded-md flex-1 flex flex-col md:flex-row items-center justify-between gap-8 h-full">
-              <img 
+              <Image 
                 src={`http://localhost:5000/${info.photo || 'avatar.png'}`} 
-                alt="" 
+                alt="profil" 
                 width={100} 
                 height={100} 
                 className="w-[70px] h-[70px] rounded-full object-cover" 

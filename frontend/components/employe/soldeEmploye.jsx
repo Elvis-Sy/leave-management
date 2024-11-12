@@ -67,6 +67,8 @@ const SoldeEmploye = React.memo(({ idEmp = null }) => {
   );
 });
 
+SoldeEmploye.displayName = "SoldeEmploye";
+
 export default SoldeEmploye;
 
 

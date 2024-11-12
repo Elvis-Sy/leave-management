@@ -10,7 +10,8 @@ import { colAttente } from "../table/data";
 import { RenderCell } from "../table/render-attente";
 import TableSearch from "../table/tableSearch"; 
 import { ExportIcon } from "@/components/icons/accounts/export-icon";
-import debounce from 'lodash.debounce'; // Make sure to install lodash
+import debounce from 'lodash.debounce';
+import Image from 'next/image';
 
 export const Attentes = () => {
     const [type, setType] = useState([]);
@@ -25,9 +26,12 @@ export const Attentes = () => {
     const [idSupp, setId] = useState(null);
 
     const fetchAllAttente = useCallback(async () => {
+        if (typeof window === 'undefined') return; // Vérification côté client
+    
         try {
+            const token = localStorage.getItem('token');
             const response = await axios.get('http://localhost:5000/api/demandes/attente', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                headers: { Authorization: `Bearer ${token}` }
             });
             setRow(response.data.demande);
             setTempRow(response.data.demande);
@@ -36,11 +40,14 @@ export const Attentes = () => {
             setRow([]);
         }
     }, []);
-
+    
     const fetchType = useCallback(async () => {
+        if (typeof window === 'undefined') return;
+    
         try {
+            const token = localStorage.getItem('token');
             const response = await axios.get('http://localhost:5000/api/details/types', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                headers: { Authorization: `Bearer ${token}` }
             });
             setType(response.data.type);
         } catch (error) {
@@ -54,16 +61,18 @@ export const Attentes = () => {
     };
 
     useEffect(() => {
-        fetchAllAttente();
-        fetchType();
+            fetchAllAttente();
+            fetchType();
     }, [fetchAllAttente, fetchType]);
 
-    const handleSearch = useCallback(debounce(async (val) => {
+    const handleSearch = debounce(async (val) => {
         const temp = tempRow.filter(item => item.name.toLowerCase().includes(val.toLowerCase()));
         setRow(temp);
-    }, 300), [tempRow]);
+    }, 300);
 
     const handleFiltrer = useCallback(async () => {
+        if (typeof window === 'undefined') return;
+
         try {
             if (!typeConge && !dateDebut && !dateFin) {
                 fetchAllAttente();
@@ -79,8 +88,6 @@ export const Attentes = () => {
             const response = await axios.get(`http://localhost:5000/api/demandes/attenteFiltre?${queryParams}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
-
-            console.log(response.data)
 
             setRow(response.data.demande || []);
         } catch (error) {
@@ -106,7 +113,7 @@ export const Attentes = () => {
                     <Popover placement="left" showArrow={true} className="filter2">
                         <PopoverTrigger>
                             <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                                <img src="/filter.png" alt="" width={20} height={20} />
+                                <Image src="/filter.png" alt="filtre" width={20} height={20} />
                             </button>
                         </PopoverTrigger>
                         <PopoverContent className="p-4 flex flex-col gap-3">

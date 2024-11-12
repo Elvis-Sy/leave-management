@@ -23,10 +23,14 @@ import NewEmploye from "../modals/newEmploye";
 import { ToastContainer } from "react-toastify";
 import SuppEmploye from "../modals/suppEmploye";
 import ModifEmploye from "../modals/modifEmploye";
+import Image from "next/image";
 
 const BASE_URL = "http://localhost:5000/api";
-const headers = {
-  Authorization: `Bearer ${localStorage.getItem("token")}`,
+
+const getHeaders = () => {
+  return typeof window !== "undefined"
+    ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    : {};
 };
 
 export const EmployePage = React.memo(() => {
@@ -42,33 +46,50 @@ export const EmployePage = React.memo(() => {
   const [etablissement, setEtablissement] = useState(null);
   const [etab, setEtab] = useState([]);
 
-  const handleEtablissementSelect = (item) => setEtablissement(item);
+  const handleEtablissementSelect = useCallback(
+    (item) => setEtablissement(item),
+    []
+  );
 
-  const handleFiltrer = () => filtreEmploye(etablissement, dateDebut, dateFin);
+  const handleFiltrer = useCallback(
+    () => filtreEmploye(etablissement, dateDebut, dateFin),
+    [etablissement, dateDebut, dateFin]
+  );
 
   const onOpen = (modalId) => setOpenModal(modalId);
   const onClose = () => setOpenModal(null);
 
-  const fetchData = useCallback(async (url, setData) => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get(url, { headers });
-      setData(response.data);
+      const response = await axios.get(`${BASE_URL}/employes/all`, {
+        headers: getHeaders(),
+      });
+      setRow(response.data.employe || []);
+      setTempRow(response.data.employe || []);
     } catch (error) {
       console.error("Erreur de requête:", error.response?.data || error.message);
     }
   }, []);
 
-  const reloadData = () => {
-    fetchData(`${BASE_URL}/employes/all`, (data) => {
-        setRow(data.employe);
-        setTempRow(data.employe);
-    });
-    fetchData(`${BASE_URL}/details/etablissement`, (data) => setEtab(data.etabi));
-};
+  const fetchDataEtab = useCallback(async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/details/etablissement`, {
+        headers: getHeaders(),
+      });
+      setEtab(response.data.etabli || []);
+    } catch (error) {
+      console.error("Erreur de requête:", error.response?.data || error.message);
+    }
+  }, []);
+
+  const reloadData = useCallback(() => {
+    fetchData();
+    fetchDataEtab();
+  }, [fetchData, fetchDataEtab]);
 
   useEffect(() => {
-    reloadData()
-  }, [fetchData]);
+    reloadData();
+  }, [reloadData]);
 
   const searchEmploye = (val) => {
     const filtered = tempRow.filter((item) =>
@@ -79,22 +100,31 @@ export const EmployePage = React.memo(() => {
 
   const filtreEmploye = async (etablissement = "", dateDebut = "", dateFin = "") => {
     let query = `${BASE_URL}/employes/filtre?`;
-
     if (etablissement) query += `etablissement=${encodeURIComponent(etablissement)}&`;
-    if (dateDebut || dateFin) query += `dateDebut=${encodeURIComponent(dateDebut || dateFin)}&dateFin=${encodeURIComponent(dateFin || dateDebut)}`;
-
+    if (dateDebut || dateFin)
+      query += `dateDebut=${encodeURIComponent(dateDebut || dateFin)}&dateFin=${encodeURIComponent(dateFin || dateDebut)}`;
     if (query.endsWith("&")) query = query.slice(0, -1);
 
-    fetchData(query, (data) => setRow(data.employe || []));
+    try {
+      const response = await axios.get(query, { headers: getHeaders() });
+      setRow(response.data.employe || []);
+    } catch (error) {
+      console.error("Erreur de requête:", error.response?.data || error.message);
+    }
   };
 
   const totalPages = Math.ceil(row.length / rowsPerPage);
-  const paginatedData = Array.isArray(row) ? row.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage) : [];
+  const paginatedData = row.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
   const handlePageChange = (page) => setCurrentPage(page);
 
   const handleSortClick = (order) => {
-    const sortedData = [...row].sort((a, b) => (order === "ASC" ? a.DateEmb > b.DateEmb : a.DateEmb < b.DateEmb) ? 1 : -1);
+    const sortedData = [...row].sort((a, b) =>
+      order === "ASC" ? (a.DateEmb > b.DateEmb ? 1 : -1) : (a.DateEmb < b.DateEmb ? 1 : -1)
+    );
     setRow(sortedData);
     setSelectedSort(order);
   };
@@ -123,7 +153,7 @@ export const EmployePage = React.memo(() => {
           <Popover placement="left" showArrow={true} className="filter2">
             <PopoverTrigger>
               <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                <img src="/filter.png" alt="" width={20} height={20}/>
+                <Image src="/filter.png" alt="filtre" width={20} height={20}/>
               </button>
             </PopoverTrigger>
             <PopoverContent className="p-4 flex flex-col gap-3">
@@ -153,7 +183,7 @@ export const EmployePage = React.memo(() => {
           <Popover placement="bottom" showArrow={true}>
             <PopoverTrigger>
                  <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                   <img src="/sort.png" alt="" width={24} height={24}/>
+                   <Image src="/sort.png" alt="sort" width={24} height={24}/>
                  </button>
             </PopoverTrigger>
             <PopoverContent className="p-2 flex flex-col gap-2 w-[150px]">
@@ -193,3 +223,5 @@ export const EmployePage = React.memo(() => {
     </div>
   );
 });
+
+EmployePage.displayName = "EmployePage";

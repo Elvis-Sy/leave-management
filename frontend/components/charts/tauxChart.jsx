@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { RadialBarChart, RadialBar, ResponsiveContainer } from "recharts"
 import { Spinner } from "@nextui-org/react";
 import axios from "axios";
+import Image from "next/image";
 
 
 const Taux = () => {
@@ -61,7 +62,7 @@ const Taux = () => {
     <div className="bg-default-50 shadow-md rounded-xl w-full h-full p-4">
         {/* Titre */}
         <div className="text-center">
-            <h1 className="text-lg font-semibold">Taux d'approbation</h1>
+            <h1 className="text-lg font-semibold">Taux d&apos;approbation</h1>
         </div>
         {/* Chart */}
         <div className="relative w-full h-[70%]">
@@ -80,7 +81,7 @@ const Taux = () => {
                 </ResponsiveContainer>
 
                 {/* Image au milieu */}
-                <img src="/noyes.png" alt="" width={50} height={50} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
+                <Image src="/noyes.png" alt="noyes" width={50} height={50} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
             </>
         )}
 

@@ -7,6 +7,7 @@ import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'moment/locale/fr';
 import axios from 'axios';
+import Image from 'next/image';
 
 moment.locale('fr'); // Changer la langue en français
 const localizer = momentLocalizer(moment);
@@ -70,7 +71,7 @@ const Conges = () => {
         <div className="rbc-toolbar">
             <span className="rbc-btn-group font-semibold">
                 <button type="button" onClick={() => onNavigate('PREV')}>Précédent</button>
-                <button type="button" onClick={() => onNavigate('TODAY')}>Aujourd'hui</button>
+                <button type="button" onClick={() => onNavigate('TODAY')}>Aujourd&apos;hui</button>
                 <button type="button" onClick={() => onNavigate('NEXT')}>Suivant</button>
             </span>
             <span className="rbc-toolbar-label text-xl">{label}</span>
@@ -124,7 +125,7 @@ const Conges = () => {
                 <Popover placement="left" showArrow={true} className="filter2">
                     <PopoverTrigger>
                         <button type="button" className="flex items-center px-4 py-1 bg-[#0070f0] gap-4 rounded-lg">
-                            <img src="/filter.png" alt="" width={20} height={20} />
+                            <Image src="/filter.png" alt="filtre" width={20} height={20} />
                             <span className='text-lg text-white font-semibold'>Filtrer</span>
                         </button>
                     </PopoverTrigger>

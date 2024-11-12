@@ -2,6 +2,7 @@ import React from 'react'
 import {ModalContent, ModalHeader, ModalBody, ModalFooter, Button,} from '@nextui-org/react'
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Image from 'next/image';
 
 const RetirerFerrier = ({onClose, id, reload}) => {
 
@@ -36,7 +37,7 @@ const RetirerFerrier = ({onClose, id, reload}) => {
     <ModalContent>
         {(onClose) => (
         <>
-            <ModalHeader className='flex justify-center'><img src="/retirer.png" alt="" width={50} height={50}/></ModalHeader>
+            <ModalHeader className='flex justify-center'><Image src="/retirer.png" alt="retire" width={50} height={50}/></ModalHeader>
             <ModalBody>
                 <p className="mb-2 px-2 text-center font-semibold text-gray-700">Etes-vous sûr de vouloir retirer la date des jours ferriés ?</p>
             </ModalBody>
@@ -44,7 +45,7 @@ const RetirerFerrier = ({onClose, id, reload}) => {
             <Button color="primary" variant="light" onPress={onClose}>
                 Non, annuler
             </Button>
-            <Button color="danger" type='submit' onPress={()=>retirer(id)}>
+            <Button color="danger" type='submit' onPress={() => retirer(id)}>
                 Oui, continuer
             </Button>
             </ModalFooter>

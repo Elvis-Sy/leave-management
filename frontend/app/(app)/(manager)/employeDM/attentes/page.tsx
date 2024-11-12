@@ -1,10 +1,11 @@
-import React from 'react'
-import {DMAttente} from '@/components/demandes/dmAttente'
+import dynamic from 'next/dynamic'
+
+const DMAttente = dynamic(() => import('@/components/demandes/dmAttente').then((mod) => mod.DMAttente), {
+  ssr: false
+})
 
 const attenteDM = () => {
-  return (
-    <DMAttente/>
-  )
+  return <DMAttente />
 }
 
 export default attenteDM

@@ -16,7 +16,7 @@ const ModifType = ({onClose, id, reload, opt}) => {
         setNbr(temp.nbJours)
         setValue('designType', temp.designType)
         setValue('nbJours', temp.nbJours)
-    }, [id])
+    }, [id, opt, setValue])
 
 
     //Modifier

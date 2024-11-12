@@ -10,12 +10,13 @@ export const CollapseItems = React.memo(({ icon, items, title, isActive, role })
   const pathname = usePathname();
   const [userRole, setUserRole] = useState(null);
 
+  // Utilisation de useEffect pour récupérer le rôle une seule fois
   useEffect(() => {
-    // Vérifie si nous sommes dans le navigateur et récupère le rôle
     if (typeof window !== "undefined") {
-      setUserRole(localStorage.getItem("role"));
+      const storedRole = localStorage.getItem("role");
+      setUserRole(storedRole); // Mise à jour du rôle une seule fois
     }
-  }, []);
+  }, []); // Dépendance vide pour l'exécution au premier rendu seulement
 
   // Classe pour le titre de l'accordéon, calculée une seule fois
   const accordionTriggerClass = useMemo(() => {
@@ -25,11 +26,14 @@ export const CollapseItems = React.memo(({ icon, items, title, isActive, role })
         : "hover:bg-default-100",
       "py-0 min-h-[44px] rounded-xl active:scale-[0.98] transition-transform px-3.5 flex gap-2 w-full min-h-[44px] h-full items-center cursor-pointer transition-all duration-150 active:scale-[0.98]"
     );
-  }, [isActive]);
+  }, [isActive]); // Dépend uniquement de `isActive`
 
-  // Retourne null uniquement après l'initialisation des hooks pour éviter l'erreur de hooks conditionnels
+  // Si le rôle n'est pas encore défini, ne rien rendre
+  if (userRole === null) return null;
+
+  // Vérification du rôle de l'utilisateur
   if (userRole !== role) {
-    return null;
+    return null; // Ne rien afficher si les rôles ne correspondent pas
   }
 
   return (
@@ -73,3 +77,5 @@ export const CollapseItems = React.memo(({ icon, items, title, isActive, role })
     </div>
   );
 });
+
+CollapseItems.displayName = "CollapseItems";

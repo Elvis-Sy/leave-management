@@ -12,7 +12,10 @@ export const Content = () => {
   const [chargement, setChargement] = useState(true);
 
   useEffect(() => {
-    recupererStatistiques();
+    const id = localStorage.getItem('id');
+    if(id){
+      recupererStatistiques();
+    }
   }, []);
 
   // Fonction pour récupérer les données des cartes

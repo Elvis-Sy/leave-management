@@ -1,4 +1,5 @@
 import { Divider } from "@nextui-org/divider";
+import Image from "next/image";
 
 export const AuthLayoutWrapper = ({ children }) => {
   return (
@@ -13,7 +14,7 @@ export const AuthLayoutWrapper = ({ children }) => {
 
       <div className="hidden md:flex flex-1 relative justify-center p-6">
         <div className="z-10 flex flex-col justify-center gap-6">
-          <img
+          <Image
             src="/port-toamasina-spat.jpg"
             alt="Société du Port à gestion Autonome de Toamasina"
             width={500}

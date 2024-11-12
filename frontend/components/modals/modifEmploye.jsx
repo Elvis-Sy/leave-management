@@ -1,10 +1,11 @@
 "use client"
 
-import React, {useRef, useState, useEffect} from 'react'
+import React, {useRef, useState, useEffect, useCallback} from 'react'
 import { useForm } from 'react-hook-form';
 import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Autocomplete, AutocompleteItem, RadioGroup, Radio, Checkbox} from '@nextui-org/react'
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Image from 'next/image';
 
 const ModifEmploye = ({onClose, all, idEmploye}) => {
 
@@ -34,10 +35,6 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
         getPoste()
         getSupp()
     }, [])
-
-    useEffect(()=>{
-        Informations(idEmploye)
-    }, [idEmploye])
 
     const handleSexeChange = (e) => setSexe(e.target.value);
     const handleDateEmbaucheChange = (e) => setDateEmbauche(e.target.value);
@@ -201,14 +198,14 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
         
       };
 
-      const Informations = async (id)=>{
+      const Informations = useCallback(async (id) => {
         try {
             const response = await axios.get(`http://localhost:5000/api/employes/modif/${id}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             })
-
+    
             const info = response.data.info
             console.log(info)
             setNom(info.nom || '');
@@ -222,7 +219,7 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
             setDateEmbauche(info.dateEmbauche ? new Date(info.dateEmbauche).toISOString().substring(0, 10) : '');
             setPeriodeEssai(info.periodeEssai);
             setPhoto(info.photo || null)
-
+    
             setValue('email', info.email)
             setValue('periodeEssai', info.periodeEssai)
             setValue('idposte', info.poste)
@@ -231,11 +228,15 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
             setValue('CIN', info.CIN)
             setValue('Prenom', info.prenom)
             setValue('nom', info.nom)
-
+    
         } catch (error) {
             console.log('erreur informations: ', error.message)
         }
-      }
+    }, [setValue]);
+
+    useEffect(()=>{
+        Informations(idEmploye)
+    }, [Informations, idEmploye])
 
   return (
     <ModalContent>
@@ -292,7 +293,7 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
                 </div>
                 <div className="flex flex-col gap-4">
                 <div className="ml-4 font-semibold">
-                    <label className="block dark:text-white mb-2 text-gray-700">Genre de l'employé <span className="text-red-500 text-sm">*</span> :</label>
+                    <label className="block dark:text-white mb-2 text-gray-700">Genre de l&apos;employé <span className="text-red-500 text-sm">*</span> :</label>
                     <div className="">
                     <div className="flex">
                         <label className="mr-4 font-normal">
@@ -371,7 +372,7 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
                 })}
                 endContent={
                     <div className='flex h-full items-center'>
-                    <img src='/maillog.png' width={20} height={20} className='pointer-events-none'/>
+                        <Image src='/maillog.png' alt='mail' width={20} height={20} className='pointer-events-none'/>
                     </div>
                 }
                 isInvalid={!!errors.email}
@@ -433,7 +434,7 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
                 <div className="w-1/2">
                     <div className={`${periodeEssai ? 'dark: bg-gray-100/10 bg-gray-100' : ''} group relative border-2 p-2 rounded-xl ${errors.dateEmbauche ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300'}`}>
                     <label className={`block dark:text-white ${errors.dateEmbauche ? 'text-[#f31260]' : 'text-gray-700'}  text-xs font-semibold`}>
-                        Date d'embauche <span className="text-red-500 text-sm">*</span>
+                        Date d&apos;embauche <span className="text-red-500 text-sm">*</span>
                     </label>
                     <div className="">
                         <input 
@@ -455,7 +456,7 @@ const ModifEmploye = ({onClose, all, idEmploye}) => {
                     {errors.dateEmbauche && <span className="flex justify-start text-[#f31260] text-xs text-right font-medium">{errors.dateEmbauche.message}</span>}
                 </div>
 
-                <Checkbox className='w-1/2' isSelected={periodeEssai}  {...register("periodeEssai")} onChange={handleCheckboxChange}>En période d'essai</Checkbox>
+                <Checkbox className='w-1/2' isSelected={periodeEssai}  {...register("periodeEssai")} onChange={handleCheckboxChange}>En période d&apos;essai</Checkbox>
                 </div>
             </div>
             </form>

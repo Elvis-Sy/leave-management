@@ -8,6 +8,7 @@ import TableSearch from "../table/tableSearch"
 import axios from "axios";
 import {Popover, PopoverTrigger, PopoverContent, Pagination, Autocomplete ,AutocompleteItem, Button } from "@nextui-org/react";
 import { addDays } from "date-fns";
+import Image from "next/image";
 
 const History = () => {
 
@@ -25,7 +26,10 @@ const History = () => {
    ]
 
   useEffect(() => {
-        allHistory()
+    const token = localStorage.getItem("token");
+    if (token) {
+      allHistory();
+    }
   }, []);
 
   // Fonction pour gérer la sélection de l'établissement
@@ -130,7 +134,7 @@ const History = () => {
         <Popover placement="left" showArrow={true} className="filter2">
             <PopoverTrigger>
             <button type="button" className="flex items-center px-4 py-1 bg-[#0070f0] gap-4 rounded-lg">
-                <img src="/filter.png" alt="" width={20} height={20}/>
+                <Image src="/filter.png" alt="filtre" width={20} height={20}/>
                 <span className='text-lg text-white font-semibold'>Filtrer</span>
             </button>
             </PopoverTrigger>

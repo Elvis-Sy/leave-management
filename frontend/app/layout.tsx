@@ -1,8 +1,6 @@
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Providers } from "./providers";
-import { fontSans } from "@/config/fonts";
-import clsx from "clsx";
 
 export const metadata: Metadata = {
   title: "Leave Management",
@@ -16,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang='fr'>
-      <body className={clsx("font-sans antialiased", fontSans.className)}>
+      <body className="font-sans antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

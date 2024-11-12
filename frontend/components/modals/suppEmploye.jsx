@@ -2,6 +2,7 @@ import React from 'react'
 import {ModalContent, ModalHeader, ModalBody, ModalFooter, Button,} from '@nextui-org/react'
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Image from 'next/image';
 
 const SuppEmploye = ({onClose, idEmp, all}) => {
 
@@ -36,7 +37,7 @@ const SuppEmploye = ({onClose, idEmp, all}) => {
     <ModalContent>
         {(onClose) => (
         <>
-            <ModalHeader className='flex justify-center'><img src="/delete.png" alt="" width={30} height={30}/></ModalHeader>
+            <ModalHeader className='flex justify-center'><Image src="/delete.png" alt="delete" width={30} height={30}/></ModalHeader>
             <ModalBody>
                 <p className="mb-2 px-2 text-center font-semibold dark:text-white text-gray-700">Etes-vous sûr de vouloir continuer la supression de cet(te) employé(e) ?</p>
             </ModalBody>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Input, Modal, ModalContent, ModalHeader, ModalFooter, useDisclosure, ModalBody, Button } from '@nextui-org/react';
@@ -21,7 +21,7 @@ const Login = () => {
   
   axios.defaults.withCredentials = true;
 
-  const toastConfig = {
+  const toastConfig = useMemo(() => ({
     position: "top-left",
     autoClose: 1000,
     hideProgressBar: true,
@@ -30,18 +30,18 @@ const Login = () => {
     draggable: true,
     progress: undefined,
     style: { fontWeight: 500, color: "green" }
-  };
+  }), []);
 
   const goManager = useCallback(() => {
     toast.success("Connexion...", toastConfig);
     router.push('/home');
-  }, [router]);
+  }, [router, toastConfig]); // Ajout de toastConfig comme dépendance
 
   const goEmploye = useCallback(() => {
     localStorage.setItem('role', 'Employe');
     toast.success("Connexion...", toastConfig);
     router.push('/accueil');
-  }, [router]);
+  }, [router, toastConfig]); // Ajout de toastConfig comme dépendance
 
   const onLogin = async (data) => {
     try {

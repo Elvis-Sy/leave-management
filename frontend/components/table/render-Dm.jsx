@@ -2,6 +2,7 @@
 import { Tooltip } from "@nextui-org/react";
 import React from "react";
 import { InfoIcon } from '../icons/accounts/info-icon'
+import Image from "next/image";
 
 export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
 
@@ -11,12 +12,6 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
       return (
         <div className="p-2">
             <div className="flex items-center gap-4">
-                {/* <img src={
-                    user.type === "Paye" ? '/paye.png' :
-                    user.type === "Maternite" ? '/maternite.png' :
-                    user.type === "Paternite" ? '/paternite.png' :
-                    "/maladie.png"
-                } alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/> */}
                 <div className="flex flex-col">
                     <h3 className="font-semibold">Congé</h3>
                     <span className="text-gray-500 font-medium">{user.type}</span>
@@ -60,7 +55,7 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
     return (
         <div className={`flex items-center gap-1 ${user.statut == "Refusee" ? "text-[#fa5252]" : user.statut == "Approuvee" ? "text-[#40c057]" : "text-gray-500"}`}>
             <span>{user.statut}</span>
-            <img src={`${user.statut == "Refusee" ? "/invalid.png" : user.statut == "Approuvee" ? "/valid.png" : "/wait.png"}`} alt="" width={20} height={20}/>
+            <Image src={`${user.statut == "Refusee" ? "/invalid.png" : user.statut == "Approuvee" ? "/valid.png" : "/wait.png"}`} alt="typeConge" width={20} height={20}/>
         </div>
     );
     case "actions":

@@ -7,9 +7,12 @@ import { RenderCell } from "../table/render-attente";
 import TableSearch from "../table/tableSearch" 
 import axios from "axios";
 import { ToastContainer } from 'react-toastify';
-import AccepModal from '@/components/modals/acceptModal'
-import RefuseModal from '@/components/modals/refuseModal'
 import { addDays } from 'date-fns';
+import Image from 'next/image';
+import dynamic from 'next/dynamic'
+
+const AccepModal = dynamic(() => import('@/components/modals/acceptModal'));
+const RefuseModal = dynamic(() => import('@/components/modals/refuseModal'));
 
 export const DMAttente = () => {
 
@@ -45,11 +48,13 @@ export const DMAttente = () => {
   };
 
   useEffect(()=>{
-    const id = localStorage.getItem('id')
-    if(id){
-      allAttente(id)
+    if (typeof window !== "undefined") {
+      const id = localStorage.getItem('id');
+      if (id) {
+          allAttente(id);
+      }
+      getType();
     }
-    getType()
   }, [])
 
   //Prendre les donnees
@@ -169,7 +174,7 @@ export const DMAttente = () => {
             <Popover placement="left" showArrow={true} className="filter2">
               <PopoverTrigger>
                 <button type="button" className="flex items-center px-4 py-1 bg-[#0070f0] gap-4 rounded-lg">
-                    <img src="/filter.png" alt="" width={20} height={20}/>
+                    <Image src="/filter.png" alt="filtre" width={20} height={20}/>
                     <span className='text-lg text-white font-semibold'>Filtrer</span>
                 </button>
               </PopoverTrigger>

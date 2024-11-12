@@ -377,7 +377,7 @@ const MesDemandes = () => {
                         </>
                     )}
                     <Divider orientation='horizontal'/>
-                        <p className='px-8 text-gray-500 text-center font-medium'>Confirmer l'envoie de cette demande</p>
+                        <p className='px-8 text-gray-500 text-center font-medium'>Confirmer l&apos;envoie de cette demande</p>
                     <Divider orientation='horizontal'/>
                 </ModalBody>
                 <ModalFooter>

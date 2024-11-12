@@ -16,6 +16,7 @@ import { RenderCell } from "../table/render-valide";
 import TableSearch from "../table/tableSearch";
 import axios from "axios";
 import { ToastContainer } from "react-toastify";
+import Image from "next/image";
 
 export const Valides = () => {
   const [type, setType] = useState([]);
@@ -117,7 +118,7 @@ export const Valides = () => {
             <Popover placement="left" showArrow={true} className="filter2">
               <PopoverTrigger>
                 <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                  <img src="/filter.png" alt="" width={20} height={20} />
+                  <Image src="/filter.png" alt="filtre" width={20} height={20} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="p-4 flex flex-col gap-3">

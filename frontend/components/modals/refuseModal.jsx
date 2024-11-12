@@ -2,12 +2,15 @@ import React from 'react'
 import {ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Textarea} from '@nextui-org/react'
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
+import Image from 'next/image';
 
 const RefuseModal = ({onClose, id, reload}) => {
 
     const { register, handleSubmit, formState: { errors } } = useForm();
 
     const refuse = async (data, idDM = '', idUser = '') => {
+        if (typeof window === 'undefined') return;
+        
         try {
         
             let query = `http://localhost:5000/api/demandes/refuse?idDM=${encodeURIComponent(idDM)}`;
@@ -33,12 +36,16 @@ const RefuseModal = ({onClose, id, reload}) => {
         }
     };
 
+    const onSubmit = (data) => {
+        refuse(data, id, localStorage.getItem('id'));
+    };
+
   return (
     <ModalContent>
         {(onClose) => (
         <>
             <ModalHeader className='flex justify-center'>
-                <img src="/refuse.png" alt="" width={70} height={70}/>
+                <Image src="/refuse.png" alt="refuse" width={70} height={70}/>
             </ModalHeader>
             <ModalBody>
                 <p className="mb-2 dark:text-white px-2 text-center font-semibold text-gray-700">
@@ -63,7 +70,7 @@ const RefuseModal = ({onClose, id, reload}) => {
                 <Button variant="light" onPress={onClose}>
                     Non, annuler
                 </Button>
-                <Button color="danger" type='submit' onPress={handleSubmit((data)=>refuse(data, id, localStorage.getItem('id')))}>
+                <Button color="danger" type='submit' onPress={handleSubmit(onSubmit)}>
                     Oui, refuser
                 </Button>
             </ModalFooter>

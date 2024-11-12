@@ -1,5 +1,8 @@
-import React from "react";
-import { Accounts } from "@/components/accounts";
+import dynamic from 'next/dynamic'
+
+const Accounts = dynamic(() => import('@/components/accounts').then((mod) => mod.Accounts), {
+  ssr: false
+})
 
 const accounts = () => {
   return <Accounts />;

@@ -1,6 +1,7 @@
 
 import { User, Tooltip } from "@nextui-org/react";
 import React from "react";
+import Image from "next/image";
 
 export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
 
@@ -10,12 +11,12 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
       return (
         <div className="p-2">
             <div className="flex items-center gap-4">
-            <img src={
-                user.type === "Paye" ? '/paye.png' :
-                user.type === "Maternite" ? '/maternite.png' :
-                user.type === "Paternite" ? '/paternite.png' :
+            <Image src={
+                user.type === "Paye" ? "/paye.png" :
+                user.type === "Maternite" ? "/maternite.png" :
+                user.type === "Paternite" ? "/paternite.png" :
                 "/maladie.png"
-            } alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/>
+            } alt="typeConge" width={40} height={40} className="w-10 h-10 rounded-full object-cover"/>
             <div className="flex flex-col">
                 <h3 className="font-semibold text-md">{user.type}</h3>
                 <p className="text-xs text-gray-500"><span className="text-sm text-gray-500 font-medium">{user.nbrJrs}</span> jours</p>
@@ -60,12 +61,12 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
         <div className="flex items-center gap-4">
           <Tooltip content="Approuver" color="success" showArrow={true}>
             <button onClick={()=>{ setId(user.id); onOpen("AcceptModal") }} className="w-8 h-8 flex items-center justify-center rounded-full bg-green-400/20">
-              <img src="/accept.png" alt="" width={25} height={25}/>
+              <Image src="/accept.png" alt="accept" width={25} height={25}/>
             </button>
           </Tooltip>
           <Tooltip content="Refuser" color="danger" showArrow={true}>
             <button onClick={()=>{ setId(user.id); onOpen("RefuseModal") }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e66165]/20">
-              <img src="/reject.png" alt="" width={20} height={20}/>
+              <Image src="/reject.png" alt="reject" width={20} height={20}/>
             </button>
           </Tooltip>
         </div>

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import moment from 'moment';
 import 'moment/locale/fr';
+import Image from 'next/image';
 
 moment.locale('fr');
 
@@ -13,7 +14,9 @@ const InfoHead = () => {
 
     useEffect(()=>{
         const id = localStorage.getItem('id')
-        getInfo(id)
+        if(id){
+            getInfo(id)
+        }
     }, [])
 
     //Prendre les infos
@@ -26,6 +29,7 @@ const InfoHead = () => {
           });
           
           setInfo(response.data.info)
+          console.log(response.data.info.photo)
     
         } catch (error) {
             setInfo({})
@@ -38,7 +42,7 @@ const InfoHead = () => {
     <>
         <div className="flex flex-col lg:flex-row items-center justify-between w-full p-8 gap-4">
             <div className="flex flex-col lg:flex-row gap-4 items-center">
-                <img src={`http://localhost:5000/${info.photo}`} alt="profil" className='w-20 h-20 rounded-full'/>
+                <Image src={info ? `http://localhost:5000/${info.photo}` : `http://localhost:5000/avatar.png`} alt="profil" width='100' height='100' className='w-20 h-20 rounded-full'/>
                 <div className="flex flex-col gap-4 text-center lg:text-left">
                     <h1 className='text-3xl font-semibold'>Bonjour {info.prenom ? info.prenom : info.nom},</h1>
                     <p className='text-gray-500'>Bienvenu sur notre plateform de gestion de congé.</p>
@@ -57,7 +61,7 @@ const InfoHead = () => {
                 <p className='font-medium'>{info.email}</p>
             </div>
             <div className="flex flex-col gap-2">
-                <p className='font-semibold'>Date d'embauche</p>
+                <p className='font-semibold'>Date d&apos;embauche</p>
                 <p className='text-gray-500 font-medium'>{info.dateEmbauche ? moment(info.dateEmbauche).format('DD MMMM YYYY') : 'Période essaie'}</p>
             </div>
             <div className="flex flex-col gap-2">

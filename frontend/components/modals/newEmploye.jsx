@@ -6,6 +6,7 @@ import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Autoc
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Image from 'next/image';
 
 
 const NewEmploye = ({onClose, reload}) => {
@@ -236,7 +237,7 @@ const NewEmploye = ({onClose, reload}) => {
                   </div>
                   <div className="flex flex-col gap-4">
                   <div className="ml-4 font-semibold">
-                      <label className="block dark:text-white mb-2 text-gray-700">Genre de l'employé <span className="text-red-500 text-sm">*</span> :</label>
+                      <label className="block dark:text-white mb-2 text-gray-700">Genre de l&apos;employé <span className="text-red-500 text-sm">*</span> :</label>
                       <div className="">
                         <div className="flex">
                           <label className="mr-4 font-normal">
@@ -306,7 +307,7 @@ const NewEmploye = ({onClose, reload}) => {
                     })}
                     endContent={
                       <div className='flex h-full items-center'>
-                        <img src='/maillog.png' width={20} height={20} className='pointer-events-none'/>
+                        <Image src='/maillog.png' alt="mail" width={20} height={20} className='pointer-events-none'/>
                       </div>
                     }
                     isInvalid={!!errors.email}
@@ -362,7 +363,7 @@ const NewEmploye = ({onClose, reload}) => {
                     <div className="w-1/2">
                       <div className={`${essai ? 'bg-gray-100' : ''} group relative border-2 p-2 rounded-xl ${errors.dateEmbauche ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300'}`}>
                         <label className={`block dark:text-white ${errors.dateEmbauche ? 'text-[#f31260]' : 'text-gray-700'}  text-xs font-semibold`}>
-                          Date d'embauche <span className="text-red-500 text-sm">*</span>
+                          Date d&apos;embauche <span className="text-red-500 text-sm">*</span>
                         </label>
                         <div className="">
                           <input 
@@ -382,7 +383,7 @@ const NewEmploye = ({onClose, reload}) => {
                       {errors.dateEmbauche && <span className="flex justify-start text-[#f31260] text-xs text-right font-medium">{errors.dateEmbauche.message}</span>}
                     </div>
 
-                    <Checkbox className='w-1/2' {...register("periodeEssai")} onChange={handleCheckboxChange}>En période d'essai</Checkbox>
+                    <Checkbox className='w-1/2' {...register("periodeEssai")} onChange={handleCheckboxChange}>En période d&apos;essai</Checkbox>
                   </div>
                 </div>
               </form>

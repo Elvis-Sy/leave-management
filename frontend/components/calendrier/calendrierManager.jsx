@@ -18,7 +18,9 @@ const CalendrierManager = () => {
 
     useEffect(()=>{
         const id = localStorage.getItem('id')
-        allConge(id)
+        if(id){
+          allConge(id);
+        }
     }, [])
 
 
@@ -61,7 +63,7 @@ const CalendrierManager = () => {
       <div className="rbc-toolbar">
         <span className="rbc-btn-group font-semibold">
           <button type="button" onClick={() =>{ onNavigate('PREV') }}>Précédent</button>
-          <button type="button" onClick={() =>{ onNavigate('TODAY') }}>Aujourd'hui</button>
+          <button type="button" onClick={() =>{ onNavigate('TODAY') }}>Aujourd&apos;hui</button>
           <button type="button" onClick={() =>{ onNavigate('NEXT') }}>Suivant</button>
         </span>
         <span className="rbc-toolbar-label text-xl">{label}</span>

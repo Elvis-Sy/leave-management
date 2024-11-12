@@ -66,7 +66,7 @@ const Equipe = () => {
 
   return (
     <div className="my-6 px-4 lg:px-6 max-w-[95rem] mx-auto w-full flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Liste des membres d'équipe</h1>
+      <h1 className="text-xl font-semibold">Liste des membres d&apos;équipe</h1>
 
       <div className="flex justify-between flex-wrap gap-4 items-center">
         <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">

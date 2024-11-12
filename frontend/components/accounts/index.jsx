@@ -9,6 +9,7 @@ import { colManager } from "../table/data";
 import { RenderCell } from "../table/render-cell";
 import TableSearch from "../table/tableSearch";
 import axios from "axios";
+import Image from "next/image";
 
 export const Accounts = () => {
   const [row, setRow] = useState([]);
@@ -19,13 +20,6 @@ export const Accounts = () => {
   const [etablissement, setEtablissement] = useState(null);
 
   const rowsPerPage = 6; // Nombre de lignes par page
-
-  useEffect(() => {
-    (async () => {
-      await allManager();
-      await getEtab();
-    })();
-  }, []);
 
   const allManager = useCallback(async () => {
     try {
@@ -54,6 +48,13 @@ export const Accounts = () => {
       setEtab([]);
     }
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      await allManager();
+      await getEtab();
+    })();
+  }, [allManager, getEtab]);
 
   const handleEtablissementSelect = useCallback((obj) => {
     setEtablissement(obj);
@@ -118,7 +119,7 @@ export const Accounts = () => {
             <Popover placement="left" showArrow={true} className="filter2">
               <PopoverTrigger>
                 <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                  <img src="/filter.png" alt="" width={20} height={20} />
+                  <Image src="/filter.png" alt="filtre" width={20} height={20} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="p-4 flex flex-col gap-3">
@@ -144,7 +145,7 @@ export const Accounts = () => {
             <Popover placement="bottom" showArrow={true} className="sort">
               <PopoverTrigger>
                 <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                  <img src="/sort.png" alt="" width={24} height={24} />
+                  <Image src="/sort.png" alt="sort" width={24} height={24} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="p-2 flex flex-col gap-2 w-[150px]">

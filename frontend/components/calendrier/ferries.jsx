@@ -11,6 +11,7 @@ import FerrierModal from '../modals/ferrierModal';
 import ModifFerrier from '../modals/modifFerrier';
 import RetirerFerrier from '../modals/retirerFerrier';
 import { ToastContainer } from 'react-toastify';
+import Image from 'next/image';
 
 moment.locale('fr');
 const localizer = momentLocalizer(moment);
@@ -54,7 +55,7 @@ const Ferries = () => {
     <div className="rbc-toolbar">
       <span className="rbc-btn-group font-semibold">
         <button type="button" onClick={() => onNavigate('PREV')}>Précédent</button>
-        <button type="button" onClick={() => onNavigate('TODAY')}>Aujourd'hui</button>
+        <button type="button" onClick={() => onNavigate('TODAY')}>Aujourd&apos;hui</button>
         <button type="button" onClick={() => onNavigate('NEXT')}>Suivant</button>
       </span>
       <span className="rbc-toolbar-label text-xl">{label}</span>
@@ -95,10 +96,10 @@ const Ferries = () => {
                 </div>
                 <div className="w-full flex items-center justify-end gap-1 mt-2 border-t border-[#228be6]">
                   <button onClick={() => handleModalOpen('modifModal', event.id)} className="w-8 h-8 flex items-center justify-center rounded-full">
-                    <img src="/modif.png" alt="modify" width={20} height={20} />
+                    <Image src="/modif.png" alt="modify" width={20} height={20} />
                   </button>
                   <button onClick={() => handleModalOpen('retirerModal', event.id)} className="w-8 h-8 flex items-center justify-center rounded-full">
-                    <img src="/retirer.png" alt="delete" width={20} height={20} />
+                    <Image src="/retirer.png" alt="delete" width={20} height={20} />
                   </button>
                 </div>
               </PopoverContent>

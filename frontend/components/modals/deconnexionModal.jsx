@@ -4,6 +4,7 @@ import { Modal, ModalContent, ModalHeader, ModalFooter, useDisclosure, ModalBody
 import { useRouter } from 'next/navigation';
 import { getAttributesToken } from '@/helpers/attributesToken';
 import axios from 'axios';
+import Image from 'next/image';
 
 const DeconnexionModal = () => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -50,7 +51,7 @@ const DeconnexionModal = () => {
                     {(onClose) => (
                         <>
                             <ModalHeader className='flex gap-2 justify-center'>
-                                <img src="/deconnex.png" alt="" width={30} height={30} />
+                                <Image src="/deconnex.png" alt="deconnex" width={30} height={30} />
                                 <span className='text-xl text-[#fa5252] font-semibold'>Déconnexion</span>
                             </ModalHeader>
                             <ModalBody>

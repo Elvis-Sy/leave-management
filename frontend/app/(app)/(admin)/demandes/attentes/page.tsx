@@ -1,9 +1,12 @@
-import React from 'react'
-import { Attentes } from '@/components/demandes/demandeAttente'
+import dynamic from 'next/dynamic'
+
+const Attentes = dynamic(() => import('@/components/demandes/demandeAttente'), {
+  ssr: false
+})
 
 const attente = () => {
   return (
-    <Attentes/>
+    <Attentes />
   )
 }
 

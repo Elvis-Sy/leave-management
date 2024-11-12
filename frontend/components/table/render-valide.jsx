@@ -2,6 +2,7 @@
 
 import { User, Chip, Avatar} from "@nextui-org/react";
 import React from "react";
+import Image from "next/image";
 
 export const RenderCell = ({ user, columnKey }) => {
 
@@ -70,7 +71,7 @@ export const RenderCell = ({ user, columnKey }) => {
         return (
             <div className={`flex items-center gap-1 ${user.statut == "Refusee" ? "text-[#fa5252]" : user.statut == "Approuvee" ? "text-[#40c057]" : "text-gray-500"}`}>
                 <span>{user.statut}</span>
-                <img src={`${user.statut == "Refusee" ? "/invalid.png" : user.statut == "Approuvee" ? "/valid.png" : "/wait.png"}`} alt="" width={20} height={20}/>
+                <Image src={`${user.statut == "Refusee" ? "/invalid.png" : user.statut == "Approuvee" ? "/valid.png" : "/wait.png"}`} alt="type" width={20} height={20}/>
             </div>
         );
     default:

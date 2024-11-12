@@ -7,7 +7,6 @@ import { EditIcon } from "../icons/table/edit-icon";
 import { DeleteIcon } from "../icons/table/delete-icon"
 import { useRouter } from "next/navigation";
 
-
 export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
 
   const router = useRouter();
@@ -37,7 +36,7 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
             {user.DateEmb ? 
             <span>{formatDate(user.DateEmb)}</span>
             : (
-                <Chip variant="flat" size="lg" className="text-[#e66165] font-medium text-sm">En période d'essai</Chip>
+                <Chip variant="flat" size="lg" className="text-[#e66165] font-medium text-sm">En période d&apos;essai</Chip>
             ) }
         </div>
       );

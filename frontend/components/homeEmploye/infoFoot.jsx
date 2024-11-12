@@ -5,6 +5,7 @@ import moment from 'moment';
 import 'moment/locale/fr';
 import AnnulModal from '../modals/annulModal'
 import ModifDemande from '../modals/modifDemande'
+import Image from 'next/image';
 
 moment.locale('fr');
 
@@ -75,18 +76,18 @@ const InfoFoot = () => {
                 <div className="flex-1 mt-14">
                     <div className="grid grid-flow-col grid-rows-2 md:grid-rows-1 justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <img src={
+                            <Image src={
                                 info.type.designType === "Paye" ? '/paye.png' :
                                 info.type.designType === "Maternite" ? '/maternite.png' :
                                 info.type.designType === "Paternite" ? '/paternite.png' : "/maladie.png"
-                            } alt="" width={40} height={40} className="w-14 h-14 rounded-full object-cover"/>
+                            } alt="typeConge" width={40} height={40} className="w-14 h-14 rounded-full object-cover"/>
                             <div className="flex flex-col text-lg">
                                 <h3 className="font-semibold">Congé</h3>
                                 <span className="text-gray-500 font-medium">{info.type.designType}</span>
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 text-lg">
-                            <p className='font-semibold'>Date d'envoi</p>
+                            <p className='font-semibold'>Date d&apos;envoi</p>
                             <p className='text-gray-500 font-medium'>{moment(info.dateEnvoie).format('DD MMMM YYYY')}</p>
                         </div>
                         <div className="flex flex-col gap-2 text-lg">
@@ -108,7 +109,7 @@ const InfoFoot = () => {
             <>
                 <h1 className='text-xl font-semibold'>Demande en attente</h1>
                 <div className="h-full w-full flex text-gray-500 justify-center items-center text-2xl font-semibold">
-                    <img src='/vide.png' width={200} height={200} className={`transition-all duration-500 ${showImage ? 'opacity-100' : 'opacity-0'}`}/>
+                    <Image src='/vide.png' alt='vide' width={200} height={200} className={`transition-all duration-500 ${showImage ? 'opacity-100' : 'opacity-0'}`}/>
                 </div>
             </>
         )}

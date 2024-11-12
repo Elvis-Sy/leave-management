@@ -5,6 +5,7 @@ import axios from "axios";
 import { UsersIcon } from "@/components/icons/breadcrumb/users-icon";
 import Link from "next/link";
 import { Card, CardBody, Progress } from "@nextui-org/react";
+import Image from "next/image";
 
 const SimpleEmploye = () => {
   const [info, setInfo] = useState({ nom: '', prenom: '', photo: '', poste: '', etablissement: '', email: '', CIN: '' });
@@ -76,7 +77,7 @@ const SimpleEmploye = () => {
         <div className="flex-1 min-w-48 p-4 flex flex-col lg:flex-row gap-4 w-full">
           {/* USER INFO CARD */}
           <div className="bg-default-50 max-w-sm shadow-md py-6 px-4 rounded-md flex-1 flex flex-col items-center gap-4">
-            <img
+            <Image
               src={info.photo ? `http://localhost:5000/${info.photo}` : "http://localhost:5000/avatar.png"}
               alt="Profile"
               width={100}

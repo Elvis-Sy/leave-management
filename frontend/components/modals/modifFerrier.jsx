@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Textarea, Input} from '@nextui-org/react'
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
@@ -13,29 +13,27 @@ const ModifFerrier = ({onClose, id, reload}) => {
 
     useEffect(()=>{
         getInfo(id)
-    }, [id])
+    }, [id, getInfo])
 
-    const getInfo = async (id) => {
+    const getInfo = useCallback(async (id) => {
         try {
-        
             const response = await axios.get(`http://localhost:5000/api/ferrier/info/${id}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-
+    
             const info = response.data.ferrie;
             setLabel(info.label)
             setDescription(info.description)
             setDate(info.dateFeriee)
             setValue('label', info.label)
             setValue('description', info.description)
-
-        
+    
         } catch (error) {
             console.error('Erreur lors de la requête:', error.response?.data || error.message);
         }
-    };
+    }, [setValue]);
 
     //Modifier
     const ModifFerrier = async (data, id) => {
