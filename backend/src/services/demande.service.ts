@@ -77,7 +77,9 @@ export class DemandeService {
             },
         });
 
-        const manager = essai.idManager ? essai.idManager : 0;
+        const temp = await this.prisma.employes.findUnique({where: {idEmploye: employeId}});
+
+        const manager = temp.idManager ? temp.idManager : 0;
         await this.notification.demandeNotifAdmin();
         await this.notification.demandeNotifManager(manager);
     }
@@ -1124,33 +1126,6 @@ export class DemandeService {
       //Accepter demande
       async acceptDM(idDemande: number, idEmploye?: string){
 
-        const updateSoldeConges = async (employeId:number, typeId: number, adjustment) => {
-          const solde = await this.prisma.soldesConges.findUnique({
-            where: { 
-              idEmp_idType: {
-                idEmp: employeId, 
-                idType: typeId 
-              }
-            }
-          });
-        
-          if (!solde) {
-            throw new Error("Solde non trouvé pour cet employé et ce type de congé");
-          }
-        
-          await this.prisma.soldesConges.update({
-            where: { 
-              idEmp_idType: {
-                idEmp: employeId, 
-                idType: typeId 
-              }
-            },
-            data: {
-              soldeTotal: parseFloat(solde.soldeTotal.toString()) + adjustment
-            }
-          });
-        };
-
         if(idEmploye != 'null'){   
 
           const statut = await this.prisma.statutDemande.findFirst({
@@ -1180,6 +1155,32 @@ export class DemandeService {
 
           await this.notification.demandeNotifManager(parseInt(idEmploye))
         } else {
+          const updateSoldeConges = async (employeId:number, typeId: number, adjustment) => {
+            const solde = await this.prisma.soldesConges.findUnique({
+              where: { 
+                idEmp_idType: {
+                  idEmp: employeId, 
+                  idType: typeId 
+                }
+              }
+            });
+          
+            if (!solde) {
+              throw new Error("Solde non trouvé pour cet employé et ce type de congé");
+            }
+          
+            await this.prisma.soldesConges.update({
+              where: { 
+                idEmp_idType: {
+                  idEmp: employeId, 
+                  idType: typeId 
+                }
+              },
+              data: {
+                soldeTotal: parseFloat(solde.soldeTotal.toString()) + adjustment
+              }
+            });
+          };
 
           const statut = await this.prisma.statutDemande.findFirst({
             where: {
@@ -1469,11 +1470,6 @@ export class DemandeService {
             },
             where: {
               employeId,
-              statuts: {
-                designStatut: {
-                  not: "Annulee"
-                }
-              }
             },
             orderBy: {
               idDemande: 'desc',

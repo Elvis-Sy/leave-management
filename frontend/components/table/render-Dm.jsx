@@ -55,16 +55,16 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
     return (
         <div className={`flex items-center gap-1 ${user.statut == "Refusee" ? "text-[#fa5252]" : user.statut == "Approuvee" ? "text-[#40c057]" : "text-gray-500"}`}>
             <span>{user.statut}</span>
-            <Image src={`${user.statut == "Refusee" ? "/invalid.png" : user.statut == "Approuvee" ? "/valid.png" : "/wait.png"}`} alt="typeConge" width={20} height={20}/>
+            <Image src={`${user.statut == "Refusee" ? "/invalid.png" : user.statut == "Approuvee" ? "/valid.png" : user.statut == "Annulee" ? "/back.png" : "/wait.png"}`} alt="typeConge" width={20} height={20}/>
         </div>
     );
     case "actions":
       return (
         <div className="flex items-center gap-4 ">
-          <div>
+          <div className={user.statut == "Refusee" ? '' : 'hidden'}>
             <Tooltip content="Details" color="primary">
                 <button>
-                  <InfoIcon size={20} fill="#1d71b8" />
+                  <InfoIcon size={20} fill="#fa5252" />
                 </button>
             </Tooltip>
           </div>

@@ -30,7 +30,6 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
     // Méthode pour envoyer une notification a l'admin
     sendNotificationAdmin(data: number) {
         this.server.emit('adminNotif', data );
-        console.log(data)
     }
 
     // Méthode pour envoyer une notification a l'admin

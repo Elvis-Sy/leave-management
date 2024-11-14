@@ -38,7 +38,7 @@ export class EmployeService {
       const token = this.jwtService.sign({ email }, { secret: "congeSPAT", expiresIn: '48h' });
   
       // Envoyer le mail
-      // await this.mailer.sendSignupConfirmation(email, nom, token); //DE-COMMENTER LORS DU REEL
+      await this.mailer.sendSignupConfirmation(email, nom, token); //DE-COMMENTER LORS DU REEL
   
       await this.prisma.employes.create({
         data: {
