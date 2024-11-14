@@ -8,7 +8,7 @@ const SuppEmploye = ({onClose, idEmp, all}) => {
 
     const supp = async (idEmp) => {
         try {
-          const response = await axios.delete(`http://localhost:5000/api/employes/${idEmp}`, {
+          const response = await axios.patch(`http://localhost:5000/api/employes/delete/${idEmp}`, {}, {
               headers: {
                   Authorization: `Bearer ${localStorage.getItem('token')}`
               }
@@ -39,7 +39,7 @@ const SuppEmploye = ({onClose, idEmp, all}) => {
         <>
             <ModalHeader className='flex justify-center'><Image src="/delete.png" alt="delete" width={30} height={30}/></ModalHeader>
             <ModalBody>
-                <p className="mb-2 px-2 text-center font-semibold dark:text-white text-gray-700">Etes-vous sûr de vouloir continuer la supression de cet(te) employé(e) ?</p>
+                <p className="mb-2 px-2 text-center font-semibold dark:text-white text-gray-700">Etes-vous sûr de vouloir continuer l&apos;archivage de cet(te) employé(e) ?</p>
             </ModalBody>
             <ModalFooter>
             <Button color="default" variant="light" onPress={onClose}>

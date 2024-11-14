@@ -129,7 +129,10 @@ export class DemandeService {
                           designStatut: 'En attente' // Filtre les demandes avec le statut "En attente"
                       }
                   }
-              ]
+              ],
+              employe: {
+                isArchive: false
+              }
           }
         })
 
@@ -189,7 +192,8 @@ export class DemandeService {
                   designStatut: 'En attente'  // Filtre les demandes avec le statut "En attente"
               },
               employe: {
-                idManager
+                idManager,
+                isArchive: false
               }
           }
       })
@@ -380,11 +384,21 @@ export class DemandeService {
                 statutId: true
             },
             where: {
-              statuts: {
-                designStatut: {
-                  not: "Annulee"
-                }
-              }
+              OR: [
+                {
+                  statuts: {
+                    designStatut: { in: ["Approuvee", "Refusee"] },
+                  },
+                },
+                {
+                  statuts: {
+                    designStatut: { in: ["En attente", "En revision"] },
+                  },
+                  employe: {
+                    isArchive: false,
+                  },
+                },
+              ],
             }
         })
 
@@ -859,7 +873,11 @@ export class DemandeService {
                     designStatut: 'En attente' // Filtre les demandes avec le statut "En attente"
                 }
             }
-        ]
+          ]
+
+          whereClause.employe = {
+            isArchive: false
+          }
       
           // Filtrer par type
           if (type) {
@@ -996,7 +1014,8 @@ export class DemandeService {
           }
 
           whereClause.employe = {
-            idManager
+            idManager,
+            isArchive: false
           }
       
           // Filtrer par type
@@ -1285,6 +1304,9 @@ export class DemandeService {
               dateFin: {
                 gt: new Date(),
               },
+              employe: {
+                isArchive: false
+              }
             },
             include: {
               employe: {
@@ -1307,7 +1329,7 @@ export class DemandeService {
 
       //Conge actif coté employe
       async CongeEventEmp(idEmploye: number){
-        const emp = await this.prisma.employes.findUnique({ where: {idEmploye} });
+        const emp = await this.prisma.employes.findUnique({ where: {idEmploye, isArchive: false} });
 
         if(!emp) throw new NotFoundException("Employe non trouvé !")
 
@@ -1324,7 +1346,8 @@ export class DemandeService {
         const conges = await this.prisma.demandesConges.findMany({
             where: {
               employe: {
-                idManager
+                idManager,
+                isArchive: false
               },
               statuts: {
                 designStatut: 'Approuvee', 
@@ -1368,7 +1391,8 @@ export class DemandeService {
           // Filtrer par établissement si fourni
           if (etablissement) {
             whereClause.employe = {
-              etablId : parseInt(etablissement)
+              etablId : parseInt(etablissement),
+              isArchive: false
             };
           }
       

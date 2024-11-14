@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Cron } from '@nestjs/schedule';
+import { NotificationService } from 'src/utils/notifications/notification.service';
 
 @Injectable()
 export class EmployeService { 
@@ -18,7 +19,8 @@ export class EmployeService {
         private readonly prisma: PrismaService,
         private readonly passwordService: PasswordService,
         private readonly mailer: MailerService,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly notification: NotificationService
     ){}
 
     //Ajout d'un employe
@@ -28,7 +30,7 @@ export class EmployeService {
       const nom = `${employeData.nom} ${employeData.prenom}`
   
       // Verifier si l'employe a un compte ou CIN deja utilise
-      const cin = await this.prisma.employes.findUnique({ where: { CIN: employeData.CIN }});
+      const cin = await this.prisma.employes.findUnique({ where: { CIN: employeData.CIN, isArchive: false }});
       if (cin) throw new ConflictException('CIN invalide ou deja utilisé');
 
       const existe = await this.prisma.compte_Utilisateur.findUnique({ where: { email } });
@@ -68,6 +70,7 @@ export class EmployeService {
           NOT: {
             compte: null, // Filtrer seulement les employés qui ont un compte utilisateur
           },
+          isArchive: false,
         },
         include: {
           manager: {
@@ -122,7 +125,8 @@ export class EmployeService {
           NOT: {
             compte: null, // Filtrer seulement les employés qui ont un compte utilisateur
           },
-          idManager
+          idManager,
+          isArchive: false,
         },
         include: {
           manager: {
@@ -178,7 +182,8 @@ export class EmployeService {
             password: {
               not: null
             }
-          }
+          },
+          isArchive: false
         },
         select: {
           nom: true,
@@ -202,8 +207,11 @@ export class EmployeService {
       const managers = await this.prisma.employes.findMany({
         where:{
           subordonne: {
-            some: {}, 
-          }
+            some: {
+              isArchive: false
+            }, 
+          },
+          isArchive: false,
         },
         select: {
           idEmploye: true,
@@ -211,8 +219,10 @@ export class EmployeService {
           prenom: true,
           CIN: true,
           photoProfile: true,
-          _count: {
-            select: {subordonne: true}
+          subordonne: {
+            where: {
+              isArchive: false,
+            }
           },
           poste: {
             select: {
@@ -245,7 +255,7 @@ export class EmployeService {
           email: data.compte.email,
           photo: data.photoProfile ? data.photoProfile : "avatar.png",
           etablissement: data.etablissement.designEtablissement,
-          nbrSub: data._count.subordonne,
+          nbrSub: data.subordonne.length,
           poste: data.poste.designPoste,
         }
       })
@@ -259,19 +269,19 @@ export class EmployeService {
       //verifier le profil
       const employe = await this.prisma.employes.findUnique({
         where: { idEmploye },
-        select: { photoProfile: true },
+        // select: { photoProfile: true },
       });
 
-      if (employe?.photoProfile) {
-          const filePath = path.join(process.cwd(), 'profil', employe.photoProfile);
-          fs.unlink(filePath, (err) => {
-              if (err) {
-                  console.error(`Erreur lors de la suppression de l'image: ${err}`);
-              } else {
-                  console.log('Image supprimée avec succès');
-              }
-          });
-      }
+      // if (employe?.photoProfile) {
+      //     const filePath = path.join(process.cwd(), 'profil', employe.photoProfile);
+      //     fs.unlink(filePath, (err) => {
+      //         if (err) {
+      //             console.error(`Erreur lors de la suppression de l'image: ${err}`);
+      //         } else {
+      //             console.log('Image supprimée avec succès');
+      //         }
+      //     });
+      // }
 
       //Mettre à jour l'idManager des subordonnés a null
       await this.prisma.employes.updateMany({
@@ -279,9 +289,27 @@ export class EmployeService {
           data: { idManager: null },
       });
 
-      //Supprimer l'employé (avec suppression en cascade de ses comptes utilisateurs)
-      return await this.prisma.employes.delete({
+      //Archiver l'employé (avec suppression en cascade de ses comptes utilisateurs)
+      const temp = await this.prisma.compte_Utilisateur.findUnique({where: {employeId: idEmploye}});
+      await this.prisma.compte_Utilisateur.update({
+        where: {
+          idCompte: temp.idCompte
+        },
+        data: {
+          email: `${temp.email}_archive`
+        }
+      });
+
+      await this.notification.demandeNotifAdmin();
+      if(employe.idManager){
+        await this.updateRoleIfNeeded(employe.idManager);
+      }
+
+      return await this.prisma.employes.update({
           where: { idEmploye },
+          data: {
+            isArchive: true,
+          }
       });
     }
 
@@ -290,6 +318,8 @@ export class EmployeService {
       try {
         
         const whereClause: any = {};
+
+        whereClause.isArchive = false;
     
         // Filtrer par établissement si fourni
         if (etablissement) {
@@ -371,6 +401,8 @@ export class EmployeService {
     async filtreManager(etablissement: string | undefined){
       try {
         const whereClause: any = {};
+
+        whereClause.isArchive = false;
 
         whereClause.subordonne = {
           some: {}
@@ -756,7 +788,11 @@ export class EmployeService {
     //Calcul des conges accumules
     async ajouterCongesPourTousLesEmployes() {
       // Récupérer tous les employés
-      const employes = await this.prisma.employes.findMany();
+      const employes = await this.prisma.employes.findMany({
+        where: {
+          isArchive: false
+        }
+      });
   
       for (const employe of employes) {
           const { idEmploye, dateEmbauche, periodeEssai } = employe;
@@ -817,7 +853,9 @@ export class EmployeService {
           await this.prisma.soldesConges.updateMany({
               where: {
                   type: {
-                      designType: 'Paye',
+                      designType: {
+                        not: 'Paye',
+                      }
                   },
               },
               data: {
@@ -934,6 +972,7 @@ export class EmployeService {
               compte: null,
             },
             idManager: pers.idManager,
+            isArchive: false,
           },
           include: {
             poste: {

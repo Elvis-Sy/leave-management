@@ -28,7 +28,10 @@ export class NotificationService {
                         designStatut: 'En attente' // Filtre les demandes avec le statut "En attente"
                     }
                 }
-            ]
+            ],
+            employe: {
+              isArchive: false
+            }
           }
         });
     
@@ -43,7 +46,8 @@ export class NotificationService {
                 designStatut: 'En attente'
             },
             employe: {
-              idManager
+              idManager,
+              isArchive: false
             }
           }
         })

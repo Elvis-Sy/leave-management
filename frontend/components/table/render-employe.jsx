@@ -96,7 +96,7 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
                   </Tooltip>
               </div>
               <div>
-                  <Tooltip content="Supprimer" color="danger">
+                  <Tooltip content="Archiver" color="danger">
                   <button onClick={()=>{ setId(user.id); onOpen("suppModal") }}>
                       <DeleteIcon size={20} fill="#FF0080" />
                   </button>

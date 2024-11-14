@@ -62,6 +62,8 @@ model Employes {
   etablId Int
   etablissement Etablissement @relation("SectionTravail", fields: [etablId], references: [idEtablissement])
 
+  isArchive Boolean @default(false)
+
   @@index([nom])
   @@index([idManager])
 }

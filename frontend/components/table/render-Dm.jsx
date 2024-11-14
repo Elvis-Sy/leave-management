@@ -62,7 +62,7 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
       return (
         <div className="flex items-center gap-4 ">
           <div className={user.statut == "Refusee" ? '' : 'hidden'}>
-            <Tooltip content="Details" color="primary">
+            <Tooltip content="Details" color="danger">
                 <button>
                   <InfoIcon size={20} fill="#fa5252" />
                 </button>

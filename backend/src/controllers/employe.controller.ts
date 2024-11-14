@@ -98,7 +98,7 @@ export class EmployeController {
         }
     }
 
-    @Delete(':id')
+    @Patch('delete/:id')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN) //Admin
     async suppEmploye(@Param('id') id: string){
@@ -106,12 +106,12 @@ export class EmployeController {
             const parsedId = parseInt(id, 10);
             await this.employeService.deleteEmploye(parsedId);
             return {
-                message: 'Employé supprimé.'
+                message: 'Employé archivé.'
             };
         } catch (error) {
-            console.error('Erreur lors de la suppression:', error);
+            console.error('Erreur lors de l\'archive:', error);
             return {
-                message: "Erreur lors de la suppression"
+                message: "Erreur lors de l'archive"
             };
         }
     }
