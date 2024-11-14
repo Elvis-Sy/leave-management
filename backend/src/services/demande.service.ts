@@ -6,10 +6,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Decimal } from '@prisma/client/runtime/library';
 import { AddDemandeDto } from 'src/dto/demandeDto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { NotificationService } from 'src/utils/notifications/notification.service';
 
 @Injectable()
 export class DemandeService {
-    constructor(private readonly prisma: PrismaService,){}
+    constructor(private readonly prisma: PrismaService, private readonly notification: NotificationService){}
 
     //Ajout demandes
     async addDemande(demandeDto: AddDemandeDto){
@@ -75,6 +76,10 @@ export class DemandeService {
                 type: { connect: { idType: typeId } },
             },
         });
+
+        const manager = essai.idManager ? essai.idManager : 0;
+        await this.notification.demandeNotifAdmin();
+        await this.notification.demandeNotifManager(manager);
     }
 
     //Listage des demandes en revision
@@ -391,6 +396,8 @@ export class DemandeService {
         (await Count).forEach(curr => {
             total[`count${curr.statutId}`] = curr._count.statutId;
         });
+
+        this.notification.demandeNotifAdmin();
 
         return total;
     }
@@ -1166,10 +1173,12 @@ export class DemandeService {
               nouvelleValeur: 'En revision',
               dateAction: new Date(),
               niveau: 'Manager',
-              typeAction: 'Approbation', // Assuming "approve" is a valid enum value
+              typeAction: 'Approbation',
               userId: parseInt(idEmploye),
               },
           });
+
+          await this.notification.demandeNotifManager(parseInt(idEmploye))
         } else {
 
           const statut = await this.prisma.statutDemande.findFirst({
@@ -1210,6 +1219,8 @@ export class DemandeService {
               typeAction: 'Approbation',
               },
           });
+
+          await this.notification.demandeNotifAdmin();
         }
       }
 
@@ -1245,6 +1256,8 @@ export class DemandeService {
                     userId: parseInt(idEmploye),
                 },
             });
+
+            await this.notification.demandeNotifManager(parseInt(idEmploye));
         } else {
             await this.prisma.historiquesActions.create({
                 data: {
@@ -1255,7 +1268,10 @@ export class DemandeService {
                 typeAction: 'Refus',
                 },
             });
+
+            await this.notification.demandeNotifAdmin();
         }
+
       }
 
       //Conge actif
@@ -1564,5 +1580,6 @@ export class DemandeService {
           }
         })
       }
+    
 
 }

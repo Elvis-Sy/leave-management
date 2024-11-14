@@ -1,3 +1,4 @@
+import { NotificationModule } from './utils/notifications/notification.module';
 import { CongesModule } from './modules/conges.module';
 import { FerrierModule } from './modules/ferrier.module';
 import { OtherModule } from './utils/posteDepartement/other.module';
@@ -14,6 +15,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    NotificationModule,
     CongesModule,
     FerrierModule,
     OtherModule,

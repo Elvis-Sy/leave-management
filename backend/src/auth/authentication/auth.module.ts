@@ -9,6 +9,8 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PasswordService } from './password.service';
+import { NotificationGateway } from 'src/utils/notifications/notification.gateway';
+import { NotificationService } from 'src/utils/notifications/notification.service';
 
 @Module({
     imports: [
@@ -25,6 +27,6 @@ import { PasswordService } from './password.service';
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, PrismaService, JwtStrategy, EmployeService, PasswordService],
+    providers: [AuthService, PrismaService, JwtStrategy, EmployeService, PasswordService, NotificationGateway, NotificationService],
 })
 export class AuthModule {}

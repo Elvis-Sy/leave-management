@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Providers } from "./providers";
+import { SocketProvider } from "@/helpers/socketProvider";
 
 export const metadata: Metadata = {
   title: "Leave Management",
@@ -12,10 +13,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html lang='fr'>
       <body className="font-sans antialiased">
-        <Providers>{children}</Providers>
+        <SocketProvider>
+          <Providers>{children}</Providers>
+        </SocketProvider>
       </body>
     </html>
   );

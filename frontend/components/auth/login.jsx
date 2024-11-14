@@ -91,7 +91,7 @@ const Login = () => {
       <ToastContainer />
       <div className="w-full">
         <div className="flex flex-col justify-center items-center mb-2">
-          <h2 className='text-xl font-bold text-bleuspat mb-2'>LOGIN</h2>
+          <h2 className='text-xl font-bold text-bleuspat mb-2'>Authentification</h2>
           <div className='border-2 w-10 border-bleuspat inline-block mb-2'></div>
         </div>
         <form ref={formRef} onKeyDown={(e) => e.key === 'Enter' && handleButtonClick()} onSubmit={handleSubmit(onLogin)} className='flex items-center flex-col w-full flex-wrap gap-4'>

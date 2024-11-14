@@ -193,7 +193,7 @@ export const EmployePage = React.memo(() => {
           </Popover>
 
           <Button color="primary" onPress={()=> onOpen("ajoutModal")} startContent={<AddIcon />}>Ajouter</Button>
-          <Button color="primary" startContent={<ExportIcon />}>Export to CSV</Button>
+          <Button color="primary" startContent={<ExportIcon />}>Exporter</Button>
         </div>
       </div>
 

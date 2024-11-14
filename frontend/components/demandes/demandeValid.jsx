@@ -158,7 +158,7 @@ export const Valides = () => {
           </div>
 
           <Button color="primary" startContent={<ExportIcon />}>
-            Export to CSV
+            Exporter
           </Button>
         </div>
       </div>

@@ -5,18 +5,39 @@ import { Accordion, AccordionItem } from "@nextui-org/react";
 import clsx from "clsx";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
+import { getSocket } from "@/helpers/socket"
 
 export const CollapseItems = React.memo(({ icon, items, title, isActive, role }) => {
   const pathname = usePathname();
   const [userRole, setUserRole] = useState(null);
+  const [nb, setNb] = useState(0)
 
   // Utilisation de useEffect pour récupérer le rôle une seule fois
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedRole = localStorage.getItem("role");
-      setUserRole(storedRole); // Mise à jour du rôle une seule fois
+      setUserRole(storedRole); 
     }
-  }, []); // Dépendance vide pour l'exécution au premier rendu seulement
+  }, []);
+
+  useEffect(()=>{
+    const socket = getSocket();
+    if (socket) {
+      socket.on('adminNotif', (data) => {
+        if(userRole == "Admin") setNb(data);
+      });
+
+      socket.on('managerNotif', (data) => {
+        if(userRole == "Manager") setNb(data);
+      });
+
+      // Nettoyez l'écouteur à la déconnexion du composant
+      return () => {
+        socket.off('adminNotif');
+        socket.off('managerNotif');
+      };
+    }
+  }, [userRole])
 
   // Classe pour le titre de l'accordéon, calculée une seule fois
   const accordionTriggerClass = useMemo(() => {
@@ -48,9 +69,16 @@ export const CollapseItems = React.memo(({ icon, items, title, isActive, role })
           }}
           aria-label="Accordion 1"
           title={
-            <div className="flex flex-row gap-2">
-              <span>{icon}</span>
-              <span>{title}</span>
+            <div className="flex flex-row items-center justify-between gap-2">
+              <div className="flex flex-row items-center gap-2">
+                <span>{icon}</span>
+                <span>{title}</span>
+              </div>
+              {nb > 0 && (
+                <span className="flex items-center justify-center font-semibold w-7 h-7 text-[11px] text-white bg-bleuspat/80 rounded-full">
+                  {nb > 99 ? "99+" : nb}
+                </span>
+              )}
             </div>
           }
         >
@@ -65,9 +93,9 @@ export const CollapseItems = React.memo(({ icon, items, title, isActive, role })
                 <NextLink
                   key={index}
                   href={item.link}
-                  className="w-full flex pl-28 text-default-500 hover:text-default-900 transition-colors"
+                  className="w-full flex pl-16 text-default-500 hover:text-default-900 transition-colors"
                 >
-                  <span className={itemClass}>{item.label}</span>
+                  <span className={itemClass}>{item.label} <span className="font-semibold">{item.label === "En attente" && nb > 0 ? ` ( ${nb > 99 ? "99+" : nb} )` : ""}</span></span>
                 </NextLink>
               );
             })}

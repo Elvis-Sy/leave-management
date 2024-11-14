@@ -311,7 +311,7 @@ const MesDemandes = () => {
             <div className="h-full mt-4 flex items-center">
                 <div className="flex gap-4">
                     <Button variant='flat' color='primary' onPress={onOpen}>Envoyer</Button>
-                    <Button variant='light' color='danger' type='reset' onPress={handleButtonResetClick}>Reset</Button>
+                    <Button variant='light' color='danger' type='reset' onPress={handleButtonResetClick}>Réinitialiser</Button>
                 </div>
             </div>
         </form>

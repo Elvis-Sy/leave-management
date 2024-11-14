@@ -135,7 +135,7 @@ export const Attentes = () => {
                             <Button variant="flat" className="w-full" color="primary" onPress={handleFiltrer}>Filtrer</Button>
                         </PopoverContent>
                     </Popover>
-                    <Button color="primary" startContent={<ExportIcon />}>Export to CSV</Button>
+                    <Button color="primary" startContent={<ExportIcon />}>Exporter</Button>
                 </div>
             </div>
             <TableWrapper RenderCell={(props) => <RenderCell {...props} onOpen={onOpen} setId={setId} />} columns={colAttente} users={paginatedData} />

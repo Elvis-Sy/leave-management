@@ -29,7 +29,6 @@ const InfoHead = () => {
           });
           
           setInfo(response.data.info)
-          console.log(response.data.info.photo)
     
         } catch (error) {
             setInfo({})
