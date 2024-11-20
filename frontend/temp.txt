@@ -1,3 +1,1494 @@
+"use client"
+
+import React, { useState, useEffect, useRef } from 'react'
+import { useForm, FormProvider } from 'react-hook-form'
+import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Autocomplete, AutocompleteItem, Checkbox, Progress} from '@nextui-org/react'
+import { motion, AnimatePresence } from 'framer-motion'
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import Image from 'next/image';
+
+const NewEmployee = ({ onClose, reload }) => {
+
+  const [essai, setEssai] = useState(false);
+  const fileInputRef = useRef(null);
+  const [etab, setEtab] = useState([])
+  const [postes, setPostes] = useState([])
+  const [manager, setManager] = useState([])
+  const { setValue } = useForm();
+
+  useEffect(()=>{
+    getEtab()
+    getPoste()
+    getSupp()
+  }, [])
+
+  //Pointage input file
+  const handleImageClick = () => {
+      fileInputRef.current.click();
+  };
+
+  //Changement de l'image
+  const handleFileChange = (e) =>{
+      const file = e.target.files[0];
+      const reader = new FileReader();
+
+      if (file) {
+
+          reader.onload = function(e){
+              const arrayBuffer = e.target.result;
+              
+              const imgPreview = document.getElementById("preview");
+              imgPreview.style.backgroundImage = `url(${arrayBuffer})`;
+          };
+          reader.readAsDataURL(file);
+
+      }
+  }
+
+  const handleCheckboxChange = (e) => {
+    setEssai(e.target.checked);
+    errors.dateEmbauche = null;
+    if (e.target.checked) {
+      setValue('dateEmbauche', e.target.checked); // Réinitialise le champ
+    }
+  };
+
+  const getEtab = async ()=> {
+    try {
+
+      const response = await axios.get('http://localhost:5000/api/details/etablissement', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+      setEtab(response.data.etabi)
+
+    } catch (error) {
+      console.error("Error listage departments:", error);
+      setEtab([])
+    }
+  }
+
+  const getPoste = async ()=> {
+    try {
+
+      const response = await axios.get('http://localhost:5000/api/details/postes', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+      setPostes(response.data.poste)
+
+    } catch (error) {
+      console.error("Error listage departments:", error);
+      setPostes([])
+    }
+  }
+
+  const getSupp = async ()=> {
+    try {
+
+      const response = await axios.get('http://localhost:5000/api/employes/supperieur', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+      setManager(response.data.supp)
+
+    } catch (error) {
+      console.error("Error listage departments:", error);
+      setManager([])
+    }
+  }
+
+  const StepIndicator = ({ 
+    step, 
+    label, 
+    isActive, 
+    isCompleted,
+    onClick 
+  }) => (
+    <div 
+      className={`flex flex-col items-center cursor-pointer transition-all duration-300 ${onClick ? 'hover:opacity-80' : ''}`}
+      onClick={onClick}
+    >
+      <div 
+        className={`relative flex items-center justify-center w-10 h-10 rounded-full 
+          transition-all duration-300 
+          ${isActive ? 'bg-primary ring-4 ring-primary/20 scale-105' : 
+            isCompleted ? 'bg-primary/80' : 'bg-gray-200'}
+          ${onClick ? 'hover:bg-primary/90' : ''}`}
+      >
+        <span className={`text-sm font-medium ${isActive || isCompleted ? 'text-white' : 'text-gray-600'}`}>
+          {isCompleted ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+          ) : step}
+        </span>
+      </div>
+      <span 
+        className={`mt-2 text-sm text-center transition-all duration-300 
+          ${isActive ? 'text-primary font-semibold' : 
+            isCompleted ? 'text-primary/80' : 'text-gray-400'}
+          max-w-[120px] truncate`}
+      >
+        {label}
+      </span>
+    </div>
+  )
+  
+  // Étape 1 : Informations Personnelles
+  const PersonalInfoStep = ({ register, errors }) => (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center">
+        <div className='h-full w-1/2 p-2'>
+            {/* Label pour le file */}
+            <label onClick={handleImageClick} className='group dark:text-white hover:underline flex gap-2 items-center font-semibold mb-2 text-sm'>
+            <div id='preview' className='flex justify-center items-center w-20 h-20 rounded-full bg-gray-400 group-hover:bg-gray-500 bg-cover bg-center'>
+            </div>
+                Joindre une photo de profil
+            </label>
+  
+            {/* Input file */}
+            <input className='hidden' id='img' ref={fileInputRef} name='img' onChange={handleFileChange} type="file"/>
+        </div>
+        <div className="flex w-1/2 flex-col gap-4">
+          <Input
+              isRequired
+              label="Nom"
+              variant="bordered"
+              className="w-full font-semibold login"
+              {...register('nom', { 
+                  required: 'Le nom est requis', 
+              })}
+              isInvalid={!!errors.nom}
+              errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.nom ? errors.nom.message : ''}</span>}
+          />
+  
+          <Input
+              label="Prenom"
+              variant="bordered"
+              className="w-full font-semibold login"
+              {...register('prenom')}
+          />
+        </div>
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="ml-4 font-semibold">
+          <label className="block dark:text-white mb-2 text-gray-700">Genre de l&apos;employé <span className="text-red-500 text-sm">*</span> :</label>
+          <div className="">
+            <div className="flex">
+              <label className="mr-4 font-normal">
+                <input
+                  type="radio"
+                  value="M"
+                  className="mr-1 text-bleuspat"
+                  {...register('sexe', { required: "Le sexe est requis" })} 
+                />
+                Homme
+              </label>
+              <label className="mr-4 font-normal">
+                <input
+                  type="radio"
+                  value="F"
+                  className="mr-1 text-bleuspat"
+                  {...register('sexe', { required: "Le sexe est requis" })} 
+                />
+                Femme
+              </label>
+            </div>
+          </div>
+          {errors.sexe && <span className="flex justify-start text-[#f31260] text-xs text-right">{errors.sexe.message}</span>}
+        </div>
+  
+        <Input
+          isRequired
+          label="CIN"
+          maxLength={12}
+          variant="bordered"
+          className="font-semibold login"
+          {...register('CIN', {
+            required: 'Le CIN est requis',
+            minLength: {
+              value: 12,
+              message: 'Le CIN doit contenir exactement 12 caractères'
+            },
+            maxLength: {
+              value: 12,
+              message: 'Le CIN doit contenir exactement 12 caractères'
+            },
+            pattern: {
+              value: /^[0-9]+$/,
+              message: 'Le champ doit contenir uniquement des chiffres'
+            },
+          })}
+          isInvalid={!!errors.CIN}
+          errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.CIN ? errors.CIN.message : ''}</span>}
+        />
+      </div>
+    </div>
+  )
+  
+  // Étape 2 : Informations Professionnelles
+  const ProfessionalInfoStep = ({ register, errors }) => (
+    <div className="flex flex-col gap-4">
+      <Input
+        isRequired
+        label="Email"
+        variant="bordered"
+        className="w-full font-semibold login"
+        {...register('email', { 
+          required: 'Email requis', 
+          pattern: {
+            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+            message: 'Entrer un email valide'
+          }
+        })}
+        endContent={
+          <div className='flex h-full items-center'>
+            <Image src='/maillog.png' alt="mail" width={20} height={20} className='pointer-events-none'/>
+          </div>
+        }
+        isInvalid={!!errors.email}
+        errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.email ? errors.email.message : ''}</span>} 
+      />
+  
+      <Autocomplete
+        variant="bordered"
+        label="Manager"
+        placeholder="Sous la subordination de..."
+        className="w-full font-semibold auto mb-2"
+        defaultItems={manager}
+        {...register('idManager')}
+      >
+        {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+      </Autocomplete>
+  
+      <div className="flex gap-2">
+        <Autocomplete
+          isRequired
+          variant="bordered"
+          label="Poste de travail"
+          placeholder="Recherche de poste"
+          className="w-full font-semibold auto"
+          {...register('idposte', { 
+            required: 'Le poste est requis', 
+          })}
+          defaultItems={postes}
+          isInvalid={!!errors.idposte}
+          errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idposte ? errors.idposte.message : ''}</span>}
+        >
+          {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+        </Autocomplete>
+  
+        <Autocomplete
+          isRequired
+          variant="bordered"
+          label="Etablissement"
+          placeholder="Direction / Departement"
+          className="w-full font-semibold auto"
+          defaultItems={etab}
+          {...register('idEtablissement', { 
+            required: "L'etablissement est requis", 
+          })}
+          isInvalid={!!errors.idEtablissement}
+          errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idEtablissement ? errors.idEtablissement.message : ''}</span>}
+        >
+          {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+        </Autocomplete>
+      </div>
+  
+      <div className="flex items-center gap-8 mt-1">
+        <div className="w-1/2">
+          <div className={`${essai ? 'bg-gray-100' : ''} group relative border-2 p-2 rounded-xl ${errors.dateEmbauche ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300'}`}>
+            <label className={`block dark:text-white ${errors.dateEmbauche ? 'text-[#f31260]' : 'text-gray-700'}  text-xs font-semibold`}>
+              Date d&apos;embauche <span className="text-red-500 text-sm">*</span>
+            </label>
+            <div className="">
+              <input 
+                type="date" 
+                className="block dark:text-white w-full text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent" 
+                placeholder="jj-mm-aaaa" 
+                required 
+                {...register('dateEmbauche', { 
+                  required: "La date d'embauche est requise", 
+                  setValueAs: (value) => new Date(value),
+                  disabled: essai
+                })}
+              />
+            </div>
+          </div>
+          {errors.dateEmbauche && <span className="flex justify-start text-[#f31260] text-xs text-right font-medium">{errors.dateEmbauche.message}</span>}
+        </div>
+  
+        <Checkbox className='w-1/2' {...register("periodeEssai")} onChange={handleCheckboxChange}>En période d&apos;essai</Checkbox>
+      </div>
+    </div>
+  )
+  
+  // Étape 3 : Confirmation
+  const ConfirmationStep = ({ register }) => (
+      <div className="flex flex-col gap-4">
+        <Input
+          isRequired
+          type='password'
+          label="Mot de passe"
+          variant="bordered"
+          className="max-w-md font-semibold login group"
+          {...register('password', { 
+            required: 'Mot de passe requis',
+            minLength: {
+              value: 6,
+              message: 'Le Mot de passe doit contenir au moins 6 caractères',
+            }, })}
+          endContent={
+            <div className='flex h-full items-center group-focus-within:hidden'>
+              <Image src='/password.png' alt='password-icon' width={20} height={20} className='pointer-events-none' />
+            </div>
+          }
+          isInvalid={!!errors.password}
+          errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.password ? errors.password.message : ''}</span>}
+        />
+      </div>
+  )
+
+  const [currentStep, setCurrentStep] = useState(1)
+  const methods = useForm({
+    mode: 'all',
+    defaultValues: {
+      nom: '',
+      prenom: '',
+      sexe: '',
+      CIN: '',
+      email: '',
+      idManager: '',
+      idPoste: '',
+      idEtablissement: '',
+      dateEmbauche: '',
+      periodeEssai: '',
+      password: '',
+    }
+  })
+
+  const { handleSubmit, trigger, getValues, formState: { errors } } = methods
+
+  const steps = [
+    { 
+      key: 1, 
+      label: "Informations personnelles",
+      component: PersonalInfoStep,
+      validation: async () => await trigger(['nom', 'sexe', 'CIN'])
+    },
+    { 
+      key: 2, 
+      label: "Informations professionnelles", 
+      component: ProfessionalInfoStep,
+      validation: async () => await trigger(['email', 'idPoste', 'idEtablissement', 'dateEmbauche'])
+    },
+    { 
+      key: 3, 
+      label: "Confirmation", 
+      component: ConfirmationStep,
+      validation: async () => await trigger(['password'])
+    }
+  ]
+
+  const pageTransition = {
+    initial: { opacity: 0, x: 50 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -50 }
+  }
+
+  const calculateProgress = () => {
+    return ((currentStep - 1) / (steps.length - 1)) * 100
+  }
+
+  const handleNextStep = async () => {
+    if (currentStep < steps.length) {
+      const currentStepConfig = steps[currentStep - 1]
+      
+      if (currentStepConfig.validation) {
+        const isValid = await currentStepConfig.validation()
+        if (isValid) {
+          setCurrentStep(currentStep + 1)
+        }
+      } else {
+        setCurrentStep(currentStep + 1)
+      }
+    }
+  }
+
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  // Gestion de la soumission du formulaire
+  const onSubmit = async (data) => {
+    try {
+      const formData = new FormData()
+
+      etab.forEach((item)=>{
+        if(data.idEtablissement == item.label){
+          data.idEtablissement = Number(item.value)
+        }
+      })
+      postes.forEach((item)=>{
+        if(data.idposte == item.label){
+          data.idposte = Number(item.value)
+        }
+      })
+      manager.forEach((item)=>{
+        if(data.idManager == item.label){
+          data.idManager = Number(item.value)
+        }
+      })
+
+      formData.append('email', data.email)
+      formData.append('idposte', data.idposte)
+      formData.append('nom', data.nom)
+      formData.append('prenom', data.prenom)
+      formData.append('sexe', data.sexe)
+      formData.append('CIN', Number(data.CIN))
+      if(data.dateEmbauche){
+        formData.append('dateEmbauche', data.dateEmbauche)
+      }
+      if(data.idManager){
+        formData.append('idManager', data.idManager)
+      }
+      formData.append('periodeEssai', Number(data.periodeEssai))
+      formData.append('idEtablissement', Number(data.idEtablissement))
+      formData.append('photoProfile', fileInputRef.current.files[0])
+      
+      const response = await axios.post('http://localhost:5000/api/employes/ajout', formData, {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+          }
+      });
+
+      if(response.data.cause){
+        toast.warn(`${response.data.cause}`, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          style: {width: "120%", fontWeight: "bolder"}
+        });
+      } else {
+        toast.success(`${response.data.message}`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          style: {fontSize: "bolder", fontWeight: "bolder"}
+        });
+
+
+        reload()
+        onClose()          
+      }
+  
+    } catch (error) {
+        console.error('Erreur lors de la soumission du formulaire :', error);
+    }
+  }
+
+  const CurrentStepComponent = steps.find(step => step.key === currentStep)?.component || (() => null)
+
+  return (
+    <FormProvider {...methods}>
+      <ModalContent>
+        {(onClose) => (
+          <form>
+            <ModalHeader className="flex flex-col gap-1 bg-bleuspat text-white">
+              Nouvel(le) Employé(e)
+            </ModalHeader>
+            
+            <ModalBody>
+              <div className="w-full mb-8 min-h-[100px]">
+                <div className="relative flex items-center justify-between mb-4 px-8">
+                  {steps.map((step) => (
+                    <StepIndicator 
+                      key={step.key}
+                      step={step.key}
+                      label={step.label}
+                      isActive={currentStep === step.key}
+                      isCompleted={currentStep > step.key}
+                      onClick={currentStep > step.key ? () => setCurrentStep(step.key) : undefined}
+                    />
+                  ))}
+                  <div className="absolute top-5 left-0 w-full px-12 -z-10">
+                    <Progress 
+                      aria-label="Progress" 
+                      value={calculateProgress()} 
+                      className="h-1" 
+                      color="primary"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentStep}
+                  {...pageTransition}
+                  transition={{ duration: 0.3 }}
+                  className="min-h-[300px] p-4"
+                >
+                  {currentStep === 3 ? (
+                    <CurrentStepComponent register={methods.register} />
+                  ) : (
+                    <CurrentStepComponent 
+                      register={methods.register} 
+                      errors={errors} 
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </ModalBody>
+            
+            <ModalFooter>
+              <div className="w-full flex justify-between">
+                <Button
+                  color="primary"
+                  variant="light"
+                  isDisabled={currentStep === 1}
+                  onPress={handlePrevStep}
+                >
+                  Précédent
+                </Button>
+                
+                <div>
+                  <Button 
+                    color="danger" 
+                    variant="light" 
+                    onPress={onClose} 
+                    className="mr-2"
+                  >
+                    Annuler
+                  </Button>
+                  
+                  {currentStep < steps.length ? (
+                    <Button
+                      color="primary"
+                      onPress={handleNextStep}
+                    >
+                      Suivant
+                    </Button>
+                  ) : (
+                    <Button 
+                      color="primary"
+                      type="submit"
+                      onPress={handleSubmit(onSubmit)}
+                    >
+                      Soumettre
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </ModalFooter>
+          </form>
+        )}
+      </ModalContent>
+    </FormProvider>
+  )
+}
+
+export default NewEmployee
+
+
+
+
+
+
+"use client"
+
+import React, {useRef, useState, useEffect} from 'react'
+import { useForm } from 'react-hook-form';
+import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Autocomplete, AutocompleteItem, Checkbox} from '@nextui-org/react'
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Image from 'next/image';
+
+
+const NewEmploye = ({onClose, reload}) => {
+
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+    const [essai, setEssai] = useState(false);
+    const fileInputRef = useRef(null);
+    const formRef = useRef();
+    const [etab, setEtab] = useState([])
+    const [postes, setPostes] = useState([])
+    const [manager, setManager] = useState([])
+
+    useEffect(()=>{
+      getEtab()
+      getPoste()
+      getSupp()
+    }, [])
+
+    //Pointage input file
+    const handleImageClick = () => {
+        fileInputRef.current.click();
+    };
+
+    //Changement de l'image
+    const handleFileChange = (e) =>{
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        if (file) {
+
+            reader.onload = function(e){
+                const arrayBuffer = e.target.result;
+                
+                const imgPreview = document.getElementById("preview");
+                imgPreview.style.backgroundImage = `url(${arrayBuffer})`;
+            };
+            reader.readAsDataURL(file);
+
+        }
+        
+    }
+
+    const handleCheckboxChange = (e) => {
+      setEssai(e.target.checked);
+      errors.dateEmbauche = null;
+      if (e.target.checked) {
+        setValue('dateEmbauche', e.target.checked); // Réinitialise le champ
+      }
+    };
+
+    // Gestion de la soumission du formulaire
+    const onSubmit = async (data) => {
+      try {
+        const formData = new FormData()
+
+        etab.forEach((item)=>{
+          if(data.idEtablissement == item.label){
+            data.idEtablissement = Number(item.value)
+          }
+        })
+        postes.forEach((item)=>{
+          if(data.idposte == item.label){
+            data.idposte = Number(item.value)
+          }
+        })
+        manager.forEach((item)=>{
+          if(data.idManager == item.label){
+            data.idManager = Number(item.value)
+          }
+        })
+
+        formData.append('email', data.email)
+        formData.append('idposte', data.idposte)
+        formData.append('nom', data.nom)
+        formData.append('prenom', data.prenom)
+        formData.append('sexe', data.sexe)
+        formData.append('CIN', Number(data.CIN))
+        if(data.dateEmbauche){
+          formData.append('dateEmbauche', data.dateEmbauche)
+        }
+        if(data.idManager){
+          formData.append('idManager', data.idManager)
+        }
+        formData.append('periodeEssai', Number(data.periodeEssai))
+        formData.append('idEtablissement', Number(data.idEtablissement))
+        formData.append('photoProfile', fileInputRef.current.files[0])
+        
+        const response = await axios.post('http://localhost:5000/api/employes/ajout', formData, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            }
+        });
+
+        if(response.data.cause){
+          toast.warn(`${response.data.cause}`, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            style: {width: "120%", fontWeight: "bolder"}
+          });
+        } else {
+          toast.success(`${response.data.message}`, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            style: {fontSize: "bolder", fontWeight: "bolder"}
+          });
+
+
+          reload()
+          onClose()          
+        }
+    
+      } catch (error) {
+          console.error('Erreur lors de la soumission du formulaire :', error);
+      }
+      
+    };
+
+    const handleButtonClick = () => {
+      if (formRef.current) {
+        formRef.current.dispatchEvent(new Event('submit', { bubbles: true }));
+      }
+    };
+
+    const getEtab = async ()=> {
+      try {
+
+        const response = await axios.get('http://localhost:5000/api/details/etablissement', {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
+
+        setEtab(response.data.etabi)
+
+      } catch (error) {
+        console.error("Error listage departments:", error);
+        setEtab([])
+      }
+    }
+
+    const getPoste = async ()=> {
+      try {
+
+        const response = await axios.get('http://localhost:5000/api/details/postes', {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
+
+        setPostes(response.data.poste)
+
+      } catch (error) {
+        console.error("Error listage departments:", error);
+        setPostes([])
+      }
+    }
+
+    const getSupp = async ()=> {
+      try {
+
+        const response = await axios.get('http://localhost:5000/api/employes/supperieur', {
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+      });
+
+        setManager(response.data.supp)
+
+      } catch (error) {
+        console.error("Error listage departments:", error);
+        setManager([])
+      }
+    }
+
+
+  return (
+      <>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 bg-bleuspat text-white">Nouvel(le) Employé(e)</ModalHeader>
+              <ModalBody>
+              <form onSubmit={handleSubmit(onSubmit)} ref={formRef}> 
+                <h1 className='text-bleuspat font-medium'>Informations personnelles:</h1>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center">
+                    <div className='h-full w-1/2 p-2'>
+                        {/* Label pour le file */}
+                        <label onClick={handleImageClick} className='group dark:text-white hover:underline flex gap-2 items-center font-semibold mb-2 text-sm'>
+                        <div id='preview' className='flex justify-center items-center w-20 h-20 rounded-full bg-gray-400 group-hover:bg-gray-500 bg-cover bg-center'>
+                        </div>
+                            Joindre une photo de profil
+                        </label>
+
+                        {/* Input file */}
+                        <input className='hidden' id='img' ref={fileInputRef} name='img' onChange={handleFileChange} type="file"/>
+                    </div>
+                    <div className="flex w-1/2 flex-col gap-4">
+                      <Input
+                          isRequired
+                          label="Nom"
+                          variant="bordered"
+                          className="w-full font-semibold login"
+                          {...register('nom', { 
+                              required: 'Le nom est requis', 
+                          })}
+                          isInvalid={!!errors.nom}
+                          errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.nom ? errors.nom.message : ''}</span>}
+                      />
+
+                      <Input
+                          label="Prenom"
+                          variant="bordered"
+                          className="w-full font-semibold login"
+                          {...register('prenom')}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                  <div className="ml-4 font-semibold">
+                      <label className="block dark:text-white mb-2 text-gray-700">Genre de l&apos;employé <span className="text-red-500 text-sm">*</span> :</label>
+                      <div className="">
+                        <div className="flex">
+                          <label className="mr-4 font-normal">
+                            <input
+                              type="radio"
+                              value="M"
+                              className="mr-1 text-bleuspat"
+                              {...register('sexe', { required: "Le sexe est requis" })} 
+                            />
+                            Homme
+                          </label>
+                          <label className="mr-4 font-normal">
+                            <input
+                              type="radio"
+                              value="F"
+                              className="mr-1 text-bleuspat"
+                              {...register('sexe', { required: "Le sexe est requis" })} 
+                            />
+                            Femme
+                          </label>
+                        </div>
+                      </div>
+                      {errors.sexe && <span className="flex justify-start text-[#f31260] text-xs text-right">{errors.sexe.message}</span>}
+                    </div>
+
+                    <Input
+                      isRequired
+                      label="CIN"
+                      maxLength={12}
+                      variant="bordered"
+                      className="font-semibold login"
+                      {...register('CIN', {
+                        required: 'Le CIN est requis',
+                        minLength: {
+                          value: 12,
+                          message: 'Le CIN doit contenir exactement 12 caractères'
+                        },
+                        maxLength: {
+                          value: 12,
+                          message: 'Le CIN doit contenir exactement 12 caractères'
+                        },
+                        pattern: {
+                          value: /^[0-9]+$/,
+                          message: 'Le champ doit contenir uniquement des chiffres'
+                        },
+                        setValueAs: (value) => Number(value)
+                      })}
+                      isInvalid={!!errors.CIN}
+                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.CIN ? errors.CIN.message : ''}</span>}
+                    />
+                  </div>
+                </div>
+                
+                <h1 className='text-bleuspat font-medium my-2'>Informations professionnelles:</h1>
+                <div className="">
+                  <Input
+                    isRequired
+                    label="Email"
+                    variant="bordered"
+                    className="w-full font-semibold login"
+                    {...register('email', { 
+                      required: 'Email requis', 
+                      pattern: {
+                        value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                        message: 'Entrer un email valide'
+                      }
+                    })}
+                    endContent={
+                      <div className='flex h-full items-center'>
+                        <Image src='/maillog.png' alt="mail" width={20} height={20} className='pointer-events-none'/>
+                      </div>
+                    }
+                    isInvalid={!!errors.email}
+                    errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.email ? errors.email.message : ''}</span>} 
+                  />
+
+                <Autocomplete
+                  variant="bordered"
+                  label="Manager"
+                  placeholder="Sous la subordination de..."
+                  className="w-full font-semibold auto mb-2"
+                  defaultItems={manager}
+                  {...register('idManager')}
+                >
+                  {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+                </Autocomplete>
+
+                  <div className="flex gap-2">
+                    <Autocomplete
+                      isRequired
+                      variant="bordered"
+                      label="Poste de travail"
+                      placeholder="Recherche de poste"
+                      className="w-full font-semibold auto"
+                      {...register('idposte', { 
+                        required: 'Le poste est requis', 
+                      })}
+                      defaultItems={postes}
+                      isInvalid={!!errors.idposte}
+                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idposte ? errors.idposte.message : ''}</span>}
+                    >
+                      {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+                    </Autocomplete>
+
+                    <Autocomplete
+                      isRequired
+                      variant="bordered"
+                      label="Etablissement"
+                      placeholder="Direction / Departement"
+                      className="w-full font-semibold auto"
+                      defaultItems={etab}
+                      {...register('idEtablissement', { 
+                        required: "L'etablissement est requis", 
+                      })}
+                      isInvalid={!!errors.idEtablissement}
+                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idEtablissement ? errors.idEtablissement.message : ''}</span>}
+                    >
+                      {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+                    </Autocomplete>
+                  </div>
+
+                  <div className="flex items-center gap-8 mt-1">
+                    <div className="w-1/2">
+                      <div className={`${essai ? 'bg-gray-100' : ''} group relative border-2 p-2 rounded-xl ${errors.dateEmbauche ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300'}`}>
+                        <label className={`block dark:text-white ${errors.dateEmbauche ? 'text-[#f31260]' : 'text-gray-700'}  text-xs font-semibold`}>
+                          Date d&apos;embauche <span className="text-red-500 text-sm">*</span>
+                        </label>
+                        <div className="">
+                          <input 
+                            disabled={essai}
+                            type="date" 
+                            className="block dark:text-white w-full text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent" 
+                            placeholder="jj-mm-aaaa" 
+                            required 
+                            {...register('dateEmbauche', { 
+                              required: "La date d'embauche est requise", 
+                              setValueAs: (value) => new Date(value),
+                              disabled: essai
+                            })}
+                          />
+                        </div>
+                      </div>
+                      {errors.dateEmbauche && <span className="flex justify-start text-[#f31260] text-xs text-right font-medium">{errors.dateEmbauche.message}</span>}
+                    </div>
+
+                    <Checkbox className='w-1/2' {...register("periodeEssai")} onChange={handleCheckboxChange}>En période d&apos;essai</Checkbox>
+                  </div>
+                </div>
+              </form>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Annuler
+                </Button>
+                <Button color="primary" type='submit' onPress={handleButtonClick}>
+                  Enregistrer
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </>
+  )
+}
+
+export default NewEmploye
+
+
+
+
+
+
+"use client"
+
+import React, { useRef, useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { 
+  ModalContent, 
+  ModalHeader, 
+  ModalBody, 
+  ModalFooter, 
+  Button, 
+  Input, 
+  Autocomplete, 
+  AutocompleteItem, 
+  Checkbox,
+  Tabs,
+  Tab
+} from '@nextui-org/react'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import Image from 'next/image'
+import { ChevronRight, ChevronLeft } from 'lucide-react'
+
+const NewEmployee = ({ onClose, reload }) => {
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm()
+  const [essai, setEssai] = useState(false)
+  const fileInputRef = useRef(null)
+  const formRef = useRef()
+  const [etab, setEtab] = useState([])
+  const [postes, setPostes] = useState([])
+  const [manager, setManager] = useState([])
+  const [currentStep, setCurrentStep] = useState("personal")
+
+  useEffect(() => {
+    getEtab()
+    getPoste()
+    getSupp()
+  }, [])
+
+  const handleImageClick = () => {
+    fileInputRef.current.click()
+  }
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+    const reader = new FileReader()
+
+    if (file) {
+      reader.onload = function(e) {
+        const arrayBuffer = e.target.result
+        const imgPreview = document.getElementById("preview")
+        imgPreview.style.backgroundImage = `url(${arrayBuffer})`
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleCheckboxChange = (e) => {
+    setEssai(e.target.checked)
+    errors.dateEmbauche = null
+    if (e.target.checked) {
+      setValue('dateEmbauche', e.target.checked)
+    }
+  }
+
+  const onSubmit = async (data) => {
+    try {
+      const formData = new FormData()
+
+      etab.forEach((item) => {
+        if(data.idEtablissement == item.label) {
+          data.idEtablissement = Number(item.value)
+        }
+      })
+      postes.forEach((item) => {
+        if(data.idposte == item.label) {
+          data.idposte = Number(item.value)
+        }
+      })
+      manager.forEach((item) => {
+        if(data.idManager == item.label) {
+          data.idManager = Number(item.value)
+        }
+      })
+
+      formData.append('email', data.email)
+      formData.append('idposte', data.idposte)
+      formData.append('nom', data.nom)
+      formData.append('prenom', data.prenom)
+      formData.append('sexe', data.sexe)
+      formData.append('CIN', Number(data.CIN))
+      if(data.dateEmbauche) {
+        formData.append('dateEmbauche', data.dateEmbauche)
+      }
+      if(data.idManager) {
+        formData.append('idManager', data.idManager)
+      }
+      formData.append('periodeEssai', Number(data.periodeEssai))
+      formData.append('idEtablissement', Number(data.idEtablissement))
+      formData.append('photoProfile', fileInputRef.current.files[0])
+      
+      const response = await axios.post('http://localhost:5000/api/employes/ajout', formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        }
+      })
+
+      if(response.data.cause) {
+        toast.warn(`${response.data.cause}`, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          style: {width: "120%", fontWeight: "bolder"}
+        })
+      } else {
+        toast.success(`${response.data.message}`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          style: {fontSize: "bolder", fontWeight: "bolder"}
+        })
+
+        reload()
+        onClose()          
+      }
+  
+    } catch (error) {
+      console.error('Erreur lors de la soumission du formulaire :', error)
+    }
+  }
+
+  const getEtab = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/details/etablissement', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+      setEtab(response.data.etabi)
+    } catch (error) {
+      console.error("Error listage departments:", error)
+      setEtab([])
+    }
+  }
+
+  const getPoste = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/details/postes', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+      setPostes(response.data.poste)
+    } catch (error) {
+      console.error("Error listage departments:", error)
+      setPostes([])
+    }
+  }
+
+  const getSupp = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/employes/supperieur', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+      setManager(response.data.supp)
+    } catch (error) {
+      console.error("Error listage departments:", error)
+      setManager([])
+    }
+  }
+
+  const validatePersonalInfo = () => {
+    const nom = watch('nom')
+    const sexe = watch('sexe')
+    const CIN = watch('CIN')
+    return nom && sexe && CIN && CIN.toString().length === 12
+  }
+
+  const PersonalInfoStep = () => (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center">
+        <div className='h-full w-1/2 p-2'>
+          <label onClick={handleImageClick} className='group dark:text-white hover:underline flex gap-2 items-center font-semibold mb-2 text-sm'>
+            <div id='preview' className='flex justify-center items-center w-20 h-20 rounded-full bg-gray-400 group-hover:bg-gray-500 bg-cover bg-center'>
+            </div>
+            Joindre une photo de profil
+          </label>
+          <input className='hidden' id='img' ref={fileInputRef} name='img' onChange={handleFileChange} type="file"/>
+        </div>
+        <div className="flex w-1/2 flex-col gap-4">
+          <Input
+            isRequired
+            label="Nom"
+            variant="bordered"
+            className="w-full font-semibold login"
+            {...register('nom', { required: 'Le nom est requis' })}
+            isInvalid={!!errors.nom}
+            errorMessage={errors.nom?.message}
+          />
+          <Input
+            label="Prenom"
+            variant="bordered"
+            className="w-full font-semibold login"
+            {...register('prenom')}
+          />
+        </div>
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="ml-4 font-semibold">
+          <label className="block dark:text-white mb-2 text-gray-700">
+            Genre de l'employé <span className="text-red-500 text-sm">*</span> :
+          </label>
+          <div className="flex">
+            <label className="mr-4 font-normal">
+              <input
+                type="radio"
+                value="M"
+                className="mr-1 text-bleuspat"
+                {...register('sexe', { required: "Le sexe est requis" })} 
+              />
+              Homme
+            </label>
+            <label className="mr-4 font-normal">
+              <input
+                type="radio"
+                value="F"
+                className="mr-1 text-bleuspat"
+                {...register('sexe', { required: "Le sexe est requis" })} 
+              />
+              Femme
+            </label>
+          </div>
+          {errors.sexe && <span className="text-[#f31260] text-xs">{errors.sexe.message}</span>}
+        </div>
+
+        <Input
+          isRequired
+          label="CIN"
+          maxLength={12}
+          variant="bordered"
+          className="font-semibold login"
+          {...register('CIN', {
+            required: 'Le CIN est requis',
+            minLength: {
+              value: 12,
+              message: 'Le CIN doit contenir exactement 12 caractères'
+            },
+            maxLength: {
+              value: 12,
+              message: 'Le CIN doit contenir exactement 12 caractères'
+            },
+            pattern: {
+              value: /^[0-9]+$/,
+              message: 'Le champ doit contenir uniquement des chiffres'
+            },
+            setValueAs: (value) => Number(value)
+          })}
+          isInvalid={!!errors.CIN}
+          errorMessage={errors.CIN?.message}
+        />
+      </div>
+    </div>
+  )
+
+  const ProfessionalInfoStep = () => (
+    <div className="flex flex-col gap-4">
+      <Input
+        isRequired
+        label="Email"
+        variant="bordered"
+        className="w-full font-semibold login"
+        {...register('email', { 
+          required: 'Email requis', 
+          pattern: {
+            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+            message: 'Entrer un email valide'
+          }
+        })}
+        endContent={
+          <div className='flex h-full items-center'>
+            <Image src='/maillog.png' alt="mail" width={20} height={20} className='pointer-events-none'/>
+          </div>
+        }
+        isInvalid={!!errors.email}
+        errorMessage={errors.email?.message}
+      />
+
+      <Autocomplete
+        variant="bordered"
+        label="Manager"
+        placeholder="Sous la subordination de..."
+        className="w-full font-semibold auto mb-2"
+        defaultItems={manager}
+        {...register('idManager')}
+      >
+        {(item) => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
+      </Autocomplete>
+
+      <div className="flex gap-2">
+        <Autocomplete
+          isRequired
+          variant="bordered"
+          label="Poste de travail"
+          placeholder="Recherche de poste"
+          className="w-full font-semibold auto"
+          {...register('idposte', { required: 'Le poste est requis' })}
+          defaultItems={postes}
+          isInvalid={!!errors.idposte}
+          errorMessage={errors.idposte?.message}
+        >
+          {(item) => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
+        </Autocomplete>
+
+        <Autocomplete
+          isRequired
+          variant="bordered"
+          label="Etablissement"
+          placeholder="Direction / Departement"
+          className="w-full font-semibold auto"
+          defaultItems={etab}
+          {...register('idEtablissement', { required: "L'etablissement est requis" })}
+          isInvalid={!!errors.idEtablissement}
+          errorMessage={errors.idEtablissement?.message}
+        >
+          {(item) => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
+        </Autocomplete>
+      </div>
+
+      <div className="flex items-center gap-8 mt-1">
+        <div className="w-1/2">
+          <div className={`${essai ? 'bg-gray-100' : ''} group relative border-2 p-2 rounded-xl ${errors.dateEmbauche ? 'border-[#f31260]' : 'border-gray-300'}`}>
+            <label className="block dark:text-white text-gray-700 text-xs font-semibold">
+              Date d'embauche <span className="text-red-500 text-sm">*</span>
+            </label>
+            <input 
+              disabled={essai}
+              type="date" 
+              className="block w-full text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent" 
+              placeholder="jj-mm-aaaa" 
+              required 
+              {...register('dateEmbauche', { 
+                required: "La date d'embauche est requise",
+                setValueAs: (value) => new Date(value),
+                disabled: essai
+              })}
+            />
+          </div>
+          {errors.dateEmbauche && <span className="text-[#f31260] text-xs font-medium">{errors.dateEmbauche.message}</span>}
+        </div>
+
+        <Checkbox 
+          className='w-1/2' 
+          {...register("periodeEssai")} 
+          onChange={handleCheckboxChange}
+        >
+          En période d'essai
+        </Checkbox>
+      </div>
+    </div>
+  )
+
+  return (
+    <ModalContent>
+      {(onClose) => (
+        <>
+          <ModalHeader className="flex flex-col gap-1 bg-bleuspat text-white">
+            Nouvel(le) Employé(e)
+          </ModalHeader>
+          <ModalBody>
+            <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
+              <Tabs 
+                selectedKey={currentStep}
+                onSelectionChange={setCurrentStep}
+                className="w-full"
+              >
+                <Tab 
+                  key="personal" 
+                  title={
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-primary-500 flex items-center justify-center text-white text-sm">1</span>
+                      <span>Informations personnelles</span>
+                    </div>
+                  }
+                >
+                  <PersonalInfoStep />
+                </Tab>
+                <Tab 
+                  key="professional"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-primary-500 flex items-center justify-center text-white text-sm">2</span>
+                      <span>Informations professionnelles</span>
+                    </div>
+                  }
+                >
+                  <ProfessionalInfoStep />
+                </Tab>
+              </Tabs>
+            </form>
+          </ModalBody>
+          <ModalFooter>
+            <div className="w-full flex justify-between">
+              <Button
+                color="primary"
+                variant="light"
+                startContent={<ChevronLeft />}
+                isDisabled={currentStep === "personal"}
+                onPress={() => setCurrentStep("personal")}
+              >
+                Précédent
+              </Button>
+              <div>
+                <Button color="danger" variant="light" onPress={onClose} className="mr-2">
+                  Annuler
+                </Button>
+                {currentStep === "personal" ? (
+                  <Button
+                    color="primary"
+                    endContent={<ChevronRight />}
+                    isDisabled={!validatePersonalInfo()}
+                    onPress={() => setCurrentStep("professional")}
+                  >
+                    Suivant
+                  </Button>
+                ) : (
+                  <Button 
+                    color="primary"
+                    onPress={() => formRef.current?.dispatchEvent(new Event('submit', { bubbles: true }))}
+                  >
+                    Enregistrer
+                  </Button>
+                )}
+              </div>
+            </div>
+          </ModalFooter>
+        </>
+      )}
+    </ModalContent>
+  )
+}
+
+export default NewEmployee
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState } from 'react';
 import { DateRange } from 'react-date-range';
 import 'react-date-range/dist/styles.css'; 

@@ -87,11 +87,14 @@ const Login = () => {
   };
 
   return (
-    <div className='w-full'>
+    <div className='w-fit flex justify-center'>
       <ToastContainer />
-      <div className="w-full">
+      <div className="w-fit">
         <div className="flex flex-col justify-center items-center mb-2">
-          <h2 className='text-xl font-bold text-bleuspat mb-2'>Authentification</h2>
+          <div className="flex items-center gap-2">
+            <Image src="/logo.svg" alt='logo' width={70} height={70}/>
+            <h2 className='text-xl font-bold text-bleuspat mb-2'>Authentification</h2>
+          </div>
           <div className='border-2 w-10 border-bleuspat inline-block mb-2'></div>
         </div>
         <form ref={formRef} onKeyDown={(e) => e.key === 'Enter' && handleButtonClick()} onSubmit={handleSubmit(onLogin)} className='flex items-center flex-col w-full flex-wrap gap-4'>
@@ -100,7 +103,8 @@ const Login = () => {
               isRequired
               label="Email"
               variant="bordered"
-              className="max-w-md font-semibold login"
+              className="max-w-md font-semibold back login"
+              classNames={{inputWrapper: 'backdrop-blur-[2px]'}}
               {...register('email', { 
                 required: 'Email requis', 
                 pattern: {
@@ -127,6 +131,7 @@ const Login = () => {
               label="Mot de passe"
               variant="bordered"
               className="max-w-md font-semibold login group"
+              classNames={{inputWrapper: 'backdrop-blur-[2px]'}}
               {...register('password', { required: 'Mot de passe requis' })}
               endContent={
                 <div className='flex h-full items-center group-focus-within:hidden'>
@@ -141,14 +146,24 @@ const Login = () => {
           </div>
         </form>
 
-        <div className="flex flex-col w-full px-24">
+        <div className="flex flex-col w-full pr-24">
           <div className='flex my-4 mr-1 justify-end'>
             <span className='text-xs text-gray-500 hover:text-bleuspat/80 font-medium'>Mot de passe oublié ? Contactez le responsable informatique</span>
           </div>
-          <button type="button" onClick={handleButtonClick} className='w-fit transition-all duration-200 mt-2 border-2 border-bleuspat bg-bleuspat text-white rounded-full px-12 py-2 inline-block font-semibold hover:bg-default-50 hover:text-bleuspat'>
+          <button type="button" onClick={handleButtonClick} className='w-fit transition-all duration-200 mt-2 border-2 border-bleuspat bg-bleuspat text-white rounded-full px-12 py-2 font-semibold hover:bg-default-50 hover:text-bleuspat'>
             Se connecter
           </button>
         </div>
+      </div>
+
+      <div className="hidden md:flex h-full flex-1 relative -left-10">
+          <Image
+            src="/cover.png"
+            alt="Société du Port à gestion Autonome de Toamasina"
+            width={350}
+            height={350}
+            className="self-center rounded-lg -z-10 opacity-80"
+          />
       </div>
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='top'>
