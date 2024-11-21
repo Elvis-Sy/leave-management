@@ -161,9 +161,9 @@ export const EmployePage = React.memo(() => {
                   <h5 className="text-bleuspat font-medium">Par date</h5>
                   <div className="flex items-center gap-1">
                       <span>Entre</span>
-                      <input type="date" className="border p-2 rounded-xl" value={dateDebut} onChange={(e) => setDateDebut(e.target.value)} />
+                      <input type="date" className="border bg-default-50 p-2 rounded-xl" value={dateDebut} onChange={(e) => setDateDebut(e.target.value)} />
                       <span>et</span>
-                      <input type="date" className="border p-2 rounded-xl" value={dateFin} onChange={(e) => setDateFin(e.target.value)} />
+                      <input type="date" className="border bg-default-50 p-2 rounded-xl" value={dateFin} onChange={(e) => setDateFin(e.target.value)} />
                   </div>
               </div>
               <div className="flex flex-col gap-1 w-full">

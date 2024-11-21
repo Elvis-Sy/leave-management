@@ -89,6 +89,7 @@ const Register = () => {
                 variant="bordered"
                 isInvalid={!!errorMessage}
                 className="w-full font-semibold login group"
+                classNames={{inputWrapper: 'backdrop-blur-[2px]'}}
                 onChange={(e) => { 
                   setNewPassword(e.target.value); 
                   setErrorMessage(''); // Réinitialiser l'erreur lors de la saisie
@@ -101,6 +102,7 @@ const Register = () => {
                 variant="bordered"
                 isInvalid={!!errorMessage}
                 className="w-full font-semibold login group"
+                classNames={{inputWrapper: 'backdrop-blur-[2px]'}}
                 onChange={(e) => { 
                   setConfirmPassword(e.target.value); 
                   setErrorMessage(''); // Réinitialiser l'erreur lors de la saisie
@@ -121,9 +123,9 @@ const Register = () => {
         </div>
       </div>
 
-      <div className="hidden md:flex h-full flex-1 relative -left-10">
+      <div className="hidden md:flex h-full flex-1 relative -left-16">
           <Image
-            src="/cover.png"
+            src="/cover2.png"
             alt="Société du Port à gestion Autonome de Toamasina"
             width={350}
             height={350}
