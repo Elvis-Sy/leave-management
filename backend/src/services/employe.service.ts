@@ -58,6 +58,11 @@ export class EmployeService {
           },
         },
       });
+
+      //A supprimer si necessaire
+      if (idManager) {
+        await this.updateRoleIfNeeded(idManager);
+      }
   
       // Supprimer les infos liees a l'employe si pas encore confirmer
       this.scheduleEmployeeDeletion(email, '48h');
@@ -282,6 +287,11 @@ export class EmployeService {
       //         }
       //     });
       // }
+
+      //A supprimer si necessaire
+      if(employe.idManager){
+        await this.updateRoleIfNeeded(employe.idManager);
+      }
 
       //Mettre à jour l'idManager des subordonnés a null
       await this.prisma.employes.updateMany({
@@ -519,6 +529,11 @@ export class EmployeService {
           etablissement: { connect: { idEtablissement: idEtablissement}}
         },
       });
+
+      //A supprimer si necessaire
+      if (idManager) {
+        await this.updateRoleIfNeeded(idManager);
+      }
     }
 
     //Information personnelle

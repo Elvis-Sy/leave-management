@@ -314,16 +314,16 @@ const NewEmploye = ({onClose, reload}) => {
                     errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.email ? errors.email.message : ''}</span>} 
                   />
 
-                  <Autocomplete
-                    variant="bordered"
-                    label="Manager"
-                    placeholder="Sous la subordination de..."
-                    className="w-full font-semibold auto mb-2"
-                    defaultItems={manager}
-                    {...register('idManager')}
-                  >
-                    {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
-                  </Autocomplete>
+                <Autocomplete
+                  variant="bordered"
+                  label="Manager"
+                  placeholder="Sous la subordination de..."
+                  className="w-full font-semibold auto mb-2"
+                  defaultItems={manager}
+                  {...register('idManager')}
+                >
+                  {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+                </Autocomplete>
 
                   <div className="flex gap-2">
                     <Autocomplete

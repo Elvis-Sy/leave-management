@@ -40,9 +40,9 @@ export const RenderCell = ({ user, columnKey }) => {
       );
     case "statut":
         return (
-            <div>
-                <Chip variant="flat" size='md' classNames={{content: 'w-[95px] text-center text-white font-medium'}} className={`${user.action == "Refus" ? "bg-[#fa5252]" : user.action == "Approbation" ? "bg-[#40c057]" : "bg-gray-500"}`}>{user.action}</Chip>
-            </div>
+          <div>
+              <Chip variant="flat" size='md' classNames={{content: 'w-[95px] text-center text-white font-medium'}} className={`${user.action == "Refus" ? "bg-[#fa5252]" : user.action == "Approbation" ? "bg-[#40c057]" : "bg-gray-500"}`}>{user.action}</Chip>
+          </div>
         );
     default:
       return cellValue;
