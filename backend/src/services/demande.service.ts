@@ -7,6 +7,9 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { AddDemandeDto } from 'src/dto/demandeDto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { NotificationService } from 'src/utils/notifications/notification.service';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as XLSX from 'xlsx';
 
 @Injectable()
 export class DemandeService {
@@ -378,29 +381,42 @@ export class DemandeService {
         // Récupérer tous les statuts possibles
         const statuts = await this.prisma.statutDemande.findMany();
 
+        // Obtenir l'année actuelle
+        const currentYear = new Date().getFullYear();
+
         const Count = this.prisma.demandesConges.groupBy({
-            by: ['statutId'],
-            _count: {
-                statutId: true
-            },
-            where: {
-              OR: [
-                {
-                  statuts: {
-                    designStatut: { in: ["Approuvee", "Refusee"] },
+          by: ['statutId'],
+          _count: {
+              statutId: true,
+          },
+          where: {
+              AND: [
+                  {
+                      dateEnvoie: {
+                          gte: new Date(`${currentYear}-01-01`), // Début de l'année
+                          lt: new Date(`${currentYear + 1}-01-01`), // Début de l'année suivante
+                      },
                   },
-                },
-                {
-                  statuts: {
-                    designStatut: { in: ["En attente", "En revision"] },
+                  {
+                      OR: [
+                          {
+                              statuts: {
+                                  designStatut: { in: ["Approuvee", "Refusee"] },
+                              },
+                          },
+                          {
+                              statuts: {
+                                  designStatut: { in: ["En attente", "En revision"] },
+                              },
+                              employe: {
+                                  isArchive: false,
+                              },
+                          },
+                      ],
                   },
-                  employe: {
-                    isArchive: false,
-                  },
-                },
               ],
-            }
-        })
+          },
+      });
 
         // Créer un objet pour stocker les comptes, initialisé à 0
         const total = {};
@@ -1600,6 +1616,57 @@ export class DemandeService {
           }
         })
       }
+
+      //Importer en csv
+      async exportCongesCSV(employeId: number, year: number) {
+
+        const startDate = new Date(`${year}-01-01T00:00:00.000Z`);
+        const endDate = new Date(`${year}-12-31T23:59:59.999Z`);
+
+        // Récupérer les données
+        const conges = await this.prisma.demandesConges.findMany({
+          where: {
+              employeId,
+              dateDebut: {
+                  gte: startDate,
+                  lt: endDate,
+              },
+              statuts: {
+                  designStatut: { in: ["approuvée", "refusée"] }, // Filtrer par statut
+              },
+          },
+          select: {
+              dateDebut: true,
+              dateFin: true,
+              type: { select: { designType: true } },
+              statuts: { select: { designStatut: true } },
+          },
+      });
+
+        // Formatage des données pour Excel
+        const formattedData = conges.map((conge) => ({
+            "Date Début": conge.dateDebut.toISOString().split("T")[0],
+            "Date Fin": conge.dateFin.toISOString().split("T")[0],
+            "Type de Congé": conge.type.designType,
+            "Statut": conge.statuts.designStatut,
+        }));
+
+        // Générer le classeur Excel
+        const worksheet = XLSX.utils.json_to_sheet(formattedData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Congés");
+
+        // Créer un dossier spécifique pour stocker le fichier
+        const folderPath = path.join(__dirname, '../../conge_annuel');
+        if (!fs.existsSync(folderPath)) {
+          fs.mkdirSync(folderPath, { recursive: true });
+        }
+
+        // Sauvegarder le fichier Excel dans le dossier
+        const filePath = path.join(folderPath, `conges_annuel_employe_${employeId}_${year}.xlsx`);
+        XLSX.writeFile(workbook, filePath);
+    
+    }
     
 
 }

@@ -442,5 +442,24 @@ export class DemandeController {
         }
     }
 
+    @Post('export')
+    @Roles(Role.ADMIN) //Admin
+    async exportCsv(@Body() donnee){
+        try {
+            const idEmploye = donnee.idEmploye
+            const annee = donnee.annee
+            await this.demandeService.exportCongesCSV(parseInt(idEmploye), annee);
+            return {
+                message: "Fichier Csv exportee",
+            }
+        } catch (error) {
+            console.error('Erreur de solde:', error);
+            return{
+                message: error.message
+            }
+            
+        }
+    }
+
 
  }
