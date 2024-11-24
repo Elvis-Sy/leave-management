@@ -37,9 +37,12 @@ const SuppEmploye = ({onClose, idEmp, all}) => {
     <ModalContent>
         {(onClose) => (
         <>
-            <ModalHeader className='flex justify-center'><Image src="/delete.png" alt="delete" width={30} height={30}/></ModalHeader>
+            <ModalHeader className='flex items-center ml-8'>
+                <Image src="/delete.png" alt="delete" width={30} height={30}/>
+                <p className="text-medium px-2 text-left font-semibold dark:text-white text-gray-700">Etes-vous sûr de vouloir archiver cet(te) employé(e) ?</p>
+            </ModalHeader>
             <ModalBody>
-                <p className="mb-2 px-2 text-center font-semibold dark:text-white text-gray-700">Etes-vous sûr de vouloir continuer l&apos;archivage de cet(te) employé(e) ?</p>
+                
             </ModalBody>
             <ModalFooter>
             <Button color="default" variant="light" onPress={onClose}>

@@ -6,6 +6,7 @@ import {fr} from 'date-fns/locale'
 import { EditIcon } from "../icons/table/edit-icon";
 import { DeleteIcon } from "../icons/table/delete-icon"
 import { useRouter } from "next/navigation";
+import { ExportIcon } from "@/components/icons/accounts/export-icon";
 
 export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
 
@@ -92,6 +93,13 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
                   <Tooltip content="Modifier" color="primary">
                   <button onClick={()=>{ setId(user.id); onOpen("modifModal")}}>
                       <EditIcon size={20} fill="#1d71b8" />
+                  </button>
+                  </Tooltip>
+              </div>
+              <div>
+                  <Tooltip content="Exporter" color="warning">
+                  <button onClick={()=>{ setId(user.id); onOpen("excelModal") }}> 
+                      <ExportIcon size={20} fill="#e3870d" />
                   </button>
                   </Tooltip>
               </div>

@@ -8,6 +8,7 @@ import {
   Autocomplete,
   AutocompleteItem,
   Modal,
+  Input
 } from "@nextui-org/react";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
@@ -20,10 +21,12 @@ import TableSearch from "../table/tableSearch";
 import axios from "axios";
 import { AddIcon } from "../icons/table/add-icon";
 import NewEmploye from "../modals/newEmploye";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import SuppEmploye from "../modals/suppEmploye";
 import ModifEmploye from "../modals/modifEmploye";
+import ExcelModal from "../modals/excelModal";
 import Image from "next/image";
+import { useForm } from "react-hook-form";
 
 const BASE_URL = "http://localhost:5000/api";
 
@@ -44,10 +47,17 @@ export const EmployePage = React.memo(() => {
   const [dateDebut, setDateDebut] = useState("");
   const [dateFin, setDateFin] = useState("");
   const [etablissement, setEtablissement] = useState(null);
+  const [etablissement2, setEtablissement2] = useState(null);
   const [etab, setEtab] = useState([]);
+  const { register, handleSubmit, formState: { errors } } = useForm();
 
   const handleEtablissementSelect = useCallback(
     (item) => setEtablissement(item),
+    []
+  );
+
+  const handleEtablissementSelect2 = useCallback(
+    (item) => setEtablissement2(item),
     []
   );
 
@@ -76,7 +86,7 @@ export const EmployePage = React.memo(() => {
       const response = await axios.get(`${BASE_URL}/details/etablissement`, {
         headers: getHeaders(),
       });
-      setEtab(response.data.etabli || []);
+      setEtab(response.data.etabi || []);
     } catch (error) {
       console.error("Erreur de requête:", error.response?.data || error.message);
     }
@@ -112,6 +122,49 @@ export const EmployePage = React.memo(() => {
       console.error("Erreur de requête:", error.response?.data || error.message);
     }
   };
+
+  const exportEtab = async (data) => {
+    if (typeof window === 'undefined') return;
+        
+        try {
+            etab.forEach((item)=>{
+              if(data.idEtab == item.label){
+                data.idEtab = Number(item.value)
+              }
+            })
+        
+            const response = await axios.post('http://localhost:5000/api/demandes/exportEtab', data, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if(response.data.cause){
+                toast.warn(`${response.data.cause}`, {
+                    position: "top-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            } else {
+                toast.success(`${response.data.message}`, {
+                    position: "top-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            }
+        
+        } catch (error) {
+            console.error('Erreur lors de la requête:', error.response?.data || error.message);
+        }
+  }
 
   const totalPages = Math.ceil(row.length / rowsPerPage);
   const paginatedData = row.slice(
@@ -193,7 +246,47 @@ export const EmployePage = React.memo(() => {
           </Popover>
 
           <Button color="primary" onPress={()=> onOpen("ajoutModal")} startContent={<AddIcon />}>Ajouter</Button>
-          <Button color="primary" startContent={<ExportIcon />}>Exporter</Button>
+
+          <Popover placement="left" showArrow={true} className="filter2">
+            <PopoverTrigger>
+              <Button color="primary" startContent={<ExportIcon />}>Exporter</Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-1 w-full min-w-[300px]">
+                  <h5 className="text-bleuspat font-medium">Congés annuels au format XLSX</h5>
+                  <Autocomplete variant="bordered" label="Etablissement" placeholder="Recherche de poste" className="w-full font-semibold auto"
+                    defaultItems={etab}
+                    defaultSelectedKey={etablissement2}
+                    onSelectionChange={handleEtablissementSelect2}
+                    isRequired
+                    {...register('idEtab', { 
+                        required: 'Ce champ est requis',
+                    })}
+                    isInvalid={!!errors.idEtab}
+                    errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idEtab ? errors.idEtab.message : ''}</span>}
+                  >
+                    {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+                  </Autocomplete>
+              </div>
+              <Input 
+                  variant='bordered'
+                  label="Année souhaitée" 
+                  placeholder="Entre 1900 et 2099" 
+                  isRequired
+                  className="w-full"
+                  {...register('annee', { 
+                      required: 'Ce champ est requis',
+                      pattern: {
+                          value: /^(19|20)\d{2}$/,
+                          message: 'Veuillez entrer une année valide (ex: 2010)',
+                      },
+                  })}
+                  isInvalid={!!errors.annee}
+                  errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.annee ? errors.annee.message : ''}</span>}
+              />
+              <Button variant="flat" className="w-full" color="primary" onPress={handleSubmit(exportEtab)}>Filtrer</Button>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -215,6 +308,10 @@ export const EmployePage = React.memo(() => {
 
       <Modal isOpen={openModal == "suppModal"} onClose={onClose} size="md">
         <SuppEmploye onClose={onClose} idEmp={idSupp} all={reloadData} />
+      </Modal>
+
+      <Modal isOpen={openModal == "excelModal"} onClose={onClose} size="md">
+        <ExcelModal onClose={onClose} id={idSupp}/>
       </Modal>
 
       <Modal isOpen={openModal == "modifModal"} onClose={onClose} size="2xl">

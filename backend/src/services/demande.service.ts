@@ -1641,7 +1641,13 @@ export class DemandeService {
               type: { select: { designType: true } },
               statuts: { select: { designStatut: true } },
           },
-      });
+        });
+
+        if (conges.length === 0) {
+          throw new Error(
+              `Aucun congé pour l'employé en ${year}.`
+          );
+        }
 
         // Formatage des données pour Excel
         const formattedData = conges.map((conge) => ({
@@ -1666,7 +1672,77 @@ export class DemandeService {
         const filePath = path.join(folderPath, `conges_annuel_employe_${employeId}_${year}.xlsx`);
         XLSX.writeFile(workbook, filePath);
     
-    }
-    
+      }
 
+      async exportCongesCSVEtab(idEtab: number, year: number) {
+
+        const startDate = new Date(`${year}-01-01T00:00:00.000Z`);
+        const endDate = new Date(`${year}-12-31T23:59:59.999Z`);
+
+        // Récupérer les données
+        const conges = await this.prisma.demandesConges.findMany({
+          where: {
+              employe: {
+                etablId: idEtab
+              },
+              dateDebut: {
+                  gte: startDate,
+                  lt: endDate,
+              },
+              statuts: {
+                  designStatut: { in: ["approuvée", "refusée"] }, // Filtrer par statut
+              },
+          },
+          select: {
+              dateDebut: true,
+              dateFin: true,
+              type: { select: { designType: true } },
+              statuts: { select: { designStatut: true } },
+              employe: {
+                select: {
+                  nom: true,
+                  prenom: true,
+                  poste: {
+                    select: {
+                      designPoste: true
+                    }
+                  }
+                }
+              }
+          },
+        });
+
+        if (conges.length === 0) {
+          throw new Error(
+              `Aucun congé pour l'établissement en ${year}.`
+          );
+        }
+
+        // Formatage des données pour Excel
+        const formattedData = conges.map((conge) => ({
+            "Nom complet": conge.employe.prenom ? `${conge.employe.nom} ${conge.employe.prenom}` : conge.employe.nom,
+            "Poste": conge.employe.poste.designPoste,
+            "Date Début": conge.dateDebut.toISOString().split("T")[0],
+            "Date Fin": conge.dateFin.toISOString().split("T")[0],
+            "Type de Congé": conge.type.designType,
+            "Statut": conge.statuts.designStatut,
+        }));
+
+        // Générer le classeur Excel
+        const worksheet = XLSX.utils.json_to_sheet(formattedData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Congés_etab");
+
+        // Créer un dossier spécifique pour stocker le fichier
+        const folderPath = path.join(__dirname, '../../conge_annuel');
+        if (!fs.existsSync(folderPath)) {
+          fs.mkdirSync(folderPath, { recursive: true });
+        }
+
+        // Sauvegarder le fichier Excel dans le dossier
+        const filePath = path.join(folderPath, `conges_annuel_etablissement_${idEtab}_${year}.xlsx`);
+        XLSX.writeFile(workbook, filePath);
+    
+      }
+    
 }

@@ -2,7 +2,6 @@
 import { Button, Popover, PopoverTrigger, PopoverContent, Pagination, Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import Link from "next/link";
 import React, { useEffect, useState, useCallback } from "react";
-import { ExportIcon } from "@/components/icons/accounts/export-icon";
 import { UsersIcon } from "@/components/icons/breadcrumb/users-icon";
 import { TableWrapper } from "@/components/table/table";
 import { colManager } from "../table/data";
@@ -116,10 +115,23 @@ export const Accounts = () => {
         </div>
         <div className="flex flex-row gap-3.5 flex-wrap">
           <div className="flex items-center gap-4 self-end">
-            <Popover placement="left" showArrow={true} className="filter2">
+            <Popover placement="bottom" showArrow={true} className="sort">
               <PopoverTrigger>
                 <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
+                  <Image src="/sort.png" alt="sort" width={24} height={24} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="p-2 flex flex-col gap-2 w-[150px]">
+                <Button variant="flat" onClick={() => handleSortClick('ASC')} className="w-full" color={selectedSort === 'ASC' ? 'primary' : 'default'}>ASC</Button>
+                <Button variant="flat" onClick={() => handleSortClick('DESC')} className="w-full" color={selectedSort === 'DESC' ? 'primary' : 'default'}>DESC</Button>
+              </PopoverContent>
+            </Popover>
+
+            <Popover placement="left" showArrow={true} className="filter2">
+              <PopoverTrigger>
+                <button type="button" className="py-2 px-4 gap-2 flex items-center justify-center rounded-lg bg-[#0070f0]">
                   <Image src="/filter.png" alt="filtre" width={20} height={20} />
+                  <span className="text-white">Filtrer</span>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="p-4 flex flex-col gap-3">
@@ -141,22 +153,7 @@ export const Accounts = () => {
                 <Button variant="flat" className="w-full" color="primary" onPress={handleFiltrer}>Filtrer</Button>
               </PopoverContent>
             </Popover>
-
-            <Popover placement="bottom" showArrow={true} className="sort">
-              <PopoverTrigger>
-                <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full bg-[#0070f0]">
-                  <Image src="/sort.png" alt="sort" width={24} height={24} />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="p-2 flex flex-col gap-2 w-[150px]">
-                <Button variant="flat" onClick={() => handleSortClick('ASC')} className="w-full" color={selectedSort === 'ASC' ? 'primary' : 'default'}>ASC</Button>
-                <Button variant="flat" onClick={() => handleSortClick('DESC')} className="w-full" color={selectedSort === 'DESC' ? 'primary' : 'default'}>DESC</Button>
-              </PopoverContent>
-            </Popover>
           </div>
-          <Button color="primary" startContent={<ExportIcon />}>
-            Exporter
-          </Button>
         </div>
       </div>
       <div className="max-w-[95rem] mx-auto w-full">

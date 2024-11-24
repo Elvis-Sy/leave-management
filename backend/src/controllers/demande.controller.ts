@@ -450,12 +450,31 @@ export class DemandeController {
             const annee = donnee.annee
             await this.demandeService.exportCongesCSV(parseInt(idEmploye), annee);
             return {
-                message: "Fichier Csv exportee",
+                message: "Fichier excel exporté",
             }
         } catch (error) {
             console.error('Erreur de solde:', error);
             return{
-                message: error.message
+                cause: error.message
+            }
+            
+        }
+    }
+
+    @Post('exportEtab')
+    @Roles(Role.ADMIN) //Admin
+    async exportCsvEtab(@Body() donnee){
+        try {
+            const idEtab = donnee.idEtab
+            const annee = donnee.annee
+            await this.demandeService.exportCongesCSVEtab(parseInt(idEtab), annee);
+            return {
+                message: "Fichier excel exporté",
+            }
+        } catch (error) {
+            console.error('Erreur de solde:', error);
+            return{
+                cause: error.message
             }
             
         }

@@ -98,7 +98,8 @@ export class EmployeService {
           },
           etablissement: {
             select: {
-              designEtablissement: true
+              designEtablissement: true,
+              section: true
             }
           }
         },
@@ -115,7 +116,7 @@ export class EmployeService {
           photo: data.photoProfile ? data.photoProfile : "avatar.png",
           photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
           DateEmb: data.dateEmbauche,
-          Etablissement: data.etablissement.designEtablissement,
+          Etablissement: data.etablissement.section == "Departement" ? `Dpt ${data.etablissement.designEtablissement}` : `Direct. ${data.etablissement.designEtablissement}`,
           poste: data.poste.designPoste,
         }
       })
@@ -152,7 +153,8 @@ export class EmployeService {
           },
           etablissement: {
             select: {
-              designEtablissement: true
+              designEtablissement: true,
+              section: true
             }
           }
         },
@@ -168,7 +170,7 @@ export class EmployeService {
           photo: data.photoProfile ? data.photoProfile : "avatar.png",
           photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
           DateEmb: data.dateEmbauche,
-          Etablissement: data.etablissement.designEtablissement,
+          Etablissement: data.etablissement.section == "Departement" ? `Dpt ${data.etablissement.designEtablissement}` : `Direct. ${data.etablissement.designEtablissement}`,
           poste: data.poste.designPoste,
         }
       })
@@ -241,7 +243,8 @@ export class EmployeService {
           },
           etablissement: {
             select: {
-              designEtablissement: true
+              designEtablissement: true,
+              section: true
             }
           }
         }
@@ -259,7 +262,7 @@ export class EmployeService {
           name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
           email: data.compte.email,
           photo: data.photoProfile ? data.photoProfile : "avatar.png",
-          etablissement: data.etablissement.designEtablissement,
+          etablissement: data.etablissement.section == "Departement" ? `Dpt ${data.etablissement.designEtablissement}` : `Direct. ${data.etablissement.designEtablissement}`,
           nbrSub: data.subordonne.length,
           poste: data.poste.designPoste,
         }
@@ -380,7 +383,8 @@ export class EmployeService {
             },
             etablissement: {
               select: {
-                designEtablissement: true
+                designEtablissement: true,
+                section: true
               }
             }
           },
@@ -396,7 +400,7 @@ export class EmployeService {
             photo: data.photoProfile ? data.photoProfile : "avatar.png",
             photoManager: data.manager ? data.manager.photoProfile ? data.manager.photoProfile : "avatar.png" : null,
             DateEmb: data.dateEmbauche,
-            Etablissement: data.etablissement.designEtablissement,
+            Etablissement: data.etablissement.section == "Departement" ? `Dpt ${data.etablissement.designEtablissement}` : `Direct. ${data.etablissement.designEtablissement}`,
             poste: data.poste.designPoste,
           }
         })
@@ -449,7 +453,8 @@ export class EmployeService {
             },
             etablissement: {
               select: {
-                designEtablissement: true
+                designEtablissement: true,
+                section: true
               }
             }
           }
@@ -462,7 +467,7 @@ export class EmployeService {
             name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
             email: data.compte.email,
             photo: data.photoProfile ? data.photoProfile : "avatar.png",
-            etablissement: data.etablissement.designEtablissement,
+            etablissement: data.etablissement.section == "Departement" ? `Dpt ${data.etablissement.designEtablissement}` : `Direct. ${data.etablissement.designEtablissement}`,
             nbrSub: data._count.subordonne,
             poste: data.poste.designPoste,
           }
