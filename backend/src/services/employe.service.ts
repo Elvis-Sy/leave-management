@@ -112,6 +112,7 @@ export class EmployeService {
         return {
           id: data.idEmploye,
           employeId: data.CIN,
+          matricule: data.matricule,
           name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
           email: data.compte.email,
           manager: data.manager ? data.manager.prenom ? `${data.manager.prenom}` : `${data.manager.nom}` : null,
@@ -224,6 +225,7 @@ export class EmployeService {
           isArchive: false,
         },
         select: {
+          matricule: true,
           idEmploye: true,
           nom: true,
           prenom: true,
@@ -261,6 +263,7 @@ export class EmployeService {
       const rows = managers.map((data)=>{
         return {
           id: data.idEmploye,
+          matricule: data.matricule,
           managerId: data.CIN,
           name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
           email: data.compte.email,
@@ -397,6 +400,7 @@ export class EmployeService {
           return {
             id: data.idEmploye,
             employeId: data.CIN,
+            matricule: data.matricule,
             name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
             email: data.compte.email,
             manager: data.manager ? `${data.manager.nom}` : null,
@@ -437,6 +441,7 @@ export class EmployeService {
           where: whereClause,
           select: {
             idEmploye: true,
+            matricule: true,
             nom: true,
             prenom: true,
             CIN: true,
@@ -467,6 +472,7 @@ export class EmployeService {
           return {
             id: data.idEmploye,
             managerId: data.CIN,
+            matricule: data.matricule,
             name: data.prenom ? `${data.nom} ${data.prenom}` : `${data.nom}`,
             email: data.compte.email,
             photo: data.photoProfile ? data.photoProfile : "avatar.png",
@@ -705,6 +711,7 @@ export class EmployeService {
         select: {
           nom: true,
           prenom: true,
+          matricule: true,
           photoProfile: true,
           compte: {
             select: {
@@ -739,6 +746,7 @@ export class EmployeService {
       const information = {
         nom: info.nom,
         prenom: info.prenom,
+        matricule: info.matricule,
         sexe: info.sexe,
         CIN: info.CIN,
         email: info.compte.email,
@@ -965,6 +973,7 @@ export class EmployeService {
       return {
         nom: first.nom,
         prenom: first.prenom,
+        matricule: first.matricule,
         CIN: first.CIN,
         email: first.email,
         manager: manager,
