@@ -35,6 +35,8 @@ export class EmployeService {
 
       const existe = await this.prisma.compte_Utilisateur.findUnique({ where: { email } });
       if (existe) throw new ConflictException('Employe possedant deja un compte');
+
+      const matricule = await this.generateMatricule();
   
       // Generer le token
       const token = this.jwtService.sign({ email }, { secret: "congeSPAT", expiresIn: '48h' });
@@ -45,6 +47,7 @@ export class EmployeService {
       await this.prisma.employes.create({
         data: {
           ...employeData,
+          matricule,
           photoProfile: p0?.profile,
           manager: idManager ? { connect: { idEmploye: idManager } } : undefined,
           poste: { connect: { idPoste: idposte } },
@@ -1036,6 +1039,25 @@ export class EmployeService {
       this.reinitialisation()
         .then(() => console.log('Soldes de congé payé réinitialisés'))
         .catch((error) => console.error('Erreur lors de la réinitialisation des soldes :', error));
+    }
+
+    // Fonction pour générer un matricule unique
+    private async generateMatricule(): Promise<string> {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+      
+      const count = await this.prisma.employes.count({
+          where: {
+              createdAt: {
+                  gte: new Date(`${currentYear}-${currentMonth}-01`),
+                  lt: new Date(`${currentYear}-${(parseInt(currentMonth) + 1).toString().padStart(2, '0')}-01`),
+              },
+          },
+      });
+
+      const numero = (count + 1).toString().padStart(2, '0');
+      return `${currentYear}${currentMonth}${numero}`;
     }
 
     async updateRoleIfNeeded(employeId: number) {

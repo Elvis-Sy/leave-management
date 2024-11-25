@@ -36,6 +36,7 @@ enum Section {
 //UTILISATEUR////////////////////////////
 model Employes {
   idEmploye    Int      @id @default(autoincrement())
+  matricule String?   @unique
   nom          String   @db.VarChar(100)
   prenom       String?  @db.VarChar(100)
   sexe         String   @db.Char(2)
@@ -43,6 +44,7 @@ model Employes {
   dateEmbauche DateTime?
   periodeEssai Boolean
   photoProfile String?
+  createdAt     DateTime? @default(now())
 
   idManager  Int?
   manager    Employes?  @relation("Hierarchie", fields: [idManager], references: [idEmploye])

@@ -11,20 +11,20 @@ export class MailerService {
 
         // local pour les tests
         // const testAccount = await nodemailer.createTestAccount()
-        // const transport = nodemailer.createTransport({
-        //     host: "localhost", // Par exemple, MailHog tourne souvent sur localhost
-        //     port: 1025,        // Le port de MailHog ou smtp4dev
-        //     ignoreTLS: false,
-        //     auth: null
-        // });
-
         const transport = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'andriamanantena48@gmail.com',  // Remplacez par votre email
-                pass: 'rdxvyqlvttexlzov',   // Remplacez par votre mot de passe ou un mot de passe d'application
-            },
+            host: "localhost", // Par exemple, MailHog tourne souvent sur localhost
+            port: 1025,        // Le port de MailHog ou smtp4dev
+            ignoreTLS: false,
+            auth: null
         });
+
+        // const transport = nodemailer.createTransport({
+        //     service: 'gmail',
+        //     auth: {
+        //         user: 'andriamanantena48@gmail.com',  // Remplacez par votre email
+        //         pass: 'rdxvyqlvttexlzov',   // Remplacez par votre mot de passe ou un mot de passe d'application
+        //     },
+        // });
 
 
         return transport;
@@ -35,25 +35,97 @@ export class MailerService {
         await (await transporter).sendMail({
             from: "spatDRH@gmail.com",
             to: employeEmail,
-            subject: "Inscription",
+            subject: "Bienvenue dans le système de gestion des congés - SPAT",
             html: `<!DOCTYPE html>
-                    <html lang="en">
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <title>Lien de confirmation</title>
-                    </head>
-                    <body style="padding: 10px;">
-                        <h1 style="color: #1d71b8; font-size:medium; font-family: sans-serif;">Gestion de congés</h1>
-                        <p style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 400; font-size:medium;">
-                            Bonjour Monsieur/Madame <span style="font-weight: 500;">${nom}</span>, <br/>
-                            Vous avez été enregistré dans notre système dans le but de faciliter les demandes de congés. <br/>
-                            Pour finaliser votre enregistrement, veuillez suivre le lien de confirmation suivant et configurer votre mot de passe:
-                        </p>
-                        <a href='http://localhost:3000/register/${token}' style="color: #1d72b8ad; font-size: larger; margin-left: 10px;">Lien de confirmation...</a> <br>
-                        <p style="color: gray; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; "><span style="font-weight: 500;">NB:</span> Le lien ne sera plus valide après les prochaines 48h.</p>
-                    </body>
-                    </html>`
+                <html lang="fr">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Confirmation d'inscription</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            background-color: #f7f9fc;
+                            color: #333;
+                            line-height: 1.6;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .email-container {
+                            max-width: 600px;
+                            margin: 20px auto;
+                            padding: 20px;
+                            background: #ffffff;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                        }
+                        .header {
+                            background-color: #1d71b8;
+                            color: #fff;
+                            padding: 10px;
+                            text-align: center;
+                            border-radius: 8px 8px 0 0;
+                        }
+                        .header h1 {
+                            margin: 0;
+                            font-size: 24px;
+                        }
+                        .content {
+                            padding: 20px;
+                        }
+                        .content p {
+                            margin: 15px 0;
+                        }
+                        .content a {
+                            display: inline-block;
+                            background-color: #1d71b8;
+                            color: #fff;
+                            text-decoration: none;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            font-size: 16px;
+                            margin-top: 10px;
+                        }
+                        .content a:hover {
+                            background-color: #155a8e;
+                        }
+                        .footer {
+                            text-align: center;
+                            color: #777;
+                            font-size: 12px;
+                            margin-top: 20px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="email-container">
+                        <div class="header">
+                            <h1>Bienvenue chez SPAT</h1>
+                        </div>
+                        <div class="content">
+                            <p>Bonjour <strong>${nom}</strong>,</p>
+                            <p>
+                                Nous sommes ravis de vous accueillir dans notre système de gestion des congés.
+                                Cet outil vous permettra de gérer facilement vos demandes de congés et bien plus encore.
+                            </p>
+                            <p>
+                                Pour finaliser votre inscription et configurer votre mot de passe, veuillez cliquer sur le bouton ci-dessous :
+                            </p>
+                            <a href="http://localhost:3000/register/${token}" target="_blank">
+                                Finaliser mon inscription
+                            </a>
+                            <p>
+                                <strong>Note :</strong> Ce lien est valable uniquement pour les prochaines <strong>48 heures</strong>. Passé ce délai, il expirera automatiquement.
+                            </p>
+                        </div>
+                        <div class="footer">
+                            <p>© ${new Date().getFullYear()} SPAT - Tous droits réservés.</p>
+                            <p>Ceci est un email automatique. Merci de ne pas y répondre.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>`
         })
     }
 }
