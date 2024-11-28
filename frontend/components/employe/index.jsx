@@ -105,7 +105,12 @@ export const EmployePage = React.memo(() => {
     const filtered = tempRow.filter((item) =>
       item.name.toLowerCase().includes(val.toLowerCase())
     );
-    setRow(filtered);
+    if(filtered.length > 0){
+      setRow(filtered);
+    } else {
+      setRow(tempRow.filter((item) => item.matricule.includes(val)))
+    }
+    
   };
 
   const filtreEmploye = async (etablissement = "", dateDebut = "", dateFin = "") => {

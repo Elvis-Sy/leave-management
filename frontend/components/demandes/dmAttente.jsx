@@ -249,11 +249,11 @@ export const DMAttente = () => {
       </div>
 
       <Modal isOpen={openModal == "AcceptModal"} onClose={onClose} size="sm">
-        <AccepModal onClose={onClose} id={idSupp} reload={allAttente}/>
+        <AccepModal onClose={onClose} id={idSupp} reload={()=>allAttente(localStorage.getItem('id'))}/>
       </Modal>
       
       <Modal isOpen={openModal == "RefuseModal"} onClose={onClose} size="sm">
-        <RefuseModal onClose={onClose} id={idSupp} reload={allAttente}/>
+        <RefuseModal onClose={onClose} id={idSupp} reload={()=>allAttente(localStorage.getItem('id'))}/>
       </Modal>
 
     </div>

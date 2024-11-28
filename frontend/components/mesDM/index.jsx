@@ -250,12 +250,12 @@ const MesDemandes = () => {
                         initialVisibleMonth={new Date()}
                         rangeSeparator=" to "
                         classNames={{
-                        timeInputLabel: 'hidden',
-                        input: 'hidden',
-                        separator: 'hidden',
-                        timeInput: 'hidden',
-                        inputWrapper: 'bg-transparent w-fit hover:bg-transparent active:bg-transparent shadow-none',
-                        innerWrapper: 'w-fit bg-transparent'
+                          timeInputLabel: 'hidden',
+                          input: 'hidden',
+                          separator: 'hidden',
+                          timeInput: 'hidden',
+                          inputWrapper: 'bg-transparent w-fit hover:bg-transparent active:bg-transparent shadow-none',
+                          innerWrapper: 'w-fit bg-transparent',
                         }}
                     />
                 </div>

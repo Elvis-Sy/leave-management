@@ -77,7 +77,12 @@ export const Accounts = () => {
   }, [etablissement, allManager]);
 
   const searchManager = useCallback((val) => {
-    setRow(tempRow.filter((item) => item.name.toLowerCase().includes(val.toLowerCase())));
+    const temp = tempRow.filter((item) => item.name.toLowerCase().includes(val.toLowerCase()));
+    if(temp.length > 0){
+      setRow(temp);
+    } else {
+      setRow(tempRow.filter((item) => item.matricule.includes(val)))
+    }
   }, [tempRow]);
 
   const handleSortClick = useCallback((order) => {

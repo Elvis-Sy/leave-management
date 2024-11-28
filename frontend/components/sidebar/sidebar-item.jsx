@@ -22,7 +22,7 @@ export const SidebarItem = React.memo(({ icon, title, isActive, href = "", role 
   };
 
   // Vérification de la visibilité de l'élément
-  const isVisible = userRole === role;
+  const isVisible = role.includes(userRole);
 
   // Classes conditionnelles optimisées
   const itemClasses = clsx(

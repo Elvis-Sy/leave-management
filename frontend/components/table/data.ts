@@ -4,6 +4,11 @@ export const colManager =[
      uid: "info"
    },
    {
+     name: "Matricule",
+     uid: "matricule", 
+     className:"hidden md:table-cell"
+   },
+   {
      name: "Effectifs",
      uid: "nbrSub", 
      className:"hidden md:table-cell"
@@ -24,6 +29,11 @@ export const colEmploye =[
      name: "Info",
      uid: "info"
    },
+  //  {
+  //    name: "Matricule",
+  //    uid: "matricule", 
+  //    className:"hidden md:table-cell"
+  //  },
    {
      name: "Date Embauche",
      uid: "DateEmb", 
@@ -50,6 +60,11 @@ export const colEmploye =[
     name: "Info",
     uid: "info"
   },
+  // {
+  //   name: "Matricule",
+  //   uid: "matricule", 
+  //   className:"hidden md:table-cell"
+  // },
   {
     name: "Date Embauche",
     uid: "DateEmb", 

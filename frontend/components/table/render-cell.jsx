@@ -20,6 +20,12 @@ export const RenderCell = ({ user, columnKey }) => {
         }}
         />
       );
+    case "matricule":
+      return(
+        <div className="hidden md:table-cell">
+          <span>{user.matricule}</span>
+        </div>
+      )
     case "nbrSub":
       return (
         <div className="hidden md:table-cell">

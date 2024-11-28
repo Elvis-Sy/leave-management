@@ -16,7 +16,7 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
     //Formater la date
     const formatDate = (date)=>{
         const temp = date ? new Date(date) : new Date();
-        return format(temp, "dd-MM-yyyy", {locale: fr})
+        return format(temp, "dd/MM/yyyy", {locale: fr})
     }
 
   const cellValue = user[columnKey];
@@ -31,6 +31,12 @@ export const RenderCell = ({ user, columnKey, onOpen, setId }) => {
             }}
         />
       );
+    // case "matricule":
+    //   return (
+    //     <div className="hidden md:table-cell">
+    //       <span className="text-left">{user.matricule}</span>
+    //     </div>
+    //   )
     case "DateEmb":
       return (
         <div className="hidden md:table-cell">

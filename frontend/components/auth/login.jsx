@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { Input, Modal, ModalContent, ModalHeader, ModalFooter, useDisclosure, ModalBody, Button } from '@nextui-org/react';
+import { Input, Button } from '@nextui-org/react';
 import { getAttributesToken } from '../../helpers/attributesToken';
 import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
@@ -15,7 +15,6 @@ import { AccountsIcon } from '../icons/sidebar/accounts-icon';
 const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [errorMessage, setErrorMessage] = useState({});
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const formRef = useRef(null);
   const router = useRouter();
   
@@ -67,7 +66,7 @@ const Login = () => {
             goEmploye();
             break;
           case 'Manager':
-            onOpen();
+            goManager();
             break;
           default:
             break;
@@ -165,18 +164,6 @@ const Login = () => {
             className="self-center rounded-lg -z-10 opacity-80"
           />
       </div>
-
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='top'>
-        <ModalContent>
-          <ModalHeader className='flex gap-2 bg-bleuspat text-white justify-center'>Se connecter en tant que:</ModalHeader>
-          <ModalBody>
-            <div className="flex gap-8 items-center justify-between px-10 py-4">
-              <Button color='primary' variant='flat' className='font-medium' onPress={goEmploye}><CustomersIcon bgFill='fill-blue-500'/> Employe</Button>
-              <Button color='primary' variant='flat' className='font-medium' onPress={goManager}><AccountsIcon bgFill='fill-blue-500'/> Manager</Button> 
-            </div>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </div>
   );
 }

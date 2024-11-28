@@ -429,7 +429,7 @@ export class DemandeService {
             total[`count${curr.statutId}`] = curr._count.statutId;
         });
 
-        this.notification.demandeNotifAdmin();
+        await this.notification.demandeNotifAdmin();
 
         return total;
     }

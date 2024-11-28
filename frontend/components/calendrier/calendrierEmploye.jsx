@@ -15,10 +15,13 @@ const CalendrierEmploye = () => {
 
     const [actif, setActif] = useState([])
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [role, setRole] = useState('')
 
     useEffect(()=>{
         const id = localStorage.getItem('id')
+        const role = localStorage.getItem('role')
         if(id){
+          setRole(role)
           allConge(id);
         }
     }, [])
@@ -110,6 +113,9 @@ const CalendrierEmploye = () => {
 
   return (
     <div className='m-4 my-8'>
+        {role == "Manager" && 
+          <h1 className='text-3xl font-semibold pb-6'>Mon équipe</h1>
+        }
         <div className="flex gap-4 mb-4">
             <div className="flex gap-2 items-center">
                 <div className="w-4 h-4 bg-[#add8e6] rounded-full"></div>
