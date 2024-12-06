@@ -48,15 +48,15 @@ export const SidebarWrapper = () => {
               icon={<HomeIcon />}
               isActive={pathname === "/accueil"}
               href="/accueil"
-              role={['Employe']}
+              role={['Employe', 'Manager']}
             />
-            <SidebarItem
+            {/* <SidebarItem
               title="Accueil"
               icon={<HomeIcon />}
               isActive={pathname === "/home"}
               href="/home"
               role={['Manager']}
-            />
+            /> */}
             <SidebarMenu title="Pages principales">
               <SidebarItem
                 isActive={pathname.startsWith("/managers")}

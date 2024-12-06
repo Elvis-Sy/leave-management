@@ -10,10 +10,11 @@ import { NotificationService } from 'src/utils/notifications/notification.servic
 import * as fs from 'fs';
 import * as path from 'path';
 import * as XLSX from 'xlsx';
+import { MailerService } from 'src/utils/mailer/mailer.service';
 
 @Injectable()
 export class DemandeService {
-    constructor(private readonly prisma: PrismaService, private readonly notification: NotificationService){}
+    constructor(private readonly prisma: PrismaService, private readonly notification: NotificationService, private readonly mailer: MailerService){}
 
     //Ajout demandes
     async addDemande(demandeDto: AddDemandeDto){
@@ -156,6 +157,8 @@ export class DemandeService {
           }
         });
 
+        await this.notification.demandeNotifAdmin();
+
 
         return dm;
     }
@@ -217,6 +220,8 @@ export class DemandeService {
           dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR'),
         }
       });
+
+      await this.notification.demandeNotifManager(idManager);
 
 
       return dm;
@@ -1177,6 +1182,8 @@ export class DemandeService {
             },
           });
 
+          await this.notification.demandeNotifManager(parseInt(idEmploye))
+
           await this.prisma.historiquesActions.create({
               data: {
               ancienneValeur: 'En attente',
@@ -1188,7 +1195,6 @@ export class DemandeService {
               },
           });
 
-          await this.notification.demandeNotifManager(parseInt(idEmploye))
         } else {
           const updateSoldeConges = async (employeId:number, typeId: number, adjustment) => {
             const solde = await this.prisma.soldesConges.findUnique({
@@ -1223,13 +1229,31 @@ export class DemandeService {
             }
           });
 
-          await this.prisma.demandesConges.update({
+          const detail = await this.prisma.demandesConges.update({
             where: { idDemande },
             data: {
                 statutId: statut.idStatut,
                 dateConfirmation: new Date(),
             },
           });
+
+          const emp = await this.prisma.employes.findUnique({
+            where: { idEmploye: detail.employeId },
+            select: {
+              nom: true,
+              prenom: true,
+              compte: {
+                select: {
+                  email: true
+                }
+              }
+            }
+          });
+
+          const name = emp.prenom ? `${emp.nom} ${emp.prenom}` : emp.nom;
+
+          await this.notification.demandeNotifAdmin();
+          await this.mailer.sendLeaveRequestResponse(emp.compte.email, name, 'Approuvée')
 
           // Récupération de la demande de congé
           const demande = await this.prisma.demandesConges.findUnique({
@@ -1256,7 +1280,6 @@ export class DemandeService {
               },
           });
 
-          await this.notification.demandeNotifAdmin();
         }
       }
 
@@ -1272,7 +1295,7 @@ export class DemandeService {
           }
         });
 
-        await this.prisma.demandesConges.update({
+        const detail = await this.prisma.demandesConges.update({
             where: { idDemande },
             data: {
             statutId: statut.idStatut, 
@@ -1280,6 +1303,23 @@ export class DemandeService {
             motifRefus: motif
             },
         });
+
+        const emp = await this.prisma.employes.findUnique({
+          where: { idEmploye: detail.employeId },
+          select: {
+            nom: true,
+            prenom: true,
+            compte: {
+              select: {
+                email: true
+              }
+            }
+          }
+        });
+
+        const name = emp.prenom ? `${emp.nom} ${emp.prenom}` : emp.nom;
+
+        await this.mailer.sendLeaveRequestResponse(emp.compte.email, name, 'Refusée', motif)
 
         if(idEmploye != 'null'){
             await this.prisma.historiquesActions.create({

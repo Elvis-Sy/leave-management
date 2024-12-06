@@ -199,13 +199,14 @@ export class EmployeService {
         select: {
           nom: true,
           prenom: true,
-          idEmploye: true
+          idEmploye: true,
+          matricule: true
         }
       })
 
       const name = noms.map((item)=>{
         return {
-          label: item.prenom ? `${item.idEmploye}- ${item.nom} ${item.prenom}` : `${item.idEmploye}- ${item.nom}`,
+          label: item.prenom ? `${item.matricule}- ${item.nom} ${item.prenom}` : `${item.matricule}- ${item.nom}`,
           value: item.idEmploye
         }
       })
@@ -782,6 +783,8 @@ export class EmployeService {
         },
       });
 
+      await this.notification.demandeNotifManager(idManager)
+
       return {
         attente: pendingRequestsCount,
         total: subordinatesCount
@@ -970,6 +973,8 @@ export class EmployeService {
         manager = temp[1];
       }
 
+      await this.notification.demandeNotifManager(idEmploye)
+
       return {
         nom: first.nom,
         prenom: first.prenom,
@@ -1054,19 +1059,29 @@ export class EmployeService {
     private async generateMatricule(): Promise<string> {
       const now = new Date();
       const currentYear = now.getFullYear();
-      const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+      const currentMonth = now.getMonth();
+
+      // Date du début du mois actuel
+      const startOfMonth = new Date(currentYear, currentMonth, 1);
+
+      // Date du début du mois suivant
+      const startOfNextMonth = currentMonth === 11 // Si décembre
+        ? new Date(currentYear + 1, 0, 1) // Passer au 1er janvier de l'année suivante
+        : new Date(currentYear, currentMonth + 1, 1); // Mois suivant
       
       const count = await this.prisma.employes.count({
           where: {
               createdAt: {
-                  gte: new Date(`${currentYear}-${currentMonth}-01`),
-                  lt: new Date(`${currentYear}-${(parseInt(currentMonth) + 1).toString().padStart(2, '0')}-01`),
+                gte: startOfMonth,
+                lt: startOfNextMonth,
               },
           },
       });
 
+      // Générer le matricule
       const numero = (count + 1).toString().padStart(2, '0');
-      return `${currentYear}${currentMonth}${numero}`;
+      const formattedMonth = (currentMonth + 1).toString().padStart(2, '0');
+      return `${currentYear}${formattedMonth}${numero}`;
     }
 
     async updateRoleIfNeeded(employeId: number) {

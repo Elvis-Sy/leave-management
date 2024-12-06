@@ -75,7 +75,7 @@ export const CollapseItems = React.memo(({ icon, items, title, isActive, role })
                 <span>{title}</span>
               </div>
               {nb > 0 && (
-                <span className="flex items-center justify-center font-semibold w-7 h-7 text-[11px] text-white bg-bleuspat/80 rounded-full">
+                <span className="flex items-center justify-center font-semibold w-7 h-7 text-[11px] text-white bg-red-500/90 rounded-full">
                   {nb > 99 ? "99+" : nb}
                 </span>
               )}

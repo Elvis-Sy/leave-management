@@ -58,7 +58,7 @@ const InfoFoot = () => {
       };
 
   return (
-    <div className="h-[315px] bg-default-50 rounded-lg m-8 p-8">
+    <div className="bg-default-50 rounded-lg m-4 p-8">
         {info != null ? (
             <>
                 <div className="flex justify-between gap-10">

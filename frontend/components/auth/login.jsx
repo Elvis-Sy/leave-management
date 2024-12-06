@@ -9,8 +9,6 @@ import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Image from 'next/image';
-import { CustomersIcon } from '../icons/sidebar/customers-icon';
-import { AccountsIcon } from '../icons/sidebar/accounts-icon';
 
 const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -33,11 +31,10 @@ const Login = () => {
 
   const goManager = useCallback(() => {
     toast.success("Connexion...", toastConfig);
-    router.push('/home');
+    router.push('/accueil');
   }, [router, toastConfig]); // Ajout de toastConfig comme dépendance
 
   const goEmploye = useCallback(() => {
-    localStorage.setItem('role', 'Employe');
     toast.success("Connexion...", toastConfig);
     router.push('/accueil');
   }, [router, toastConfig]); // Ajout de toastConfig comme dépendance
