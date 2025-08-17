@@ -39,7 +39,7 @@ model Employes {
   matricule String   @unique
   nom          String   @db.VarChar(100)
   prenom       String?  @db.VarChar(100)
-  sexe         String   @db.Char(2)
+  sexe         String   @db.Char(1)
   CIN          String @unique
   dateEmbauche DateTime?
   periodeEssai Boolean

@@ -15,7 +15,7 @@ const History = () => {
   const [row, setRow] = useState([])
   const [tempRow, setTempRow] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
-  const rowsPerPage = 7 // Nombre de lignes par page
+  const rowsPerPage = 6 // Nombre de lignes par page
   const [dateDebut, setDateDebut] = useState('');
   const [dateFin, setDateFin] = useState('');
   const [selectedAction, setSelectedAction] = useState('');

@@ -307,7 +307,7 @@ export const EmployePage = React.memo(() => {
            className="rounded-md"/>
       </div>
 
-      <Modal isOpen={openModal == "ajoutModal"} onClose={onClose} size="2xl">
+      <Modal isOpen={openModal == "ajoutModal"} onClose={onClose} size="5xl">
         <NewEmploye onClose={onClose} reload={reloadData} />
       </Modal>
 
@@ -319,7 +319,7 @@ export const EmployePage = React.memo(() => {
         <ExcelModal onClose={onClose} id={idSupp}/>
       </Modal>
 
-      <Modal isOpen={openModal == "modifModal"} onClose={onClose} size="2xl">
+      <Modal isOpen={openModal == "modifModal"} onClose={onClose} size="5xl">
         <ModifEmploye onClose={onClose} idEmploye={idSupp} all={reloadData} />
       </Modal>
     </div>

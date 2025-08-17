@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@nextui-org/react';
 import axios from 'axios';
 import Image from 'next/image';
+import { toast } from 'react-toastify';
 
 // Création d'une instance Axios avec des configurations par défaut
 const axiosInstance = axios.create({
@@ -23,6 +24,16 @@ const AcceptModal = ({ onClose, id, reload }) => {
             const response = await axiosInstance.patch(query, {});
 
             console.log(response.data.message);
+            toast.success(`${response.data.message}`, {
+                position: "top-right",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                style: {fontSize: "bolder", fontWeight: "bolder"}
+              });
             onClose();
             reload();
         } catch (error) {

@@ -10,7 +10,7 @@ export const RenderCell = ({ user, columnKey }) => {
   switch (columnKey) {
     case "responsable":
       return (
-        <div className="p-2">
+        <div className="p-3">
             <p>{user.genre ? user.genre == "M" ? `Mr ${user.responsable}` : `Mme ${user.responsable}` : '-/-'}</p>
         </div>
       );

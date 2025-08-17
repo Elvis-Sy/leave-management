@@ -3,6 +3,7 @@ import {ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Textarea} fro
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
+import { toast } from 'react-toastify';
 
 const RefuseModal = ({onClose, id, reload}) => {
 
@@ -27,6 +28,16 @@ const RefuseModal = ({onClose, id, reload}) => {
             });
 
             console.log(response.data.message)
+            toast.success(`${response.data.message}`, {
+                position: "top-right",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                style: {fontSize: "bolder", fontWeight: "bolder"}
+            });
             onClose()
             reload()
     

@@ -199,191 +199,195 @@ const NewEmploye = ({onClose, reload}) => {
             <>
               <ModalHeader className="flex flex-col gap-1 bg-bleuspat text-white">Nouvel(le) Employé(e)</ModalHeader>
               <ModalBody>
-              <form onSubmit={handleSubmit(onSubmit)} ref={formRef}> 
-                <h1 className='text-bleuspat font-medium'>Informations personnelles:</h1>
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center">
-                    <div className='h-full w-1/2 p-2'>
-                        {/* Label pour le file */}
-                        <label onClick={handleImageClick} className='group dark:text-white hover:underline flex gap-2 items-center font-semibold mb-2 text-sm'>
-                        <div id='preview' className='flex justify-center items-center w-20 h-20 rounded-full bg-gray-400 group-hover:bg-gray-500 bg-cover bg-center'>
-                        </div>
-                            Joindre une photo de profil
-                        </label>
+              <form onSubmit={handleSubmit(onSubmit)} ref={formRef} className='flex flex-col lg:flex-row gap-4 h-full'> 
+                <div className="">
+                  <h1 className='text-bleuspat font-medium'>Informations personnelles:</h1>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center">
+                      <div className='h-full w-1/2 p-2'>
+                          {/* Label pour le file */}
+                          <label onClick={handleImageClick} className='group dark:text-white hover:underline flex gap-2 items-center font-semibold mb-2 text-sm'>
+                          <div id='preview' className='flex justify-center items-center w-24  h-20 rounded-full bg-gray-400 group-hover:bg-gray-500 bg-cover bg-center'>
+                          </div>
+                              Joindre une photo de profil
+                          </label>
 
-                        {/* Input file */}
-                        <input className='hidden' id='img' ref={fileInputRef} name='img' onChange={handleFileChange} type="file"/>
+                          {/* Input file */}
+                          <input className='hidden' id='img' ref={fileInputRef} name='img' onChange={handleFileChange} type="file"/>
+                      </div>
+                      <div className="flex w-1/2 flex-col gap-4">
+                        <Input
+                            isRequired
+                            label="Nom"
+                            variant="bordered"
+                            className="w-full font-semibold login"
+                            {...register('nom', { 
+                                required: 'Le nom est requis', 
+                            })}
+                            isInvalid={!!errors.nom}
+                            errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.nom ? errors.nom.message : ''}</span>}
+                        />
+
+                        <Input
+                            label="Prenom"
+                            variant="bordered"
+                            className="w-full font-semibold login"
+                            {...register('prenom')}
+                        />
+                      </div>
                     </div>
-                    <div className="flex w-1/2 flex-col gap-4">
-                      <Input
-                          isRequired
-                          label="Nom"
-                          variant="bordered"
-                          className="w-full font-semibold login"
-                          {...register('nom', { 
-                              required: 'Le nom est requis', 
-                          })}
-                          isInvalid={!!errors.nom}
-                          errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.nom ? errors.nom.message : ''}</span>}
-                      />
+                    <div className="flex flex-col gap-4">
+                    <div className="ml-4 font-semibold">
+                        <label className="block dark:text-white mb-2 text-gray-700">Genre de l&apos;employé <span className="text-red-500 text-sm">*</span> :</label>
+                        <div className="">
+                          <div className="flex">
+                            <label className="mr-4 font-normal">
+                              <input
+                                type="radio"
+                                value="M"
+                                className="mr-1 text-bleuspat"
+                                {...register('sexe', { required: "Le sexe est requis" })} 
+                              />
+                              Homme
+                            </label>
+                            <label className="mr-4 font-normal">
+                              <input
+                                type="radio"
+                                value="F"
+                                className="mr-1 text-bleuspat"
+                                {...register('sexe', { required: "Le sexe est requis" })} 
+                              />
+                              Femme
+                            </label>
+                          </div>
+                        </div>
+                        {errors.sexe && <span className="flex justify-start text-[#f31260] text-xs text-right">{errors.sexe.message}</span>}
+                      </div>
 
                       <Input
-                          label="Prenom"
-                          variant="bordered"
-                          className="w-full font-semibold login"
-                          {...register('prenom')}
+                        isRequired
+                        label="CIN"
+                        maxLength={12}
+                        variant="bordered"
+                        className="font-semibold login"
+                        {...register('CIN', {
+                          required: 'Le CIN est requis',
+                          minLength: {
+                            value: 12,
+                            message: 'Le CIN doit contenir exactement 12 caractères'
+                          },
+                          maxLength: {
+                            value: 12,
+                            message: 'Le CIN doit contenir exactement 12 caractères'
+                          },
+                          pattern: {
+                            value: /^[0-9]+$/,
+                            message: 'Le champ doit contenir uniquement des chiffres'
+                          },
+                          setValueAs: (value) => Number(value)
+                        })}
+                        isInvalid={!!errors.CIN}
+                        errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.CIN ? errors.CIN.message : ''}</span>}
                       />
                     </div>
                   </div>
-                  <div className="flex flex-col gap-4">
-                  <div className="ml-4 font-semibold">
-                      <label className="block dark:text-white mb-2 text-gray-700">Genre de l&apos;employé <span className="text-red-500 text-sm">*</span> :</label>
-                      <div className="">
-                        <div className="flex">
-                          <label className="mr-4 font-normal">
-                            <input
-                              type="radio"
-                              value="M"
-                              className="mr-1 text-bleuspat"
-                              {...register('sexe', { required: "Le sexe est requis" })} 
-                            />
-                            Homme
-                          </label>
-                          <label className="mr-4 font-normal">
-                            <input
-                              type="radio"
-                              value="F"
-                              className="mr-1 text-bleuspat"
-                              {...register('sexe', { required: "Le sexe est requis" })} 
-                            />
-                            Femme
-                          </label>
-                        </div>
-                      </div>
-                      {errors.sexe && <span className="flex justify-start text-[#f31260] text-xs text-right">{errors.sexe.message}</span>}
-                    </div>
-
+                </div> 
+                <div className="h-full border-2 border-bleuspat"></div>
+                <div className="">
+                  <h1 className='text-bleuspat font-medium my-2'>Informations professionnelles:</h1>
+                  <div className="">
                     <Input
                       isRequired
-                      label="CIN"
-                      maxLength={12}
+                      label="Email"
                       variant="bordered"
-                      className="font-semibold login"
-                      {...register('CIN', {
-                        required: 'Le CIN est requis',
-                        minLength: {
-                          value: 12,
-                          message: 'Le CIN doit contenir exactement 12 caractères'
-                        },
-                        maxLength: {
-                          value: 12,
-                          message: 'Le CIN doit contenir exactement 12 caractères'
-                        },
+                      className="w-full font-semibold login"
+                      {...register('email', { 
+                        required: 'Email requis', 
                         pattern: {
-                          value: /^[0-9]+$/,
-                          message: 'Le champ doit contenir uniquement des chiffres'
-                        },
-                        setValueAs: (value) => Number(value)
+                          value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                          message: 'Entrer un email valide'
+                        }
                       })}
-                      isInvalid={!!errors.CIN}
-                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.CIN ? errors.CIN.message : ''}</span>}
-                    />
-                  </div>
-                </div>
-                
-                <h1 className='text-bleuspat font-medium my-2'>Informations professionnelles:</h1>
-                <div className="">
-                  <Input
-                    isRequired
-                    label="Email"
-                    variant="bordered"
-                    className="w-full font-semibold login"
-                    {...register('email', { 
-                      required: 'Email requis', 
-                      pattern: {
-                        value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                        message: 'Entrer un email valide'
-                      }
-                    })}
-                    endContent={
-                      <div className='flex h-full items-center'>
-                        <Image src='/maillog.png' alt="mail" width={20} height={20} className='pointer-events-none'/>
-                      </div>
-                    }
-                    isInvalid={!!errors.email}
-                    errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.email ? errors.email.message : ''}</span>} 
-                  />
-
-                <Autocomplete
-                  variant="bordered"
-                  label="Manager"
-                  placeholder="Sous la subordination de..."
-                  className="w-full font-semibold auto mb-2"
-                  defaultItems={manager}
-                  {...register('idManager')}
-                >
-                  {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
-                </Autocomplete>
-
-                  <div className="flex gap-2">
-                    <Autocomplete
-                      isRequired
-                      variant="bordered"
-                      label="Poste de travail"
-                      placeholder="Recherche de poste"
-                      className="w-full font-semibold auto"
-                      {...register('idposte', { 
-                        required: 'Le poste est requis', 
-                      })}
-                      defaultItems={postes}
-                      isInvalid={!!errors.idposte}
-                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idposte ? errors.idposte.message : ''}</span>}
-                    >
-                      {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
-                    </Autocomplete>
-
-                    <Autocomplete
-                      isRequired
-                      variant="bordered"
-                      label="Etablissement"
-                      placeholder="Direction / Departement"
-                      className="w-full font-semibold auto"
-                      defaultItems={etab}
-                      {...register('idEtablissement', { 
-                        required: "L'etablissement est requis", 
-                      })}
-                      isInvalid={!!errors.idEtablissement}
-                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idEtablissement ? errors.idEtablissement.message : ''}</span>}
-                    >
-                      {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
-                    </Autocomplete>
-                  </div>
-
-                  <div className="flex items-center gap-8 mt-1">
-                    <div className="w-1/2">
-                      <div className={`${essai ? 'bg-gray-100' : ''} group relative border-2 p-2 rounded-xl ${errors.dateEmbauche ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300'}`}>
-                        <label className={`block dark:text-white ${errors.dateEmbauche ? 'text-[#f31260]' : 'text-gray-700'}  text-xs font-semibold`}>
-                          Date d&apos;embauche <span className="text-red-500 text-sm">*</span>
-                        </label>
-                        <div className="">
-                          <input 
-                            disabled={essai}
-                            type="date" 
-                            className="block dark:text-white w-full text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent" 
-                            placeholder="jj-mm-aaaa" 
-                            required 
-                            {...register('dateEmbauche', { 
-                              required: "La date d'embauche est requise", 
-                              setValueAs: (value) => new Date(value),
-                              disabled: essai
-                            })}
-                          />
+                      endContent={
+                        <div className='flex h-full items-center'>
+                          <Image src='/maillog.png' alt="mail" width={20} height={20} className='pointer-events-none'/>
                         </div>
-                      </div>
-                      {errors.dateEmbauche && <span className="flex justify-start text-[#f31260] text-xs text-right font-medium">{errors.dateEmbauche.message}</span>}
+                      }
+                      isInvalid={!!errors.email}
+                      errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.email ? errors.email.message : ''}</span>} 
+                    />
+
+                  <Autocomplete
+                    variant="bordered"
+                    label="Manager"
+                    placeholder="Sous la subordination de..."
+                    className="w-full font-semibold auto mb-2"
+                    defaultItems={manager}
+                    {...register('idManager')}
+                  >
+                    {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+                  </Autocomplete>
+
+                    <div className="flex gap-2">
+                      <Autocomplete
+                        isRequired
+                        variant="bordered"
+                        label="Poste de travail"
+                        placeholder="Recherche de poste"
+                        className="w-full font-semibold auto"
+                        {...register('idposte', { 
+                          required: 'Le poste est requis', 
+                        })}
+                        defaultItems={postes}
+                        isInvalid={!!errors.idposte}
+                        errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idposte ? errors.idposte.message : ''}</span>}
+                      >
+                        {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+                      </Autocomplete>
+
+                      <Autocomplete
+                        isRequired
+                        variant="bordered"
+                        label="Etablissement"
+                        placeholder="Direction / Departement"
+                        className="w-full font-semibold auto"
+                        defaultItems={etab}
+                        {...register('idEtablissement', { 
+                          required: "L'etablissement est requis", 
+                        })}
+                        isInvalid={!!errors.idEtablissement}
+                        errorMessage={<span className="flex justify-start text-[#f31260] text-xs text-right">{errors.idEtablissement ? errors.idEtablissement.message : ''}</span>}
+                      >
+                        {(item) => <AutocompleteItem value={item.value} key={item.value}>{item.label}</AutocompleteItem>}
+                      </Autocomplete>
                     </div>
 
-                    <Checkbox className='w-1/2' {...register("periodeEssai")} onChange={handleCheckboxChange}>En période d&apos;essai</Checkbox>
+                    <div className="flex items-center gap-8 mt-1">
+                      <div className="w-1/2">
+                        <div className={`${essai ? 'bg-gray-100' : ''} group relative border-2 p-2 rounded-xl ${errors.dateEmbauche ? 'border-[#f31260] focus-within:border-[#f31260] focus-within:ring-1 focus-within:ring-[#f31260]' : 'focus-within:border-[#bbcafc] focus-within:ring-1 focus-within:ring-[#bbcafc] border-gray-300'}`}>
+                          <label className={`block dark:text-white ${errors.dateEmbauche ? 'text-[#f31260]' : 'text-gray-700'}  text-xs font-semibold`}>
+                            Date d&apos;embauche <span className="text-red-500 text-sm">*</span>
+                          </label>
+                          <div className="">
+                            <input 
+                              disabled={essai}
+                              type="date" 
+                              className="block dark:text-white w-full text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent" 
+                              placeholder="jj-mm-aaaa" 
+                              required 
+                              {...register('dateEmbauche', { 
+                                required: "La date d'embauche est requise", 
+                                setValueAs: (value) => new Date(value),
+                                disabled: essai
+                              })}
+                            />
+                          </div>
+                        </div>
+                        {errors.dateEmbauche && <span className="flex justify-start text-[#f31260] text-xs text-right font-medium">{errors.dateEmbauche.message}</span>}
+                      </div>
+
+                      <Checkbox className='w-1/2' {...register("periodeEssai")} onChange={handleCheckboxChange}>En période d&apos;essai</Checkbox>
+                    </div>
                   </div>
                 </div>
               </form>

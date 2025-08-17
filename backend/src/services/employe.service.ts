@@ -738,7 +738,7 @@ export class EmployeService {
             select: {
               nom: true,
               prenom: true,
-              idEmploye: true
+              matricule: true
             }
           }
         }
@@ -751,7 +751,7 @@ export class EmployeService {
         sexe: info.sexe,
         CIN: info.CIN,
         email: info.compte.email,
-        manager: info.manager ? info.manager.prenom ? `${info.manager.idEmploye}- ${info.manager.nom} ${info.manager.prenom}` : `${info.manager.idEmploye}- ${info.manager.nom}` : null,
+        manager: info.manager ? info.manager.prenom ? `${info.manager.matricule}- ${info.manager.nom} ${info.manager.prenom}` : `${info.manager.matricule}- ${info.manager.nom}` : null,
         dateEmbauche: info.dateEmbauche,
         periodeEssai: info.periodeEssai,
         etablissement: info.etablissement.section == "Direction" ? `Direct. ${info.etablissement.designEtablissement}` : `Dpt ${info.etablissement.designEtablissement}`,

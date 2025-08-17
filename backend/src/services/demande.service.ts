@@ -1537,6 +1537,7 @@ export class DemandeService {
                 dateFin: true,
                 dateConfirmation: true,
                 dateEnvoie: true,
+                motifRefus: true,
                 statuts: {
                     select: {
                         designStatut: true
@@ -1568,6 +1569,7 @@ export class DemandeService {
             type: demande.type.designType,
             statut: demande.statuts.designStatut,
             nbrJrs: diffDays,
+            motif: demande.motifRefus,
             dateDebut: new Date(demande.dateDebut).toLocaleDateString('fr-FR'),  // Formater la date de début
             dateFin: new Date(demande.dateFin).toLocaleDateString('fr-FR')  // Formater la date de fin
         }});

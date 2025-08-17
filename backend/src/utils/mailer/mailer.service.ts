@@ -11,20 +11,20 @@ export class MailerService {
 
         // local pour les tests
         // const testAccount = await nodemailer.createTestAccount()
-        const transport = nodemailer.createTransport({
-            host: "localhost", // Par exemple, MailHog tourne souvent sur localhost
-            port: 1025,        // Le port de MailHog ou smtp4dev
-            ignoreTLS: false,
-            auth: null
-        });
-
         // const transport = nodemailer.createTransport({
-        //     service: 'gmail',
-        //     auth: {
-        //         user: 'andriamanantena48@gmail.com',  // Remplacez par votre email
-        //         pass: 'rdxvyqlvttexlzov',   // Remplacez par votre mot de passe ou un mot de passe d'application
-        //     },
+        //     host: "localhost", // Par exemple, MailHog tourne souvent sur localhost
+        //     port: 1025,        // Le port de MailHog ou smtp4dev
+        //     ignoreTLS: false,
+        //     auth: null
         // });
+
+        const transport = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'andriamanantena48@gmail.com',  // Remplacez par votre email
+                pass: 'rdxvyqlvttexlzov',   // Remplacez par votre mot de passe ou un mot de passe d'application
+            },
+        });
 
 
         return transport;
@@ -33,8 +33,8 @@ export class MailerService {
     async sendSignupConfirmation(employeEmail: string, nom: string, token: string) {
         const transporter = this.transporter();
         await (await transporter).sendMail({
-            from: "spatDRH@gmail.com",
-            to: employeEmail,
+            from: employeEmail,
+            to: 'elvissy04@gmail.com',
             subject: "Bienvenue dans le système de gestion des congés - SPAT",
             html: `<!DOCTYPE html>
                 <html lang="fr">
@@ -134,8 +134,8 @@ export class MailerService {
         const isApproved = status === "Approuvée";
     
         await (await transporter).sendMail({
-            from: "spatDRH@gmail.com",
-            to: employeEmail,
+            from: employeEmail,
+            to: 'youremail@gmail.com',
             subject: `Réponse à votre demande de congé - ${status}`,
             html: `<!DOCTYPE html>
                 <html lang="fr">
